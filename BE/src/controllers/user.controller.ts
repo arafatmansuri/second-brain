@@ -149,7 +149,21 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
       .cookie("accessToken", accessToken, cookieOptions)
       .cookie("refreshToken", refreshToken, cookieOptions)
       .status(StatusCode.Success)
-      .json({ message: "user data fetched success", user });
+      .json({ message: "Access token refreshed" });
+    return;
+  } catch (err: any) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: err.message || "Something went wrong from ourside" });
+  }
+};
+export const signout: Handler = async (req, res): Promise<void> => {
+  try {
+    res
+      .clearCookie("accessToken")
+      .clearCookie("refreshToken")
+      .status(StatusCode.Success)
+      .json({ message: "user signout success" });
     return;
   } catch (err: any) {
     res
