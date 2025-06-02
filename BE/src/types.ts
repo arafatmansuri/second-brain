@@ -22,11 +22,12 @@ interface ILink {
 export interface ILinkDocument extends ILink, Document {
   deocdeLink: () => string;
 }
-
+// Tags Schema/Interface
 export interface ITags extends Document {
   title: string;
 }
-export interface IContent extends Document {
+// Content Schema/Interface
+export interface IContent {
   link: string;
   type: "image" | "video" | "article" | "audio";
   title: string;
