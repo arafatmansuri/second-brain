@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose, { Schema } from "mongoose";
-import { IUserDocument } from "../types";
-const userSchema: Schema<IUserDocument> = new Schema<IUserDocument>({
+import { IUser, IUserDocument } from "../types";
+const userSchema = new Schema<IUser, IUserDocument>({
   username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
   refreshToken: { type: String },
@@ -14,7 +14,7 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
-userSchema.methods.comparePassword = async function (inputPassword: string) {
+userSchema.methods.comparePassword = function (inputPassword: string) {
   return bcrypt.compareSync(inputPassword, this.password);
 };
 userSchema.methods.generateAccessAndRefreshToken = function (): {
@@ -32,12 +32,19 @@ userSchema.methods.generateAccessAndRefreshToken = function (): {
     { expiresIn: "1d" }
   );
   this.refreshToken = refreshToken;
+  this.save();
   return { accessToken, refreshToken };
 };
 
-const User: mongoose.Model<IUserDocument> = mongoose.model<IUserDocument>(
-  "User",
-  userSchema
-);
+userSchema.statics.isUserExists = async function (
+  username: string
+): Promise<boolean> {
+  const user = await this.findOne({ username: username });
+  if (user) {
+    return true;
+  }
+  return false;
+};
+const User = mongoose.model<IUser, IUserDocument>("User", userSchema);
 
 export default User;
