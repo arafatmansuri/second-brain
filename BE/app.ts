@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
-app.get("check", (req, res) => {
+app.get("/check", (req, res) => {
   res.json({ message: "Working" });
   return;
 });
