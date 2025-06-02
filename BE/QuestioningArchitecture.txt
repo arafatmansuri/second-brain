@@ -1,0 +1,9 @@
+Problem: Answer the questions of user using their content on our App. e.g. webLinks, PDF etc.
+
+Solution: Use OpenAI API and pass the question to it.
+
+More Context: Put all the links data to vectorDB, and while passing/querying the OpenAI API pass the relevant data from vectorDB.
+
+The Embedded query example: `${User_Give_Question} Here's the resources ${relevant data of webLinks}`
+
+must filter out the data relevant data before querying to AI.

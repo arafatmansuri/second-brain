@@ -100,7 +100,7 @@ export const signin: Handler = async (req, res): Promise<void> => {
 };
 export const getUser: Handler = async (req, res): Promise<void> => {
   try {
-    const userId = 123;
+    const userId = req.userId;
     const user = await User.findById<IUserDocument>(userId);
     res
       .status(StatusCode.Success)
