@@ -20,5 +20,5 @@ interface ILink {
 }
 
 export interface ILinkDocument extends ILink, Document {
-  deocdeLink: (linkId: string) => string;
+  deocdeLink: () => string;
 }
