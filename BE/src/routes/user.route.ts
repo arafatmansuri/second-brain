@@ -10,5 +10,7 @@ userRouter.route("/signin").post(signin);
 //Secured Routes
 userRouter.use(verifyJWT);
 userRouter.route("/getuser").get(getUser);
+userRouter.route("/refreshtokens").post();
+userRouter.route("/logout").get();
 
 export default userRouter;

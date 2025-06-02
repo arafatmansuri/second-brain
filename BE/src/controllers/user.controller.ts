@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import { z } from "zod";
 import User from "../models/user.model";
 import { Handler, IUser, IUserDocument, StatusCode } from "../types";
@@ -103,6 +104,50 @@ export const getUser: Handler = async (req, res): Promise<void> => {
     const userId = req.userId;
     const user = await User.findById<IUserDocument>(userId);
     res
+      .status(StatusCode.Success)
+      .json({ message: "user data fetched success", user });
+    return;
+  } catch (err: any) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: err.message || "Something went wrong from ourside" });
+  }
+};
+export const refreshTokens: Handler = async (req, res): Promise<void> => {
+  try {
+    const IRefreshToken = req.cookies?.refreshToken;
+    if (!IRefreshToken) {
+      res
+        .status(StatusCode.Unauthorized)
+        .json({ message: "Refresh token is empty" });
+      return;
+    }
+    const decodedToken = jwt.verify(
+      IRefreshToken,
+      <string>process.env.JWT_REFRESH_TOKEN_SECRET
+    );
+    if (!decodedToken) {
+      res.status(StatusCode.Unauthorized).json({ message: "Unauthorized" });
+      return;
+    }
+    const user = await User.findById<IUserDocument>(decodedToken._id);
+    if (!user) {
+      res
+        .status(StatusCode.Unauthorized)
+        .json({ message: "Invalid refresh Token" });
+      return;
+    }
+    const { accessToken, refreshToken } = user.generateAccessAndRefreshToken();
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: <"none">"none",
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    };
+    res
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
       .status(StatusCode.Success)
       .json({ message: "user data fetched success", user });
     return;
