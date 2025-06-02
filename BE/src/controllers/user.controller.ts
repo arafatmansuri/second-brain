@@ -25,7 +25,8 @@ export const signup: Handler = async (req, res): Promise<void> => {
     if (!userInput.success) {
       res.status(StatusCode.InputError).json({
         message:
-          userInput.error.errors[0].message || "Username/Password required",
+          userInput.error.errors[0].message.replace("String", "Username") ||
+          "Username/Password required",
       });
       return;
     }
@@ -45,6 +46,65 @@ export const signup: Handler = async (req, res): Promise<void> => {
     res
       .status(StatusCode.Success)
       .json({ message: "signup successfull", user });
+    return;
+  } catch (err: any) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: err.message || "Something went wrong from ourside" });
+  }
+};
+export const signin: Handler = async (req, res): Promise<void> => {
+  try {
+    const userInput = userInputSchema.safeParse(req.body);
+    if (!userInput.success) {
+      res.status(StatusCode.InputError).json({
+        message:
+          userInput.error.errors[0].message.replace("String", "Username") ||
+          "Username/Password required",
+      });
+      return;
+    }
+    const user = await User.findOne<IUserDocument>({
+      username: userInput.data.username,
+    });
+    if (!user) {
+      res
+        .status(StatusCode.DocumentExists)
+        .json({ message: "User doesn't exist" });
+      return;
+    }
+    const isPasswordCorrect = user.comparePassword(userInput.data.password);
+    if (!isPasswordCorrect) {
+      res.status(StatusCode.InputError).json({ message: "Invalid password" });
+      return;
+    }
+    const { accessToken, refreshToken } = user.generateAccessAndRefreshToken();
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: <"none">"none",
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    };
+    res
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
+      .status(StatusCode.Success)
+      .json({ message: "signin successfull", user });
+    return;
+  } catch (err: any) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: err.message || "Something went wrong from ourside" });
+  }
+};
+export const getUser: Handler = async (req, res): Promise<void> => {
+  try {
+    const userId = 123;
+    const user = await User.findById<IUserDocument>(userId);
+    res
+      .status(StatusCode.Success)
+      .json({ message: "user data fetched success", user });
     return;
   } catch (err: any) {
     res

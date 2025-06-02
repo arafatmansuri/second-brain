@@ -38,10 +38,10 @@ userSchema.methods.generateAccessAndRefreshToken = function (): {
 
 userSchema.statics.isUserExists = async function (
   username: string
-): Promise<boolean> {
-  const user = await this.findOne({ username: username });
+): Promise<IUserDocument | boolean> {
+  const user = await this.findOne<IUserDocument>({ username: username });
   if (user) {
-    return true;
+    return user;
   }
   return false;
 };

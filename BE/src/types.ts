@@ -12,7 +12,7 @@ export interface IUserDocument extends Model<IUser> {
     accessToken: string;
     refreshToken: string;
   };
-  isUserExists: (username: string) => Promise<boolean>;
+  isUserExists: (username: string) => Promise<boolean | IUserDocument>;
 }
 
 //Links Schema/Interface
