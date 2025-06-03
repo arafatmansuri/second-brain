@@ -17,8 +17,8 @@ contentRouter.route("/display").get(displaySharedContent);
 contentRouter.use(verifyJWT);
 contentRouter.route("/add").post(filterTags, addContent);
 contentRouter.route("/update/:id").put(filterTags, updateContent);
-contentRouter.route("/delete").delete(deleteContent);
+contentRouter.route("/delete/:id").delete(deleteContent);
 contentRouter.route("/display").get(displayContent);
-contentRouter.route("/share").put(shareContent);
+contentRouter.route("/share/:id").put(shareContent);
 
 export default contentRouter;

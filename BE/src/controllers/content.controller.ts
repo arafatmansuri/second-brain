@@ -50,7 +50,28 @@ export const updateContent: Handler = async (req, res): Promise<void> => {
     .json({ message: "Content updated successfully", content });
   return;
 };
-export const deleteContent: Handler = async (req, res): Promise<void> => {};
+export const deleteContent: Handler = async (req, res): Promise<void> => {
+  try {
+    const contentId = req.params.id;
+    const userId = req.userId;
+    const content = await Content.findOneAndDelete({
+      $and: [{ _id: contentId, userId: userId }],
+    });
+    if (!content) {
+      res.status(StatusCode.NotFound).json({ message: "No content found" });
+      return;
+    }
+    res
+      .status(StatusCode.Success)
+      .json({ message: "Content deleted successfully" });
+    return;
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from our side" });
+    return;
+  }
+};
 export const displayContent: Handler = async (req, res): Promise<void> => {};
 export const displaySharedContent: Handler = async (
   req,
