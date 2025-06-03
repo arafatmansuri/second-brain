@@ -9,7 +9,7 @@ function PlusIcon(props:IconProps): ReactElement {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={`${iconSizeVariants[props.size]}`}
+      className={`${iconSizeVariants[props.size || "sm"]}`}
     >
       <path
         strokeLinecap="round"

@@ -7,9 +7,9 @@ function App() {
   return (
     <>
       <Button
-        size="md"
+        size="sm"
         text="Share Brain"
-        startIcon={<ShareIcon size={"lg"} />}
+        startIcon={<ShareIcon />}
         varient="secondary"
       />
       <Button
@@ -17,6 +17,12 @@ function App() {
         text="Add Content"
         varient="primary"
         startIcon={<PlusIcon size={"lg"} />}
+      />
+      <Button
+        size="md"
+        text="Add Content"
+        varient="primary"
+        startIcon={<PlusIcon size={"md"} />}
       />
     </>
   );

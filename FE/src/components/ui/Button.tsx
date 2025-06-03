@@ -13,11 +13,11 @@ const variantStyles = {
   secondary: "bg-purple-300 text-purple-600",
 };
 const sizeStyles = {
-  lg: "py-3 px-6 gap-1",
-  sm: "py-1 px-2",
-  md: "py-2 px-4 gap-2",
+  lg: "py-3 px-6 gap-1 text-lg",
+  sm: "py-2 px-3 gap-2 text-sm",
+  md: "py-2 px-4 gap-2 text-md",
 };
-const defaultStyles = "m-3 rounded-md flex";
+const defaultStyles = "m-3 rounded-md flex items-center";
 function Button(props: ButtonProps) {
   console.log(props.size);
   return (
