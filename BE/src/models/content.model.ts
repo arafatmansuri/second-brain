@@ -6,7 +6,16 @@ const contentSchema = new Schema<IContent>({
   link: { type: String, required: true },
   type: {
     type: String,
-    enum: ["image", "video", "article", "audio"],
+    enum: [
+      "image",
+      "video",
+      "article",
+      "audio",
+      "document",
+      "tweet",
+      "youtube",
+      "link",
+    ],
     required: true,
   },
   title: { type: String, required: true },

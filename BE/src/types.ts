@@ -31,7 +31,15 @@ export interface ITags extends Document {
 // Content Schema/Interface
 export interface IContent {
   link: string;
-  type: "image" | "video" | "article" | "audio";
+  type:
+    | "image"
+    | "video"
+    | "article"
+    | "audio"
+    | "document"
+    | "tweet"
+    | "youtube"
+    | "link";
   title: string;
   tags?: Schema.Types.ObjectId[];
   userId: Schema.Types.ObjectId;
