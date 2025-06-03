@@ -3,18 +3,23 @@ import { z } from "zod";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
 const contentSchema = z.object({
-  link: z.string(),
-  type: z.enum([
-    "image",
-    "video",
-    "article",
-    "audio",
-    "document",
-    "tweet",
-    "youtube",
-    "link",
-  ]),
-  title: z.string().min(3, { message: "title must be atleast 3 characters" }),
+  link: z.string({ message: "link must be a string" }),
+  type: z.enum(
+    [
+      "image",
+      "video",
+      "article",
+      "audio",
+      "document",
+      "tweet",
+      "youtube",
+      "link",
+    ],
+    { message: "Invalid content type" }
+  ),
+  title: z
+    .string({ message: "title must be a string" })
+    .min(3, { message: "title must be atleast 3 characters" }),
   tags: z.string().array(),
 });
 export const filterTags = async (
@@ -26,7 +31,8 @@ export const filterTags = async (
     const contentInput = contentSchema.safeParse(req.body);
     if (!contentInput.success) {
       res.status(StatusCode.InputError).json({
-        message: contentInput.error.message || "Every field is required",
+        message:
+          contentInput.error.errors[0].message || "Every field is required",
       });
       return;
     }
