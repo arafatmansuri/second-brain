@@ -1,8 +1,8 @@
-import { model, Model, Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import { IContent } from "../types";
 import User from "./user.model";
 
-const cotnentSchema: Schema<IContent> = new Schema<IContent>({
+const contentSchema = new Schema<IContent>({
   link: { type: String, required: true },
   type: {
     type: String,
@@ -12,9 +12,10 @@ const cotnentSchema: Schema<IContent> = new Schema<IContent>({
   title: { type: String, required: true },
   tags: [{ type: Schema.Types.ObjectId, ref: "Tags" }],
   userId: { type: Schema.Types.ObjectId, ref: "User" },
+  shared: { type: Boolean, default: false },
 });
 
-cotnentSchema.pre("save", async function (next) {
+contentSchema.pre("save", async function (next) {
   const user = await User.findById(this.userId);
   if (!user) {
     throw new Error("User doesn't exists");
@@ -22,6 +23,6 @@ cotnentSchema.pre("save", async function (next) {
   next();
 });
 
-const Content: Model<IContent> = model<IContent>("Content", cotnentSchema);
+const Content = model<IContent>("Content", contentSchema);
 
 export default Content;

@@ -33,8 +33,9 @@ export interface IContent {
   link: string;
   type: "image" | "video" | "article" | "audio";
   title: string;
-  tags: Schema.Types.ObjectId[];
+  tags?: Schema.Types.ObjectId[];
   userId: Schema.Types.ObjectId;
+  shared?: boolean;
 }
 
 export type Handler = (req: Request, res: Response) => any;
