@@ -1,50 +1,15 @@
-import { Request, Response } from "express";
-import { z } from "zod";
 import Content from "../models/content.model";
-import Tags from "../models/tags.model";
 import { Handler, IContent, StatusCode } from "../types";
-const contentSchema = z.object({
-  link: z.string(),
-  type: z.enum([
-    "image",
-    "video",
-    "article",
-    "audio",
-    "document",
-    "tweet",
-    "youtube",
-    "link",
-  ]),
-  title: z.string().min(3, { message: "title must be atleast 3 characters" }),
-  tags: z.string().array(),
-});
-const getTags = async (req: Request, res: Response) => {
-  const contentInput = contentSchema.safeParse(req.body);
-  if (!contentInput.success) {
-    res.status(StatusCode.InputError).json({
-      message: contentInput.error.message || "Every field is required",
-    });
-    return;
-  }
-  const inputTags = contentInput.data.tags.map((tag) => ({ title: tag }));
-  try {
-    await Tags.insertMany(inputTags, { ordered: false });
-  } catch (err) {}
-  const tags = await Tags.find({
-    title: inputTags.map((tag) => tag.title),
-  });
-  return { tags: tags, contentInput: contentInput };
-};
 export const addContent: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
-    const response = await getTags(req, res);
-    const contentInput = response?.contentInput;
+    const tags = req.tags;
+    const contentInput = req.contentInput;
     const content: IContent = await Content.create({
-      link: contentInput?.data.link,
-      type: contentInput?.data.type,
-      title: contentInput?.data.title,
-      tags: response?.tags.map((tag) => tag._id),
+      link: contentInput.data.link,
+      type: contentInput.data.type,
+      title: contentInput.data.title,
+      tags: tags?.map((tag) => tag._id),
       userId: userId,
     });
     res
@@ -61,8 +26,8 @@ export const addContent: Handler = async (req, res): Promise<void> => {
 export const updateContent: Handler = async (req, res): Promise<void> => {
   const userId = req.userId;
   const contentId = req.params.id;
-  const response = await getTags(req, res);
-  const contentInput = response?.contentInput;
+  const tags = req.tags;
+  const contentInput = req.contentInput;
   const content = await Content.findOneAndUpdate(
     { $and: [{ _id: contentId, userId: userId }] },
     {
@@ -70,10 +35,11 @@ export const updateContent: Handler = async (req, res): Promise<void> => {
         link: contentInput?.data.link,
         type: contentInput?.data.type,
         title: contentInput?.data.title,
-        tags: response?.tags?.map((tag) => tag._id),
+        tags: tags?.map((tag) => tag._id),
         userId: userId,
       },
-    }
+    },
+    { new: true }
   );
   if (!content) {
     res.status(StatusCode.NotFound).json({ message: "content not found" });
