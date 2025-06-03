@@ -15,7 +15,7 @@ contentRouter.route("/display").get(displaySharedContent);
 //Secured Routes:
 contentRouter.use(verifyJWT);
 contentRouter.route("/add").post(addContent);
-contentRouter.route("/update").put(updateContent);
+contentRouter.route("/update/:id").put(updateContent);
 contentRouter.route("/delete").delete(deleteContent);
 contentRouter.route("/display").get(displayContent);
 contentRouter.route("/share").put(shareContent);
