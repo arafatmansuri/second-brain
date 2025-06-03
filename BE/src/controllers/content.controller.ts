@@ -72,9 +72,68 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
     return;
   }
 };
-export const displayContent: Handler = async (req, res): Promise<void> => {};
+export const displayContent: Handler = async (req, res): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const content = await Content.find({ userId: userId });
+    if (!content) {
+      res.status(StatusCode.NotFound).json({ message: "No contents found" });
+      return;
+    }
+    res
+      .status(StatusCode.Success)
+      .json({ message: "contents fetched successfully", content });
+    return;
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from our side" });
+    return;
+  }
+};
 export const displaySharedContent: Handler = async (
   req,
   res
-): Promise<void> => {};
-export const shareContent: Handler = async (req, res): Promise<void> => {};
+): Promise<void> => {
+  try {
+    const contentId = req.query.id;
+    const content = await Content.findOne({ _id: contentId, shared: true });
+    if (!content) {
+      res
+        .status(StatusCode.NotFound)
+        .json({ message: "Content is private/doesn't exists" });
+      return;
+    }
+    res
+      .status(StatusCode.Success)
+      .json({ message: "Shared content found", content });
+    return;
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from our side" });
+    return;
+  }
+};
+export const shareContent: Handler = async (req, res): Promise<void> => {
+  try {
+    const contentId = req.params.contentId;
+    const userId = req.userId;
+    const content = await Content.findOne({ _id: contentId, userId: userId });
+    if (!content) {
+      res.status(StatusCode.NotFound).json({ message: "No content found" });
+      return;
+    }
+    content.shared = !content.shared;
+    content.save({ validateBeforeSave: false });
+    res.status(StatusCode.Success).json({
+      message: `Content set to ${content.shared ? "public" : "private"}`,
+    });
+    return;
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from our side" });
+    return;
+  }
+};
