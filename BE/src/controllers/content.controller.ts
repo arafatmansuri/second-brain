@@ -1,6 +1,8 @@
 import Content from "../models/content.model";
+import Link from "../models/link.model";
 import User from "../models/user.model";
-import { Handler, IContent, StatusCode } from "../types";
+import { Handler, IContent, ILinkDocument, StatusCode } from "../types";
+import { generateHash } from "../utils/generateHash.util";
 export const addContent: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
@@ -100,20 +102,27 @@ export const displaySharedContent: Handler = async (
   res
 ): Promise<void> => {
   try {
-    const contentId = req.query.id;
-    const content = await Content.findOne({ _id: contentId, shared: true });
-    const user = await User.findById(content?.userId).select(
-      "-password -refreshToken"
-    );
-    if (!content) {
+    const hash = req.query.share;
+    const link = await Link.findOne({ hash: hash });
+    if (!link) {
       res
         .status(StatusCode.NotFound)
-        .json({ message: "Content is private/doesn't exists" });
+        .json({ message: "brain is private/doesn't exists" });
       return;
     }
-    res
-      .status(StatusCode.Success)
-      .json({ message: "Shared content found", user, content });
+    const content = await Content.find({ userId: link.userId });
+    const user = await User.findById(link.userId).select(
+      "-password -refreshToken"
+    );
+    if (!user) {
+      res.status(StatusCode.NotFound).json({ message: "User not found" });
+      return;
+    }
+    res.status(StatusCode.Success).json({
+      message: "Shared content found",
+      username: user.username,
+      content,
+    });
     return;
   } catch (err) {
     res
@@ -124,20 +133,25 @@ export const displaySharedContent: Handler = async (
 };
 export const shareContent: Handler = async (req, res): Promise<void> => {
   try {
-    const contentId = req.params.id;
     const userId = req.userId;
-    const content = await Content.findOne({ _id: contentId, userId: userId });
-    if (!content) {
-      res.status(StatusCode.NotFound).json({ message: "No content found" });
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(StatusCode.NotFound).json({ message: "User not found" });
       return;
     }
-    content.shared = !content.shared;
-    content.save({ validateBeforeSave: false });
+    user.shared = !user.shared;
+    let link: ILinkDocument | any = user.shared
+      ? await Link.create({
+          userId: userId,
+          hash: generateHash(10),
+        })
+      : await Link.deleteOne({ userId: userId });
+    user.save({ validateBeforeSave: false });
     res.status(StatusCode.Success).json({
-      message: `Content set to ${content.shared ? "public" : "private"}`,
+      message: `Your brain set to ${user.shared ? "public" : "private"}`,
       link: `${
-        content.shared
-          ? `http://127.0.0.1:3000/api/v1/content/display?id=${contentId}`
+        user.shared
+          ? `http://127.0.0.1:3000/api/v1/content/display?share=${link.hash}`
           : ""
       }`,
     });

@@ -5,6 +5,7 @@ import { IUser, IUserDocument } from "../types";
 const userSchema = new Schema<IUser, IUserDocument>({
   username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
+  shared: { type: Boolean, default: false },
   refreshToken: { type: String },
 });
 userSchema.pre("save", async function (next) {

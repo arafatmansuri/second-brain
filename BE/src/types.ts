@@ -4,6 +4,7 @@ import { Document, Model, Schema } from "mongoose";
 export interface IUser {
   username: string;
   password: string;
+  shared: boolean;
   refreshToken?: string;
 }
 export interface IUserDocument extends Model<IUser> {

@@ -19,6 +19,6 @@ contentRouter.route("/add").post(filterTags, addContent);
 contentRouter.route("/update/:id").put(filterTags, updateContent);
 contentRouter.route("/delete/:id").delete(deleteContent);
 contentRouter.route("/displayall").get(displayContent);
-contentRouter.route("/share/:id").put(shareContent);
+contentRouter.route("/share").put(shareContent);
 
 export default contentRouter;
