@@ -21,7 +21,6 @@ const contentSchema = new Schema<IContent>({
   title: { type: String, required: true },
   tags: [{ type: Schema.Types.ObjectId, ref: "Tags" }],
   userId: { type: Schema.Types.ObjectId, ref: "User" },
-  shared: { type: Boolean, default: false },
 });
 
 contentSchema.pre("save", async function (next) {

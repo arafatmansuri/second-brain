@@ -1,7 +1,7 @@
 import Content from "../models/content.model";
 import Link from "../models/link.model";
 import User from "../models/user.model";
-import { Handler, IContent, ILinkDocument, StatusCode } from "../types";
+import { Handler, IContent, StatusCode } from "../types";
 import { generateHash } from "../utils/generateHash.util";
 export const addContent: Handler = async (req, res): Promise<void> => {
   try {
@@ -140,10 +140,11 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
       return;
     }
     user.shared = !user.shared;
-    let link: ILinkDocument | any = user.shared
+    const hash: string = generateHash(10);
+    user.shared
       ? await Link.create({
           userId: userId,
-          hash: generateHash(10),
+          hash: hash,
         })
       : await Link.deleteOne({ userId: userId });
     user.save({ validateBeforeSave: false });
@@ -151,7 +152,7 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
       message: `Your brain set to ${user.shared ? "public" : "private"}`,
       link: `${
         user.shared
-          ? `http://127.0.0.1:3000/api/v1/content/display?share=${link.hash}`
+          ? `http://127.0.0.1:3000/api/v1/content/display?share=${hash}`
           : ""
       }`,
     });

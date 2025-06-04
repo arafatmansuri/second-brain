@@ -44,7 +44,6 @@ export interface IContent {
   title: string;
   tags?: Schema.Types.ObjectId[];
   userId: Schema.Types.ObjectId;
-  shared?: boolean;
 }
 
 export type Handler = (req: Request, res: Response) => any;
