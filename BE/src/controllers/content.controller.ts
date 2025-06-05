@@ -1,8 +1,15 @@
+import { Schema } from "mongoose";
 import Content from "../models/content.model";
 import Link from "../models/link.model";
 import User from "../models/user.model";
 import { Handler, IContent, StatusCode } from "../types";
 import { generateHash } from "../utils/generateHash.util";
+interface userLinkSchema {
+  _id: Schema.Types.ObjectId;
+  hash: string;
+  userId: { _id: Schema.Types.ObjectId; username: string };
+  __v: number;
+}
 export const addContent: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
@@ -103,7 +110,9 @@ export const displaySharedContent: Handler = async (
 ): Promise<void> => {
   try {
     const hash = req.query.share;
-    const link = await Link.findOne({ hash: hash });
+    const link = await Link.findOne({ hash: hash })
+      .lean()
+      .populate("userId", "username");
     if (!link) {
       res
         .status(StatusCode.NotFound)
@@ -111,16 +120,11 @@ export const displaySharedContent: Handler = async (
       return;
     }
     const content = await Content.find({ userId: link.userId });
-    const user = await User.findById(link.userId).select(
-      "-password -refreshToken"
-    );
-    if (!user) {
-      res.status(StatusCode.NotFound).json({ message: "User not found" });
-      return;
-    }
+    //@ts-ignore
+    const userLink: userLinkSchema = link;
     res.status(StatusCode.Success).json({
       message: "Shared content found",
-      username: user.username,
+      username: userLink.userId.username,
       content,
     });
     return;
