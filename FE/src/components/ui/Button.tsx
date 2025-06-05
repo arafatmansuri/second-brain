@@ -4,27 +4,26 @@ export interface ButtonProps {
   varient: "primary" | "secondary";
   size: "sm" | "md" | "lg";
   text: string;
-  startIcon?: ReactElement; //React element instead any
+  startIcon?: ReactElement;
   endIcon?: ReactElement;
   onClick?: () => void;
 }
 const variantStyles = {
   primary: "bg-purple-600 text-white",
-  secondary: "bg-purple-300 text-purple-600",
+  secondary: "bg-purple-200 text-purple-500",
 };
 const sizeStyles = {
   lg: "py-3 px-6 gap-1 text-lg",
-  sm: "py-2 px-3 gap-2 text-sm",
-  md: "py-2 px-4 gap-2 text-md",
+  sm: "h-9 px-3 gap-1 text-sm",
+  md: "h-10 px-4 gap-2 text-md",
 };
-const defaultStyles = "m-3 rounded-md flex items-center";
+const defaultStyles = "rounded-md flex items-center cursor-pointer";
 function Button(props: ButtonProps) {
   console.log(props.size);
   return (
     <button
       className={`${defaultStyles} ${variantStyles[props.varient]} 
-      ${sizeStyles[props.size]}
-        `}
+      ${sizeStyles[props.size]}`}
       onClick={props.onClick}
     >
       {props.startIcon}
