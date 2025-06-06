@@ -9,7 +9,7 @@ function ShareIcon(props:IconProps): ReactElement {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={`${iconSizeVariants[props.size || "sm"]}`}
+      className={`${iconSizeVariants[props.size || "sm"]} hover:text-blue-800`}
     >
       <path
         strokeLinecap="round"

@@ -7,27 +7,30 @@ export interface ButtonProps {
   startIcon?: ReactElement;
   endIcon?: ReactElement;
   onClick?: () => void;
+  widthFull?: boolean;
+  loading?: boolean;
 }
 const variantStyles = {
   primary: "bg-purple-600 text-white",
   secondary: "bg-purple-200 text-purple-500",
 };
 const sizeStyles = {
-  lg: "py-3 px-6 gap-1 text-lg",
+  lg: "py-2 px-5 gap-1 text-lg",
   sm: "h-9 px-3 gap-1 text-sm",
-  md: "h-10 px-4 gap-2 text-md",
+  md: "md:h-10 md:px-4 h-8 px-1 gap-2 md:text-md text-sm",
 };
 const defaultStyles = "rounded-md flex items-center cursor-pointer";
 function Button(props: ButtonProps) {
-  console.log(props.size);
   return (
     <button
       className={`${defaultStyles} ${variantStyles[props.varient]} 
-      ${sizeStyles[props.size]}`}
+      ${sizeStyles[props.size]} ${
+        props.widthFull && "w-full flex items-center justify-center"
+      }`}
       onClick={props.onClick}
     >
       {props.startIcon}
-      <span>{props.text}</span>
+      <span className="hidden md:inline-block">{props.text}</span>
       {props.endIcon}
     </button>
   );
