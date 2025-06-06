@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRecoilState } from "recoil";
 import PlusIcon from "../components/icons/PlusIcon";
 import ShareIcon from "../components/icons/ShareIcon";
 import Button from "../components/ui/Button";
@@ -6,8 +6,11 @@ import Card from "../components/ui/Card";
 import CreateContentModal from "../components/ui/CreateContentModal";
 import MenuButton from "../components/ui/MenuButton";
 import Sidebar from "../components/ui/Sidebar";
+import { useMediaQuery } from "../hooks/useMediaQuery";
+import { addContentModalAtom } from "../store/AddContentModalState";
 function Dashboard() {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
+  const isDesktop: boolean = useMediaQuery("(min-width:768px)");
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -24,6 +27,8 @@ function Dashboard() {
               text="Share Brain"
               startIcon={<ShareIcon />}
               varient="secondary"
+              textVisible={isDesktop}
+              classes="hover:text-blue-800"
             />
             <Button
               size="md"
@@ -31,6 +36,7 @@ function Dashboard() {
               varient="primary"
               startIcon={<PlusIcon size={"md"} />}
               onClick={() => setModalOpen(true)}
+              textVisible={isDesktop}
             />
             <MenuButton />
           </div>
@@ -53,10 +59,7 @@ function Dashboard() {
           />
         </section>
       </div>
-      <CreateContentModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      <CreateContentModal onClose={() => setModalOpen(false)} />
     </div>
   );
 }

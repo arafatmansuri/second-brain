@@ -1,9 +1,10 @@
-import Signup from "./Pages/Signup";
+import Dashboard from "./Pages/Dashboard";
+import Signin from "./Pages/Signin";
 
 function App() {
   return (
     <div>
-      <Signup />
+      <Signin />
     </div>
   );
 }
