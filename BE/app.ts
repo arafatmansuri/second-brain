@@ -1,12 +1,24 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import userRouter from "./src/routes/user.route";
 import contentRouter from "./src/routes/content.route";
+import userRouter from "./src/routes/user.route";
 const app = express();
 
+const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (allowedOrigins.indexOf(<string>origin) !== -1 || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Allow cookies
+  })
+);
 app.use(cookieParser());
 
 app.get("/check", (req, res) => {
