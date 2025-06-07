@@ -1,4 +1,5 @@
 import axios from "axios";
+import type React from "react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Brain from "../components/icons/Brain";
@@ -6,10 +7,12 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import { BACKEND_URL } from "../config";
 function Signup() {
-  //@ts-ignore
-  const usernameRef = useRef<any>();
-  //@ts-ignore
-  const passwordRef = useRef<any>();
+  const usernameRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
+    <input type="text" />
+  );
+  const passwordRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
+    <input type="text" />
+  );
   const navigate = useNavigate();
   async function signup() {
     const username = usernameRef.current?.value;

@@ -3,6 +3,9 @@ import { z } from "zod";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
 const contentSchema = z.object({
+  title: z
+    .string({ message: "title must be a string" })
+    .min(3, { message: "title must be atleast 3 characters" }),
   link: z.string({ message: "link must be a string" }),
   type: z.enum(
     [
@@ -17,9 +20,6 @@ const contentSchema = z.object({
     ],
     { message: "Invalid content type" }
   ),
-  title: z
-    .string({ message: "title must be a string" })
-    .min(3, { message: "title must be atleast 3 characters" }),
   tags: z.string().array(),
 });
 export const filterTags = async (

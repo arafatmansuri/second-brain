@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Brain from "../components/icons/Brain";
 import Button from "../components/ui/Button";
@@ -7,8 +7,12 @@ import Input from "../components/ui/Input";
 import { BACKEND_URL } from "../config";
 
 function Signin() {
-  const usernameRef = useRef<any>();
-  const passwordRef = useRef<any>();
+  const usernameRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
+    <input type="text" />
+  );
+  const passwordRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
+    <input type="text" />
+  );
   const navigate = useNavigate();
   async function signin() {
     const username = usernameRef.current?.value;
@@ -35,7 +39,7 @@ function Signin() {
           <Input placeholder="Password" reference={passwordRef} />
           <Button
             varient="primary"
-            text="Signup"
+            text="Signin"
             size="lg"
             widthFull={true}
             onClick={signin}

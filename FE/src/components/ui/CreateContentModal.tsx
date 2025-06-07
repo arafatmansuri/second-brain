@@ -1,16 +1,19 @@
 import axios from "axios";
 import React, { useRef } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { BACKEND_URL } from "../../config";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { loadingAtom } from "../../store/loadingState";
+import { postAtom } from "../../store/postState";
 import { userAtom } from "../../store/userState";
 import CrossIcon from "../icons/CrossIcon";
 import Button from "./Button";
 import Input from "./Input";
+import Select from "./Select";
 //controlled component
-function CreateContentModal({ onClose }: { onClose: () => void }) {
+function CreateContentModal() {
   const user = useRecoilValue(userAtom);
+  const setPosts = useSetRecoilState(postAtom);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const [isLoading, setIsLoading] = useRecoilState(loadingAtom);
   const titleRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
@@ -20,31 +23,44 @@ function CreateContentModal({ onClose }: { onClose: () => void }) {
     <input type="text" />
   );
   const typeRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
-    <input type="text" />
+    <select value={"select"}></select>
   );
+  function onClose() {
+    setIsLoading(false);
+    setIsModalOpen(false);
+    titleRef.current.value = "";
+    linkRef.current.value = "";
+    typeRef.current.value = "select";
+  }
   async function addContent() {
     setIsLoading(true);
     const title = titleRef.current?.value;
     const link = linkRef.current?.value;
     const type = typeRef.current?.value;
-    await axios.post(
-      `${BACKEND_URL}/api/v1/content/add`,
-      {
-        title: title?.toString(),
-        link: link?.toString(),
-        type: type?.toString(),
-        tags: [],
-        userId: user._id,
-      },
-      { withCredentials: true }
-    );
-    setTimeout(() => {
+    try {
+      const post = await axios.post(
+        `${BACKEND_URL}/api/v1/content/add`,
+        {
+          title: title?.toString(),
+          link: link?.toString(),
+          type: type?.toString(),
+          tags: [],
+          userId: user?._id,
+        },
+        { withCredentials: true }
+      );
+      setPosts((prev) => [...prev, post.data.content]);
+      setTimeout(() => {
+        setIsLoading(false);
+        setIsModalOpen(false);
+        titleRef.current.value = "";
+        linkRef.current.value = "";
+        typeRef.current.value = "select";
+      }, 500);
+    } catch (err: any) {
       setIsLoading(false);
-      setIsModalOpen(false);
-      titleRef.current.value = "";
-      linkRef.current.value = "";
-      typeRef.current.value = "";
-    }, 500);
+      console.log(err.response.data.message);
+    }
   }
 
   return (
@@ -63,7 +79,7 @@ function CreateContentModal({ onClose }: { onClose: () => void }) {
         <div className="flex flex-col gap-2 w-full">
           <Input reference={titleRef} placeholder="Title" />
           <Input reference={linkRef} placeholder="Link" />
-          <Input reference={typeRef} placeholder="Type" />
+          <Select reference={typeRef} />
         </div>
         <Button
           onClick={addContent}
