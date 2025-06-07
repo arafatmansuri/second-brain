@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Brain from "../components/icons/Brain";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
@@ -8,12 +9,11 @@ import { BACKEND_URL } from "../config";
 function Signin() {
   const usernameRef = useRef<any>();
   const passwordRef = useRef<any>();
+  const navigate = useNavigate();
   async function signin() {
     const username = usernameRef.current?.value;
     const password = passwordRef.current?.value;
-    console.log(username);
-    console.log(password);
-    const response = await axios.post(
+    await axios.post(
       `${BACKEND_URL}/api/v1/user/signin`,
       {
         username: username,
@@ -21,9 +21,7 @@ function Signin() {
       },
       { withCredentials: true }
     );
-    console.log(response);
-    const dashLocation = location.origin + "/Dashboard";
-    location.href = dashLocation;
+    navigate("/Dashboard");
   }
   return (
     <div className="h-screen w-screen bg-gray-200 flex flex-col justify-center items-center">

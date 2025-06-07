@@ -1,4 +1,4 @@
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import PlusIcon from "../components/icons/PlusIcon";
 import ShareIcon from "../components/icons/ShareIcon";
 import Button from "../components/ui/Button";
@@ -8,18 +8,25 @@ import MenuButton from "../components/ui/MenuButton";
 import Sidebar from "../components/ui/Sidebar";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { addContentModalAtom } from "../store/AddContentModalState";
+import { postAtom } from "../store/postState";
+import { userAtom } from "../store/userState";
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
   const isDesktop: boolean = useMediaQuery("(min-width:768px)");
+  const user = useRecoilValue(userAtom);
+  const posts = useRecoilValue(postAtom);
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <div
-        className={`bg-gray-100 md:w-[80%] p-5 w-full ${
+        className={`bg-gray-100 md:w-[80%] p-3 w-full ${
           modalOpen && "bg-slate-500 opacity-40"
         }`}
       >
-        <div className="flex justify-between items-center w-full mb-8 md:pr-5 md:pl-5">
+        <h1 className="font-bold text-2xl mb-3 md:pr-5 md:pl-6 text-purple-500">
+          Welcome, {user?.username}{" "}
+        </h1>
+        <div className="flex justify-between items-center w-full mb-6 md:pr-5 md:pl-6">
           <h1 className="font-bold text-xl">All Notes</h1>
           <div className="flex gap-2">
             <Button
@@ -42,21 +49,14 @@ function Dashboard() {
           </div>
         </div>
         <section className="flex gap-y-5 md:flex-row flex-col w-full flex-wrap md:items-start gap-5 justify-center items-center">
-          <Card
-            title="Project Idea"
-            link="https://www.youtube.com/watch?v=0KlnSdvsojc"
-            type="youtube"
-          />
-          <Card
-            title="VS tweet"
-            link="https://x.com/e_opore/status/1930378577431933064"
-            type="tweet"
-          />
-          <Card
-            title="VS tweet"
-            link="https://x.com/e_opore/status/1930378577431933064"
-            type="tweet"
-          />
+          {posts?.map((post) => (
+            <Card
+              title={post.title}
+              link={post.link}
+              type={post.type}
+              key={post._id}
+            />
+          ))}
         </section>
       </div>
       <CreateContentModal onClose={() => setModalOpen(false)} />

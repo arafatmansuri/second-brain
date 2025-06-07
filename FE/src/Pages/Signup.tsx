@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Brain from "../components/icons/Brain";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
@@ -9,6 +10,7 @@ function Signup() {
   const usernameRef = useRef<any>();
   //@ts-ignore
   const passwordRef = useRef<any>();
+  const navigate = useNavigate();
   async function signup() {
     const username = usernameRef.current?.value;
     const password = passwordRef.current?.value;
@@ -18,7 +20,7 @@ function Signup() {
       username: username,
       password: password,
     });
-    alert("You have signed up");
+    navigate("/signin");
   }
   return (
     <div className="h-screen w-screen bg-gray-200 flex flex-col justify-center items-center">
