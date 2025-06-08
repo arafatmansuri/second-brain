@@ -21,7 +21,7 @@ function Card({ title, link, type, id }: CardProps) {
       `${BACKEND_URL}/api/v1/content/delete/${currentPostId}`,
       { withCredentials: true }
     );
-    setPosts((prev) => prev.filter((post) => post._id != currentPostId));
+    setPosts((prev) => prev?.filter((post) => post._id != currentPostId));
     console.log("Delete Success");
   }
   return (

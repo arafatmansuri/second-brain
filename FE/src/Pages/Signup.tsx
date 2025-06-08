@@ -21,10 +21,10 @@ function Signup() {
     signupMutation.mutate({ username, password, endpoint: "signup" });
   }
   useEffect(() => {
-    if (!signupMutation.isLoading && !signupMutation.error) {
+    if (!signupMutation.isLoading && signupMutation.isSuccess) {
       navigate("/signin");
     }
-  }, [navigate, signupMutation.error, signupMutation.isLoading]);
+  }, [navigate, signupMutation.isSuccess, signupMutation.isLoading]);
   return (
     <div className="h-screen w-screen bg-gray-200 flex flex-col justify-center items-center">
       <div className="flex items-center gap-1 mb-5 fixed top-0 left-0 m-3">

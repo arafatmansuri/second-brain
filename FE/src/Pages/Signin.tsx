@@ -26,10 +26,10 @@ function Signin() {
     });
   }
   useEffect(() => {
-    if (!signinMutation.isLoading && !signinMutation.error) {
+    if (!signinMutation.isLoading && signinMutation.isSuccess) {
       navigate("/dashboard");
     }
-  }, [navigate, signinMutation.error, signinMutation.isLoading]);
+  }, [signinMutation.isSuccess, signinMutation.isLoading, navigate]);
   return (
     <div className="h-screen w-screen bg-gray-200 flex flex-col justify-center items-center">
       <div className="flex items-center gap-1 mb-5 fixed top-0 left-0 m-3">

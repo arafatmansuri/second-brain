@@ -152,7 +152,7 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
     return;
   } catch (err: any) {
     res
-      .status(StatusCode.ServerError)
+      .status(StatusCode.Unauthorized)
       .json({ message: err.message || "Something went wrong from ourside" });
   }
 };

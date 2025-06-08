@@ -1,8 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../../config";
 
-type UserData = {
+export type UserData = {
   _id: string;
   username: string | undefined;
   password: string | undefined;
@@ -11,25 +12,27 @@ type UserData = {
   refreshToken?: string;
 };
 type UserFormData = {
-  username: string | undefined;
-  password: string | undefined;
+  username?: string | undefined;
+  password?: string | undefined;
   credentials?: boolean;
-  endpoint: string;
+  endpoint?: string;
+  method?: "GET" | "POST" | "DELETE" | "PUT";
 };
 const authUser = async ({
   username,
   password,
   credentials,
-  endpoint
+  endpoint,
+  method,
 }: UserFormData): Promise<UserData> => {
-  const user = await axios.post(
-    `${BACKEND_URL}/api/v1/user/${endpoint}`,
-    {
+  const user = await axios(`${BACKEND_URL}/api/v1/user/${endpoint}`, {
+    method: method,
+    data: {
       username,
       password,
     },
-    { withCredentials: credentials }
-  );
+    withCredentials: credentials,
+  });
   return user.data.user;
 };
 export const useAuthMutation = () =>
@@ -38,9 +41,10 @@ export const useAuthMutation = () =>
       username,
       password,
       credentials = false,
-      endpoint
+      endpoint,
+      method = "POST",
     }: UserFormData): Promise<UserData> =>
-      await authUser({ username, password, credentials,endpoint }),
+      await authUser({ username, password, credentials, endpoint, method }),
     {
       onError: (error: any) => {
         if (!error.response) {
@@ -49,3 +53,35 @@ export const useAuthMutation = () =>
       },
     }
   );
+
+export const useUserQuery = () => {
+  const user = useQuery({
+    queryKey: ["userQuery"],
+    queryFn: async ({ credentials = true }: UserFormData) => {
+      return await authUser({
+        credentials,
+        endpoint: "getuser",
+        method: "GET",
+      });
+    },
+  });
+  return user;
+};
+
+export const useRefreshTokenMutation = () => {
+  const navigate = useNavigate();
+  return useMutation(
+    async () => {
+      await authUser({
+        credentials: true,
+        endpoint: "refreshtokens",
+        method: "POST",
+      });
+    },
+    {
+      onError: () => {
+        navigate("/signin");
+      },
+    }
+  );
+};
