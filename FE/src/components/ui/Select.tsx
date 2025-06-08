@@ -7,6 +7,7 @@ function Select({ reference }: { reference?: any }) {
     >
       {contentTypes.map((type) => (
         <option
+          key={type}
           value={type}
           disabled={type == "select"}
           className=""

@@ -57,16 +57,15 @@ export const signup: Handler = async (req, res): Promise<void> => {
 };
 export const signin: Handler = async (req, res): Promise<void> => {
   try {
-    const userInput = userInputSchema.safeParse(req.body);
-    if (!userInput.success) {
+    const { username, password } = req.body;
+    if ([username, password].some((value) => value === "")) {
       res.status(StatusCode.InputError).json({
-        message:
-          userInput.error.errors[0].message || "Username/Password required",
+        message: "Username/Password required",
       });
       return;
     }
     const user = await User.findOne<IUserDocument>({
-      username: userInput.data.username,
+      username: username,
     });
     if (!user) {
       res
@@ -74,7 +73,7 @@ export const signin: Handler = async (req, res): Promise<void> => {
         .json({ message: "User doesn't exist" });
       return;
     }
-    const isPasswordCorrect = user.comparePassword(userInput.data.password);
+    const isPasswordCorrect = user.comparePassword(password);
     if (!isPasswordCorrect) {
       res.status(StatusCode.InputError).json({ message: "Invalid password" });
       return;
