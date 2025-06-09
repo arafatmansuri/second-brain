@@ -1,8 +1,5 @@
-import axios from "axios";
 import type React from "react";
-import { useSetRecoilState } from "recoil";
-import { BACKEND_URL } from "../../config";
-import { postAtom } from "../../store/postState";
+import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import ShareIcon from "../icons/ShareIcon";
 import TrashIcon from "../icons/TrashIcon";
 import TwitterIcon from "../icons/Twitter";
@@ -14,16 +11,23 @@ interface CardProps {
   id: string;
 }
 function Card({ title, link, type, id }: CardProps) {
-  const setPosts = useSetRecoilState(postAtom);
+  // const setPosts = useSetRecoilState(postAtom);
+  const deletePostMutation = usePostMutation();
   async function deletePost(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
     const currentPostId = e.currentTarget.id;
-    await axios.delete(
-      `${BACKEND_URL}/api/v1/content/delete/${currentPostId}`,
-      { withCredentials: true }
-    );
-    setPosts((prev) => prev?.filter((post) => post._id != currentPostId));
-    console.log("Delete Success");
+    deletePostMutation.mutate({
+      method: "DELETE",
+      endpoint: `delete/${currentPostId}`,
+    });
   }
+  // useEffect(() => {
+  //   if (deletePostMutation.status == "success") {
+  //     // setPosts((prev) =>
+  //     //   prev?.filter((post) => post._id != deletePostMutation.data._id)
+  //     // );
+  //     console.log(deletePostMutation);
+  //   }
+  // }, [deletePostMutation, deletePostMutation.data, deletePostMutation?.data?._id, deletePostMutation.status, setPosts]);
   return (
     <div className="bg-white rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 md:w-[30%] w-[80%]">
       <div className="flex justify-between items-center">

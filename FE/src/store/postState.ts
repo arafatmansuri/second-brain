@@ -10,4 +10,5 @@ export interface PostData {
 }
 export const postAtom = atom<PostData[]>({
   key: "postAtom",
+  default:[]
 });

@@ -1,7 +1,12 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../../config";
+import type { userData } from "../../store/userState";
 
 export type UserData = {
   _id: string;
@@ -18,13 +23,13 @@ type UserFormData = {
   endpoint?: string;
   method?: "GET" | "POST" | "DELETE" | "PUT";
 };
-const authUser = async ({
+const authUser = async <T>({
   username,
   password,
   credentials,
   endpoint,
   method,
-}: UserFormData): Promise<UserData> => {
+}: UserFormData): Promise<T> => {
   const user = await axios(`${BACKEND_URL}/api/v1/user/${endpoint}`, {
     method: method,
     data: {
@@ -35,6 +40,21 @@ const authUser = async ({
   });
   return user.data.user;
 };
+
+export const useUserQuery = (): UseQueryResult<userData, unknown> => {
+  const user: UseQueryResult<userData, unknown> = useQuery({
+    queryKey: ["userQuery"],
+    queryFn: async ({ credentials = true }: UserFormData) => {
+      return await authUser<UserData>({
+        credentials,
+        endpoint: "getuser",
+        method: "GET",
+      });
+    },
+  });
+  return user;
+};
+
 export const useAuthMutation = () =>
   useMutation(
     async ({
@@ -53,20 +73,6 @@ export const useAuthMutation = () =>
       },
     }
   );
-
-export const useUserQuery = () => {
-  const user = useQuery({
-    queryKey: ["userQuery"],
-    queryFn: async ({ credentials = true }: UserFormData) => {
-      return await authUser({
-        credentials,
-        endpoint: "getuser",
-        method: "GET",
-      });
-    },
-  });
-  return user;
-};
 
 export const useRefreshTokenMutation = () => {
   const navigate = useNavigate();

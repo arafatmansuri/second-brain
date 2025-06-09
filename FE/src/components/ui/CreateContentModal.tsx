@@ -1,13 +1,12 @@
-import axios from "axios";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { BACKEND_URL } from "../../config";
+import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
-import { loadingAtom } from "../../store/loadingState";
 import { postAtom } from "../../store/postState";
 import { userAtom } from "../../store/userState";
 import CrossIcon from "../icons/CrossIcon";
 import Button from "./Button";
+import ErrorBox from "./ErrorBox";
 import Input from "./Input";
 import Select from "./Select";
 //controlled component
@@ -15,7 +14,7 @@ function CreateContentModal() {
   const user = useRecoilValue(userAtom);
   const setPosts = useSetRecoilState(postAtom);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
-  const [isLoading, setIsLoading] = useRecoilState(loadingAtom);
+  // const [isLoading, setIsLoading] = useRecoilState(loadingAtom);
   const titleRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
     <input type="text" />
   );
@@ -25,44 +24,43 @@ function CreateContentModal() {
   const typeRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
     <select value={"select"}></select>
   );
+  const addPostMutation = usePostMutation();
   function onClose() {
-    setIsLoading(false);
     setIsModalOpen(false);
     titleRef.current.value = "";
     linkRef.current.value = "";
     typeRef.current.value = "select";
   }
   async function addContent() {
-    setIsLoading(true);
-    const title = titleRef.current?.value;
-    const link = linkRef.current?.value;
-    const type = typeRef.current?.value;
-    try {
-      const post = await axios.post(
-        `${BACKEND_URL}/api/v1/content/add`,
-        {
-          title: title?.toString(),
-          link: link?.toString(),
-          type: type?.toString(),
-          tags: [],
-          userId: user?._id,
-        },
-        { withCredentials: true }
-      );
-      setPosts((prev) => [...prev, post.data.content]);
+    const title = titleRef.current?.value?.toString();
+    const link = linkRef.current?.value?.toString();
+    const type = typeRef.current?.value?.toString();
+    addPostMutation.mutate({
+      method: "POST",
+      endpoint: "add",
+      data: {
+        link: link,
+        title: title,
+        type: type,
+        userId: user._id,
+        tags: [],
+      },
+    });
+  }
+  useEffect(() => {
+    typeRef.current.value = "select";
+  }, []);
+  useEffect(() => {
+    if (addPostMutation.status == "success") {
+      setPosts((prev) => [...prev, addPostMutation.data]);
       setTimeout(() => {
-        setIsLoading(false);
         setIsModalOpen(false);
         titleRef.current.value = "";
         linkRef.current.value = "";
         typeRef.current.value = "select";
       }, 500);
-    } catch (err: any) {
-      setIsLoading(false);
-      console.log(err.response.data.message);
     }
-  }
-
+  }, [addPostMutation.data, addPostMutation.status, setIsModalOpen, setPosts]);
   return (
     <div
       className={`${isModalOpen ? "flex" : "hidden"} w-screen h-screen
@@ -81,6 +79,9 @@ function CreateContentModal() {
           <Input reference={linkRef} placeholder="Link" />
           <Select reference={typeRef} />
         </div>
+        {addPostMutation.isError && (
+          <ErrorBox errorMessage={addPostMutation?.error?.response.message} />
+        )}
         <Button
           onClick={addContent}
           varient="primary"
@@ -88,7 +89,7 @@ function CreateContentModal() {
           size="md"
           textVisible={true}
           widthFull={true}
-          loading={isLoading}
+          loading={addPostMutation.isLoading}
         />
       </div>
     </div>
