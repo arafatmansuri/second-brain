@@ -1,4 +1,10 @@
-function Input({ placeholder, reference }: { placeholder?: string; reference?: any }) {
+export function Input({
+  placeholder,
+  reference,
+}: {
+  placeholder?: string;
+  reference?: any;
+}) {
   return (
     <input
       type="text"
@@ -8,5 +14,3 @@ function Input({ placeholder, reference }: { placeholder?: string; reference?: a
     />
   );
 }
-
-export default Input;

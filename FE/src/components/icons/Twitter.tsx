@@ -1,4 +1,4 @@
-function TwitterIcon() {
+export function TwitterIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -13,5 +13,3 @@ function TwitterIcon() {
     </svg>
   );
 }
-
-export default TwitterIcon;

@@ -1,5 +1,5 @@
 const contentTypes = ["select", "youtube", "tweet"];
-function Select({ reference }: { reference?: any }) {
+export function Select({ reference }: { reference?: any }) {
   return (
     <select
       ref={reference}
@@ -18,5 +18,3 @@ function Select({ reference }: { reference?: any }) {
     </select>
   );
 }
-
-export default Select;

@@ -1,10 +1,7 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Brain from "../components/icons/Brain";
-import Button from "../components/ui/Button";
-import ErrorBox from "../components/ui/ErrorBox";
-import Input from "../components/ui/Input";
+import { icons, ui } from "../components";
 import { useAuthMutation } from "../queries/AuthQueries/queries";
 function Signup() {
   const usernameRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
@@ -28,15 +25,15 @@ function Signup() {
   return (
     <div className="h-screen w-screen bg-gray-200 flex flex-col justify-center items-center">
       <div className="flex items-center gap-1 mb-5 fixed top-0 left-0 m-3">
-        <Brain /> <h1 className="font-bold text-xl">Second Brain</h1>
+        <icons.Brain /> <h1 className="font-bold text-xl">Second Brain</h1>
       </div>
       <div className="bg-white rounded border min-w-96 flex items-center flex-col pb-4 pr-9 pl-9 pt-4 gap-5 border-gray-300 shadow">
         <h1 className="font-bold text-2xl text-purple-800">Signup</h1>
         <div className="flex items-center flex-col gap-3 w-full">
-          <Input placeholder="Username" reference={usernameRef} />
-          <Input placeholder="Password" reference={passwordRef} />
+          <ui.Input placeholder="Username" reference={usernameRef} />
+          <ui.Input placeholder="Password" reference={passwordRef} />
           {signupMutation.error ? (
-            <ErrorBox
+            <ui.ErrorBox
               errorMessage={
                 signupMutation.error.response?.data?.message
                   ? signupMutation.error.response.data.message
@@ -46,7 +43,7 @@ function Signup() {
           ) : (
             ""
           )}
-          <Button
+          <ui.Button
             varient="primary"
             text="Signup"
             loading={signupMutation.isLoading}

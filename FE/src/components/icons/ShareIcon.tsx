@@ -1,7 +1,7 @@
 import { type ReactElement } from "react";
 import { iconSizeVariants, type IconProps } from ".";
 
-function ShareIcon(props:IconProps): ReactElement {
+export function ShareIcon(props: IconProps): ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -19,5 +19,3 @@ function ShareIcon(props:IconProps): ReactElement {
     </svg>
   );
 }
-
-export default ShareIcon;

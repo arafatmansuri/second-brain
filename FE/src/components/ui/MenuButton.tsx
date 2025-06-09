@@ -1,11 +1,9 @@
-import Menu from "../icons/Menu";
+import { Menu } from "../icons";
 
-function MenuButton() {
+export function MenuButton() {
   return (
     <div className="md:hidden flex items-center cursor-pointer">
       <Menu />
     </div>
   );
 }
-
-export default MenuButton;

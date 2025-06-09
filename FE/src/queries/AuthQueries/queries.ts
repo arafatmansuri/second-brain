@@ -4,7 +4,6 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../../config";
 import type { userData } from "../../store/userState";
 
@@ -51,6 +50,7 @@ export const useUserQuery = (): UseQueryResult<userData, unknown> => {
         method: "GET",
       });
     },
+    retry: false,
   });
   return user;
 };
@@ -75,19 +75,11 @@ export const useAuthMutation = () =>
   );
 
 export const useRefreshTokenMutation = () => {
-  const navigate = useNavigate();
-  return useMutation(
-    async () => {
-      await authUser({
-        credentials: true,
-        endpoint: "refreshtokens",
-        method: "POST",
-      });
-    },
-    {
-      onError: () => {
-        navigate("/signin");
-      },
-    }
-  );
+  return useMutation(async () => {
+    await authUser({
+      credentials: true,
+      endpoint: "refreshtokens",
+      method: "POST",
+    });
+  });
 };

@@ -1,4 +1,4 @@
-function Loader() {
+export function Loader() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -16,5 +16,3 @@ function Loader() {
     </svg>
   );
 }
-
-export default Loader;

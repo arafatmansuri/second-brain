@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import Loader from "../icons/Loader";
+import { icons } from "../index";
 
 export interface ButtonProps {
   varient: "primary" | "secondary";
@@ -23,7 +23,7 @@ const sizeStyles = {
   md: "md:h-10 md:px-4 h-8 px-1 gap-2 md:text-md text-sm font-medium",
 };
 const defaultStyles = `rounded-md flex items-center cursor-pointer`;
-function Button({
+export function Button({
   size,
   text,
   varient,
@@ -46,10 +46,9 @@ function Button({
     >
       {startIcon}
       <span className={`md:block ${!textVisible && "hidden"}`}>
-        {loading ? <Loader /> : text}
+        {loading ? <icons.Loader /> : text}
       </span>
       {endIcon}
     </button>
   );
 }
-export default Button;

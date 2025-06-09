@@ -1,12 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import PlusIcon from "../components/icons/PlusIcon";
-import ShareIcon from "../components/icons/ShareIcon";
-import Button from "../components/ui/Button";
-import Card from "../components/ui/Card";
-import CreateContentModal from "../components/ui/CreateContentModal";
-import MenuButton from "../components/ui/MenuButton";
-import Sidebar from "../components/ui/Sidebar";
+import { icons, ui } from "../components";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import {
   useRefreshTokenMutation,
@@ -16,6 +11,7 @@ import { useGetPosts } from "../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../store/AddContentModalState";
 import { postAtom, type PostData } from "../store/postState";
 import { userAtom } from "../store/userState";
+
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
   const isDesktop: boolean = useMediaQuery("(min-width:768px)");
@@ -24,38 +20,47 @@ function Dashboard() {
   const [postsData, setPostsData] = useRecoilState(postAtom);
   const setUser = useSetRecoilState(userAtom);
   const refreshTokenMutation = useRefreshTokenMutation();
+  const navigate = useNavigate();
+  const hasTriedRefresh = useRef(false);
+
   useEffect(() => {
-    if (user.isError && user?.error?.response?.status == 401) {
-      refreshTokenMutation.mutate();
+    if (
+      (user.status == "error" || posts?.error?.response?.status == 401) &&
+      !hasTriedRefresh.current
+    ) {
+      hasTriedRefresh.current = true;
+      refreshTokenMutation.mutate(undefined, {
+        onSuccess: () => {
+          user.refetch();
+          posts.refetch();
+        },
+        onError: () => navigate("/signin"),
+      });
     }
+  }, [
+    navigate,
+    posts,
+    posts?.error?.response?.status,
+    refreshTokenMutation,
+    user,
+    user.status,
+  ]);
+
+  useEffect(() => {
     if (user.status == "success") {
       setUser(user.data);
     }
-  }, [
-    refreshTokenMutation,
-    user.isError,
-    user?.error?.response?.status,
-    user.status,
-    user.data,
-    setUser,
-  ]);
+  }, [user.status, user.data, setUser]);
+
   useEffect(() => {
     if (posts.status == "success") {
       setPostsData(posts.data);
     }
-    if (posts.status == "error" && posts?.error?.response?.status == 401) {
-      refreshTokenMutation.mutate();
-    }
-  }, [
-    posts.data,
-    posts?.error?.response?.status,
-    posts.status,
-    refreshTokenMutation,
-    setPostsData,
-  ]);
+  }, [posts.data, posts.status, setPostsData]);
+
   return (
     <div className="flex min-h-screen relative">
-      <Sidebar />
+      <ui.Sidebar />
       <div
         className={`bg-gray-100 md:w-[80%] p-3 w-full ${
           modalOpen && "bg-slate-500 opacity-40"
@@ -67,29 +72,29 @@ function Dashboard() {
         <div className="flex justify-between items-center w-full mb-4 md:mr-5 md:pl-7 sticky top-0 bg-gray-100 p-3">
           <h1 className="font-bold md:text-xl">All Notes</h1>
           <div className="flex gap-2">
-            <Button
+            <ui.Button
               size="md"
               text="Share Brain"
-              startIcon={<ShareIcon />}
+              startIcon={<icons.ShareIcon />}
               varient="secondary"
               textVisible={isDesktop}
               classes="hover:text-blue-800"
             />
-            <Button
+            <ui.Button
               size="md"
               text="Add Content"
               varient="primary"
-              startIcon={<PlusIcon size={"md"} />}
+              startIcon={<icons.PlusIcon size={"md"} />}
               onClick={() => setModalOpen(true)}
               textVisible={isDesktop}
             />
-            <MenuButton />
+            <ui.MenuButton />
           </div>
         </div>
         <section className="flex md:flex-row flex-col w-full flex-wrap md:items-start gap-5 items-center md:pl-8">
           {postsData.length > 0 ? (
             postsData.map((post: PostData) => (
-              <Card
+              <ui.Card
                 title={post.title}
                 link={post.link}
                 type={post.type}
@@ -102,7 +107,7 @@ function Dashboard() {
           )}
         </section>
       </div>
-      <CreateContentModal />
+      <ui.CreateContentModal />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { iconSizeVariants, type IconProps } from ".";
 
-function YoutubeIcon(props: IconProps): ReactElement {
+export function YoutubeIcon(props: IconProps): ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,5 +17,3 @@ function YoutubeIcon(props: IconProps): ReactElement {
     </svg>
   );
 }
-
-export default YoutubeIcon;

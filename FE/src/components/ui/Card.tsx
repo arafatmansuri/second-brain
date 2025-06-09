@@ -1,16 +1,13 @@
 import type React from "react";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
-import ShareIcon from "../icons/ShareIcon";
-import TrashIcon from "../icons/TrashIcon";
-import TwitterIcon from "../icons/Twitter";
-import YoutubeIcon from "../icons/YoutubeIcon";
+import { icons } from "../index";
 interface CardProps {
   title: string;
   link: string;
   type: "youtube" | "tweet";
   id: string;
 }
-function Card({ title, link, type, id }: CardProps) {
+export function Card({ title, link, type, id }: CardProps) {
   // const setPosts = useSetRecoilState(postAtom);
   const deletePostMutation = usePostMutation();
   async function deletePost(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
@@ -32,15 +29,19 @@ function Card({ title, link, type, id }: CardProps) {
     <div className="bg-white rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 md:w-[30%] w-[80%]">
       <div className="flex justify-between items-center">
         <div className="flex justify-between items-center gap-2 text-gray-500">
-          {type == "tweet" ? <TwitterIcon /> : <YoutubeIcon size="md" />}
+          {type == "tweet" ? (
+            <icons.TwitterIcon />
+          ) : (
+            <icons.YoutubeIcon size="md" />
+          )}
           <h3 className="font-bold text-black">{title}</h3>
         </div>
         <div className="flex items-center gap-2 text-gray-500">
           <a href={link} target="_blank">
-            <ShareIcon />
+            <icons.ShareIcon />
           </a>
           <span id={id} onClick={deletePost}>
-            <TrashIcon />
+            <icons.TrashIcon />
           </span>
         </div>
       </div>
@@ -66,5 +67,3 @@ function Card({ title, link, type, id }: CardProps) {
     </div>
   );
 }
-
-export default Card;

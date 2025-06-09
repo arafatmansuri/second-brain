@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { iconSizeVariants, type IconProps } from ".";
 
-function PlusIcon(props:IconProps): ReactElement {
+export function PlusIcon(props: IconProps): ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -19,5 +19,3 @@ function PlusIcon(props:IconProps): ReactElement {
     </svg>
   );
 }
-
-export default PlusIcon;

@@ -4,13 +4,9 @@ import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { postAtom } from "../../store/postState";
 import { userAtom } from "../../store/userState";
-import CrossIcon from "../icons/CrossIcon";
-import Button from "./Button";
-import ErrorBox from "./ErrorBox";
-import Input from "./Input";
-import Select from "./Select";
+import { icons, ui } from "../index";
 //controlled component
-function CreateContentModal() {
+export function CreateContentModal() {
   const user = useRecoilValue(userAtom);
   const setPosts = useSetRecoilState(postAtom);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
@@ -61,6 +57,9 @@ function CreateContentModal() {
       }, 500);
     }
   }, [addPostMutation.data, addPostMutation.status, setIsModalOpen, setPosts]);
+  if (addPostMutation.isError) {
+    console.log(addPostMutation.error);
+  }
   return (
     <div
       className={`${isModalOpen ? "flex" : "hidden"} w-screen h-screen
@@ -72,17 +71,19 @@ function CreateContentModal() {
           onClick={onClose}
         >
           <h1>Add Content</h1>
-          <CrossIcon />
+          <icons.CrossIcon />
         </div>
         <div className="flex flex-col gap-2 w-full">
-          <Input reference={titleRef} placeholder="Title" />
-          <Input reference={linkRef} placeholder="Link" />
-          <Select reference={typeRef} />
+          <ui.Input reference={titleRef} placeholder="Title" />
+          <ui.Input reference={linkRef} placeholder="Link" />
+          <ui.Select reference={typeRef} />
         </div>
         {addPostMutation.isError && (
-          <ErrorBox errorMessage={addPostMutation?.error?.response.message} />
+          <ui.ErrorBox
+            errorMessage={addPostMutation?.error?.response.data.message}
+          />
         )}
-        <Button
+        <ui.Button
           onClick={addContent}
           varient="primary"
           text="Submit"
@@ -95,5 +96,3 @@ function CreateContentModal() {
     </div>
   );
 }
-
-export default CreateContentModal;

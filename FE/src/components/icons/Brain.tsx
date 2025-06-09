@@ -1,4 +1,4 @@
-function Brain() {
+export function Brain() {
   return (
     <svg
       width="40px"
@@ -27,5 +27,3 @@ function Brain() {
     </svg>
   );
 }
-
-export default Brain;
