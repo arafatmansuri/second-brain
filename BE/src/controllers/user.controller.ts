@@ -24,21 +24,19 @@ const userInputSchema = z.object({
 });
 export const signup: Handler = async (req, res): Promise<void> => {
   try {
+    const isUsernameAvailable = await User.isUserExists(req.body.username);
+    if (isUsernameAvailable) {
+      res
+        .status(StatusCode.DocumentExists)
+        .json({ message: "username already taken" });
+      return;
+    }
     const userInput = userInputSchema.safeParse(req.body);
     if (!userInput.success) {
       res.status(StatusCode.InputError).json({
         message:
           userInput.error.errors[0].message || "Username/Password required",
       });
-      return;
-    }
-    const isUsernameAvailable = await User.isUserExists(
-      userInput.data.username
-    );
-    if (isUsernameAvailable) {
-      res
-        .status(StatusCode.DocumentExists)
-        .json({ message: "username already taken" });
       return;
     }
     const user: IUserDocument | IUser = await User.create({
@@ -58,9 +56,9 @@ export const signup: Handler = async (req, res): Promise<void> => {
 export const signin: Handler = async (req, res): Promise<void> => {
   try {
     const { username, password } = req.body;
-    if ([username, password].some((value) => value === "")) {
+    if (username === "") {
       res.status(StatusCode.InputError).json({
-        message: "Username/Password required",
+        message: "Username is required",
       });
       return;
     }
@@ -71,6 +69,12 @@ export const signin: Handler = async (req, res): Promise<void> => {
       res
         .status(StatusCode.DocumentExists)
         .json({ message: "User doesn't exist" });
+      return;
+    }
+    if (password === "") {
+      res.status(StatusCode.InputError).json({
+        message: "Password is required",
+      });
       return;
     }
     const isPasswordCorrect = user.comparePassword(password);

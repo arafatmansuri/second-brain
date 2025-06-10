@@ -2,15 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
-import { postAtom } from "../../store/postState";
+import { popupAtom } from "../../store/loadingState";
 import { userAtom } from "../../store/userState";
 import { icons, ui } from "../index";
 //controlled component
 export function CreateContentModal() {
   const user = useRecoilValue(userAtom);
-  const setPosts = useSetRecoilState(postAtom);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
-  // const [isLoading, setIsLoading] = useRecoilState(loadingAtom);
+  const setIsPopup = useSetRecoilState(popupAtom);
   const titleRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
     <input type="text" />
   );
@@ -35,11 +34,11 @@ export function CreateContentModal() {
       method: "POST",
       endpoint: "add",
       data: {
-        link: link,
         title: title,
+        link: link,
         type: type,
-        userId: user._id,
         tags: [],
+        userId: user._id,
       },
     });
   }
@@ -48,15 +47,23 @@ export function CreateContentModal() {
   }, []);
   useEffect(() => {
     if (addPostMutation.status == "success") {
-      setPosts((prev) => [...prev, addPostMutation.data]);
       setTimeout(() => {
+        setIsPopup({ popup: true, message: "Content Added Successfully" });
         setIsModalOpen(false);
         titleRef.current.value = "";
         linkRef.current.value = "";
         typeRef.current.value = "select";
       }, 500);
+      setTimeout(() => {
+        setIsPopup({ popup: false, message: "" });
+      }, 3000);
     }
-  }, [addPostMutation.data, addPostMutation.status, setIsModalOpen, setPosts]);
+  }, [
+    addPostMutation.data,
+    addPostMutation.status,
+    setIsModalOpen,
+    setIsPopup,
+  ]);
   if (addPostMutation.isError) {
     console.log(addPostMutation.error);
   }

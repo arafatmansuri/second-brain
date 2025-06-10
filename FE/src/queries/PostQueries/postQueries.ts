@@ -11,11 +11,11 @@ type PostFormData = {
   method: string;
   endpoint: string;
   data?: {
+    title: string | undefined;
     link: string | undefined;
     type: string | undefined;
-    title: string | undefined;
-    userId: string;
     tags: string[];
+    userId: string;
   };
 };
 const fetchPosts = async <T>({

@@ -15,7 +15,7 @@ export type UserData = {
   _v: number;
   refreshToken?: string;
 };
-type UserFormData = {
+export type UserFormData = {
   username?: string | undefined;
   password?: string | undefined;
   credentials?: boolean;

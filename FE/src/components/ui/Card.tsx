@@ -1,5 +1,8 @@
 import type React from "react";
+import { useEffect } from "react";
+import { useSetRecoilState } from "recoil";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
+import { popupAtom } from "../../store/loadingState";
 import { icons } from "../index";
 interface CardProps {
   title: string;
@@ -8,8 +11,8 @@ interface CardProps {
   id: string;
 }
 export function Card({ title, link, type, id }: CardProps) {
-  // const setPosts = useSetRecoilState(postAtom);
   const deletePostMutation = usePostMutation();
+  const setIsPopup = useSetRecoilState(popupAtom);
   async function deletePost(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
     const currentPostId = e.currentTarget.id;
     deletePostMutation.mutate({
@@ -17,14 +20,14 @@ export function Card({ title, link, type, id }: CardProps) {
       endpoint: `delete/${currentPostId}`,
     });
   }
-  // useEffect(() => {
-  //   if (deletePostMutation.status == "success") {
-  //     // setPosts((prev) =>
-  //     //   prev?.filter((post) => post._id != deletePostMutation.data._id)
-  //     // );
-  //     console.log(deletePostMutation);
-  //   }
-  // }, [deletePostMutation, deletePostMutation.data, deletePostMutation?.data?._id, deletePostMutation.status, setPosts]);
+  useEffect(() => {
+    if (deletePostMutation.status == "success") {
+      setIsPopup({ popup: true, message: "Content Deleted Successfully" });
+      setTimeout(() => {
+        setIsPopup({ popup: false, message: "" });
+      }, 3000);
+    }
+  }, [deletePostMutation.status, setIsPopup]);
   return (
     <div className="bg-white rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 md:w-[30%] w-[80%]">
       <div className="flex justify-between items-center">

@@ -108,6 +108,7 @@ function Dashboard() {
         </section>
       </div>
       <ui.CreateContentModal />
+      <ui.Popup />
     </div>
   );
 }

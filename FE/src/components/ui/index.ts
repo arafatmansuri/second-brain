@@ -7,3 +7,4 @@ export { MenuButton } from "./MenuButton";
 export { Select } from "./Select";
 export { Sidebar } from "./Sidebar";
 export { SidebarItem } from "./SidebarItem";
+export { Popup } from "./Popup";
