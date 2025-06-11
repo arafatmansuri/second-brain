@@ -2,26 +2,29 @@ import { model, Schema } from "mongoose";
 import { IContent } from "../types";
 import User from "./user.model";
 
-const contentSchema = new Schema<IContent>({
-  link: { type: String, required: true },
-  type: {
-    type: String,
-    enum: [
-      "image",
-      "video",
-      "article",
-      "audio",
-      "document",
-      "tweet",
-      "youtube",
-      "link",
-    ],
-    required: true,
+const contentSchema = new Schema<IContent>(
+  {
+    link: { type: String, required: true },
+    type: {
+      type: String,
+      enum: [
+        "image",
+        "video",
+        "article",
+        "audio",
+        "document",
+        "tweet",
+        "youtube",
+        "link",
+      ],
+      required: true,
+    },
+    title: { type: String, required: true },
+    tags: [{ type: Schema.Types.ObjectId, ref: "Tags" }],
+    userId: { type: Schema.Types.ObjectId, ref: "User" },
   },
-  title: { type: String, required: true },
-  tags: [{ type: Schema.Types.ObjectId, ref: "Tags" }],
-  userId: { type: Schema.Types.ObjectId, ref: "User" },
-});
+  { timestamps: true }
+);
 
 contentSchema.pre("save", async function (next) {
   const user = await User.findById(this.userId);

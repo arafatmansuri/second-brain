@@ -27,7 +27,7 @@ export interface ILinkDocument extends ILink, Document {
 }
 // Tags Schema/Interface
 export interface ITags extends Document {
-  title: string;
+  tagName: string;
 }
 // Content Schema/Interface
 export interface IContent {

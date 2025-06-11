@@ -8,6 +8,7 @@ declare global {
       userId?: mongoose.Types.ObjectId;
       tags?: ITags[];
       contentInput?: any;
+      contentLink: string;
     }
   }
 }

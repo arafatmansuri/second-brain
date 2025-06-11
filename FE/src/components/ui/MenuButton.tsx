@@ -1,9 +1,15 @@
-import { Menu } from "../icons";
+import { useSetRecoilState } from "recoil";
+import { sidebarAtom } from "../../store/sideBarState";
+import { Menu, type IconProps } from "../icons";
 
-export function MenuButton() {
+export function MenuButton({size}:IconProps) {
+  const setIsModalOpen = useSetRecoilState(sidebarAtom);
   return (
-    <div className="md:hidden flex items-center cursor-pointer">
-      <Menu />
-    </div>
+    <button
+      className="md:hidden flex items-center cursor-pointer"
+      onClick={() => setIsModalOpen((p) => !p)}
+    >
+      <Menu size={size} />
+    </button>
   );
 }

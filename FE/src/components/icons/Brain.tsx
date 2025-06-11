@@ -1,4 +1,6 @@
-export function Brain() {
+import { iconSizeVariants, type IconProps } from ".";
+
+export function Brain({size}:IconProps) {
   return (
     <svg
       width="40px"
@@ -8,6 +10,7 @@ export function Brain() {
       xmlns="http://www.w3.org/2000/svg"
       stroke="#"
       transform="rotate(0)"
+      className={iconSizeVariants[size || "md"]}
     >
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g

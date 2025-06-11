@@ -19,17 +19,22 @@ export function CreateContentModal() {
   const typeRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
     <select value={"select"}></select>
   );
+  const tagsRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
+    <select value={"input"}></select>
+  );
   const addPostMutation = usePostMutation();
   function onClose() {
     setIsModalOpen(false);
     titleRef.current.value = "";
     linkRef.current.value = "";
     typeRef.current.value = "select";
+    tagsRef.current.value = "";
   }
   async function addContent() {
     const title = titleRef.current?.value?.toString();
     const link = linkRef.current?.value?.toString();
     const type = typeRef.current?.value?.toString();
+    const tags = tagsRef.current?.value?.toString().split(" ") || [];
     addPostMutation.mutate({
       method: "POST",
       endpoint: "add",
@@ -37,7 +42,7 @@ export function CreateContentModal() {
         title: title,
         link: link,
         type: type,
-        tags: [],
+        tags: tags,
         userId: user._id,
       },
     });
@@ -53,6 +58,7 @@ export function CreateContentModal() {
         titleRef.current.value = "";
         linkRef.current.value = "";
         typeRef.current.value = "select";
+        tagsRef.current.value = "";
       }, 500);
       setTimeout(() => {
         setIsPopup({ popup: false, message: "" });
@@ -78,12 +84,13 @@ export function CreateContentModal() {
           onClick={onClose}
         >
           <h1>Add Content</h1>
-          <icons.CrossIcon />
+          <icons.CrossIcon size="sm" />
         </div>
         <div className="flex flex-col gap-2 w-full">
           <ui.Input reference={titleRef} placeholder="Title" />
           <ui.Input reference={linkRef} placeholder="Link" />
           <ui.Select reference={typeRef} />
+          <ui.Input reference={tagsRef} placeholder="Tags" />
         </div>
         {addPostMutation.isError && (
           <ui.ErrorBox

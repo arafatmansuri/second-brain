@@ -16,7 +16,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     const tags = req.tags;
     const contentInput = req.contentInput;
     const content: IContent = await Content.create({
-      link: contentInput.data.link,
+      link: req.contentLink,
       type: contentInput.data.type,
       title: contentInput.data.title,
       tags: tags?.map((tag) => tag._id),
@@ -85,7 +85,7 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
 export const displayContent: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
-    const content = await Content.find({ userId: userId });
+    const content = await Content.find({ userId: userId }).populate("tags");
     const user = await User.findById(userId).select("-password -refreshToken");
     if (!content) {
       res.status(StatusCode.NotFound).json({ message: "No contents found" });

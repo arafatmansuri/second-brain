@@ -1,4 +1,6 @@
-export function Menu() {
+import { iconSizeVariants, type IconProps } from ".";
+
+export function Menu({size}:IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -6,7 +8,7 @@ export function Menu() {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-8"
+      className={iconSizeVariants[size || "sm"]}
     >
       <path
         strokeLinecap="round"

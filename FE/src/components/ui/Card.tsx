@@ -8,9 +8,11 @@ interface CardProps {
   title: string;
   link: string;
   type: "youtube" | "tweet";
+  tags?: { tagName: string; _id: string; _v: number }[];
   id: string;
+  createdAt?: string;
 }
-export function Card({ title, link, type, id }: CardProps) {
+export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
   const deletePostMutation = usePostMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
   async function deletePost(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
@@ -28,8 +30,9 @@ export function Card({ title, link, type, id }: CardProps) {
       }, 3000);
     }
   }, [deletePostMutation.status, setIsPopup]);
+  const date = new Date(createdAt);
   return (
-    <div className="bg-white rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 md:w-[30%] w-[80%]">
+    <div className="bg-white rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:w-[30%] md:w-[40%] w-[80%]">
       <div className="flex justify-between items-center">
         <div className="flex justify-between items-center gap-2 text-gray-500">
           {type == "tweet" ? (
@@ -37,7 +40,7 @@ export function Card({ title, link, type, id }: CardProps) {
           ) : (
             <icons.YoutubeIcon size="md" />
           )}
-          <h3 className="font-bold text-black">{title}</h3>
+          <h3 className="font-semibold text-black">{title}</h3>
         </div>
         <div className="flex items-center gap-2 text-gray-500">
           <a href={link} target="_blank">
@@ -52,7 +55,7 @@ export function Card({ title, link, type, id }: CardProps) {
         //store Ids of video and render them
         <iframe
           className="rounded-sm mt-3 w-full"
-          src={link.replace("watch?v=", "embed/")}
+          src={link}
           title="YouTube video player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -63,10 +66,22 @@ export function Card({ title, link, type, id }: CardProps) {
       {type === "tweet" && (
         <div className={`overflow-y-auto overflow-x-auto max-h-72 rounded-md`}>
           <blockquote className="twitter-tweet">
-            <a href={link.replace("x.com", "twitter.com")}></a>
+            <a href={link}></a>
           </blockquote>
         </div>
       )}
+      {tags && (
+        <div className="flex gap-2 text-purple-600 mt-3 flex-wrap">
+          {tags?.map((tag,index) => (
+            <span className="bg-purple-200 pl-2 pr-2 text-sm rounded-lg cursor-pointer hover:underline" key={index}>
+              #{tag?.tagName.toLowerCase()}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="text-sm text-gray-400 mt-2 w-full text-nowrap">
+        Added on {`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`}
+      </div>
     </div>
   );
 }

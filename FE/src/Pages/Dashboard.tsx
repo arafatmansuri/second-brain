@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { icons, ui } from "../components";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -22,7 +22,11 @@ function Dashboard() {
   const refreshTokenMutation = useRefreshTokenMutation();
   const navigate = useNavigate();
   const hasTriedRefresh = useRef(false);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    searchParams.set("content", "All Notes");
+    setSearchParams(searchParams);
+  }, []);
   useEffect(() => {
     if (
       (user.status == "error" || posts?.error?.response?.status == 401) &&
@@ -56,7 +60,7 @@ function Dashboard() {
     if (posts.status == "success") {
       setPostsData(posts.data);
     }
-  }, [posts.data, posts.status, setPostsData]);
+  }, [posts.data, posts.status, postsData, setPostsData]);
 
   return (
     <div className="flex min-h-screen relative">
@@ -70,7 +74,7 @@ function Dashboard() {
           Welcome, {user.data?.username}{" "}
         </h1>
         <div className="flex justify-between items-center w-full mb-4 md:mr-5 md:pl-7 sticky top-0 bg-gray-100 p-3">
-          <h1 className="font-bold md:text-xl">All Notes</h1>
+          <h1 className="font-bold md:text-xl">{searchParams.get("content")}</h1>
           <div className="flex gap-2">
             <ui.Button
               size="md"
@@ -88,20 +92,32 @@ function Dashboard() {
               onClick={() => setModalOpen(true)}
               textVisible={isDesktop}
             />
-            <ui.MenuButton />
+            <ui.MenuButton size="md" />
           </div>
         </div>
         <section className="flex md:flex-row flex-col w-full flex-wrap md:items-start gap-5 items-center md:pl-8">
           {postsData.length > 0 ? (
-            postsData.map((post: PostData) => (
-              <ui.Card
-                title={post.title}
-                link={post.link}
-                type={post.type}
-                key={post._id}
-                id={post._id}
-              />
-            ))
+            postsData
+              .filter((post) => {
+                if (searchParams.get("content") == "All Notes") {
+                  return post;
+                }
+                return searchParams
+                  .get("content")
+                  ?.toLowerCase()
+                  .includes(post.type.toLowerCase());
+              })
+              .map((post: PostData) => (
+                <ui.Card
+                  title={post.title}
+                  link={post.link}
+                  type={post.type}
+                  tags={post.tags}
+                  createdAt={post.createdAt}
+                  key={post._id}
+                  id={post._id}
+                />
+              ))
           ) : (
             <p>No contents</p>
           )}

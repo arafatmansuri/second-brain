@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
+import { generateContentLink } from "../utils/generateContentLink";
 const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })
@@ -36,12 +37,22 @@ export const filterTags = async (
       });
       return;
     }
-    const inputTags = contentInput.data.tags.map((tag) => ({ title: tag }));
+    const match = generateContentLink(
+      contentInput.data.link,
+      contentInput.data.type
+    );
+    console.log(match);
+    if (!match) {
+      res.status(StatusCode.InputError).json({ message: "Invalid link" });
+      return;
+    }
+    req.contentLink = match;
+    const inputTags = contentInput.data.tags.map((tag) => ({ tagName: tag }));
     try {
       await Tags.insertMany(inputTags, { ordered: false });
     } catch (err) {}
     const tags = await Tags.find({
-      title: inputTags.map((tag) => tag.title),
+      tagName: { $in: inputTags.map((tag) => tag.tagName) },
     });
     req.tags = tags;
     req.contentInput = contentInput;
