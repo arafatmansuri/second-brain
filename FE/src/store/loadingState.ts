@@ -9,3 +9,8 @@ export const popupAtom = atom({
   key: "popupAtom",
   default: { popup: false, message: "" },
 });
+
+export const isCopyAtom = atom({
+  key: "isCopyAtom",
+  default: false,
+});

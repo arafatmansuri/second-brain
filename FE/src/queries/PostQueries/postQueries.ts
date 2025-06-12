@@ -2,6 +2,7 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import axios from "axios";
@@ -28,6 +29,9 @@ const fetchPosts = async <T>({
     data: data,
     withCredentials: true,
   });
+  if (method == "PUT" || endpoint.includes("display?share=")) {
+    return posts.data;
+  }
   return posts.data.content;
 };
 
@@ -44,15 +48,20 @@ export const useGetPosts = (): UseQueryResult<PostData[], unknown> => {
   return posts;
 };
 
-export const usePostMutation = () => {
+export const usePostMutation = <T>(): UseMutationResult<
+  T,
+  unknown,
+  PostFormData,
+  unknown
+> => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       method,
       endpoint,
       data,
-    }: PostFormData): Promise<PostData> => {
-      return await fetchPosts<PostData>({ method, endpoint, data });
+    }: PostFormData): Promise<T> => {
+      return await fetchPosts<T>({ method, endpoint, data });
     },
     onSuccess: () => {
       // Invalidate and refetch

@@ -36,16 +36,9 @@ export function Auth({ authName }: authData) {
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
         navigate(navigationUrl);
-      }, 3000);
+      }, 1000);
     }
-  }, [
-    navigate,
-    authMutation.isSuccess,
-    authMutation.isLoading,
-    navigationUrl,
-    setIsPopup,
-    authName,
-  ]);
+  }, [authMutation.isSuccess, authMutation.isLoading]);
   return (
     <div className="h-screen w-screen bg-gray-200 flex flex-col justify-center items-center">
       <div className="flex items-center gap-1 mb-5 fixed top-0 left-0 m-3">

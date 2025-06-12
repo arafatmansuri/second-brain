@@ -1,7 +1,9 @@
 import type React from "react";
 import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
+import { useParams } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
+import { addContentModalAtom } from "../../store/AddContentModalState";
 import { popupAtom } from "../../store/loadingState";
 import { icons } from "../index";
 interface CardProps {
@@ -13,8 +15,10 @@ interface CardProps {
   createdAt?: string;
 }
 export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
+  const { brain } = useParams();
   const deletePostMutation = usePostMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
+  const isModalOpen = useRecoilValue(addContentModalAtom);
   async function deletePost(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
     const currentPostId = e.currentTarget.id;
     deletePostMutation.mutate({
@@ -32,7 +36,11 @@ export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
   }, [deletePostMutation.status, setIsPopup]);
   const date = new Date(createdAt);
   return (
-    <div className="bg-white rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:w-[30%] md:w-[40%] w-[80%]">
+    <div
+      className={`${
+        isModalOpen.open ? "bg-slate-500 opacity-50 border-0" : "bg-white"
+      } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:w-[30%] md:w-[40%] w-[80%]`}
+    >
       <div className="flex justify-between items-center">
         <div className="flex justify-between items-center gap-2 text-gray-500">
           {type == "tweet" ? (
@@ -46,7 +54,11 @@ export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
           <a href={link} target="_blank">
             <icons.ShareIcon />
           </a>
-          <span id={id} onClick={deletePost}>
+          <span
+            id={id}
+            onClick={deletePost}
+            className={`${brain ? "hidden" : "block"}`}
+          >
             <icons.TrashIcon />
           </span>
         </div>
@@ -72,9 +84,12 @@ export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
       )}
       {tags && (
         <div className="flex gap-2 text-purple-600 mt-3 flex-wrap">
-          {tags?.map((tag,index) => (
-            <span className="bg-purple-200 pl-2 pr-2 text-sm rounded-lg cursor-pointer hover:underline" key={index}>
-              #{tag?.tagName.toLowerCase()}
+          {tags?.map((tag, index) => (
+            <span
+              className="bg-purple-200 pl-2 pr-2 text-sm rounded-lg cursor-pointer hover:underline"
+              key={index}
+            >
+              #{tag?.tagName?.toLowerCase()}
             </span>
           ))}
         </div>

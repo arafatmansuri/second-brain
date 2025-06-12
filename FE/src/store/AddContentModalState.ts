@@ -1,5 +1,9 @@
 import { atom } from "recoil";
-export const addContentModalAtom = atom({
+interface Modal {
+  open: boolean;
+  modal: "share" | "create" | "";
+}
+export const addContentModalAtom = atom<Modal>({
   key: "addContentModalAtom",
-  default: false,
+  default: { open: false, modal: "" },
 });

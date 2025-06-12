@@ -13,8 +13,8 @@ export function Sidebar() {
   return (
     <div
       className={`lg:w-[20%] md:w-[30%] h-screen shadow border-r border-gray-200 p-2 md:block ${
-        isModalOpen && "bg-slate-500 opacity-40 border-none"
-      } md:sticky top-0 md:left-0 fixed z-10 bg-white right-0 ${
+        isModalOpen.open ? "bg-slate-500 opacity-70 border-none" : "bg-white"
+      } md:sticky top-0 md:left-0 fixed z-10 right-0 ${
         isSidebarOpen ? "block" : "hidden"
       }`}
     >

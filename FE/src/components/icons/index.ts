@@ -7,6 +7,10 @@ export { ShareIcon } from "./ShareIcon";
 export { TrashIcon } from "./TrashIcon";
 export { TwitterIcon } from "./Twitter";
 export { YoutubeIcon } from "./YoutubeIcon";
+export { CopyIcon } from "./CopyIcon";
+export { Copied } from "./Copied";
+export { Lock } from "./Lock";
+export { Unlock } from "./Unlock";
 
 export interface IconProps {
   size?: "sm" | "md" | "lg";

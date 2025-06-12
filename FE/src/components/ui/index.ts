@@ -4,7 +4,9 @@ export { CreateContentModal } from "./CreateContentModal";
 export { ErrorBox } from "./ErrorBox";
 export { Input } from "./Input";
 export { MenuButton } from "./MenuButton";
+export { Popup } from "./Popup";
 export { Select } from "./Select";
+export { ShareContentMoal } from "./ShareContentMoal";
 export { Sidebar } from "./Sidebar";
 export { SidebarItem } from "./SidebarItem";
-export { Popup } from "./Popup";
+

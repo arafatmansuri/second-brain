@@ -23,7 +23,8 @@ function Index() {
     if (user.status == "success") {
       navigate("/dashboard");
     }
-  }, [refreshTokenMutation, user, user.status, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshTokenMutation, user.status]);
   return <></>;
 }
 

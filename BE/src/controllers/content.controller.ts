@@ -119,7 +119,9 @@ export const displaySharedContent: Handler = async (
         .json({ message: "brain is private/doesn't exists" });
       return;
     }
-    const content = await Content.find({ userId: link.userId });
+    const content = await Content.find({ userId: link.userId }).populate(
+      "tags"
+    );
     //@ts-ignore
     const userLink: userLinkSchema = link;
     res.status(StatusCode.Success).json({
@@ -138,29 +140,43 @@ export const displaySharedContent: Handler = async (
 export const shareContent: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
+    const reqType = req.query.reqtype;
     const user = await User.findById(userId);
     if (!user) {
       res.status(StatusCode.NotFound).json({ message: "User not found" });
       return;
     }
-    user.shared = !user.shared;
-    const hash: string = generateHash(10);
-    user.shared
-      ? await Link.create({
-          userId: userId,
-          hash: hash,
-        })
-      : await Link.deleteOne({ userId: userId });
-    user.save({ validateBeforeSave: false });
-    res.status(StatusCode.Success).json({
-      message: `Your brain set to ${user.shared ? "public" : "private"}`,
-      link: `${
-        user.shared
-          ? `http://127.0.0.1:3000/api/v1/content/display?share=${hash}`
-          : ""
-      }`,
-    });
-    return;
+    if (reqType == "private") {
+      user.shared = false;
+    } else if (reqType == "copy") {
+      user.shared = true;
+    }
+    await user.save({ validateBeforeSave: false });
+    const link = await Link.findOne({ userId: userId });
+    if (!link && user.shared) {
+      const hash: string = generateHash(10);
+      await Link.create({
+        userId: userId,
+        hash: hash,
+      });
+      res.status(StatusCode.Success).json({
+        message: `Your brain set to public`,
+        link: hash,
+      });
+      return;
+    } else if (link && user.shared) {
+      res.status(StatusCode.Success).json({
+        message: `Your brain set to public`,
+        link: link?.hash,
+      });
+      return;
+    } else {
+      await Link.deleteMany({ userId: userId });
+      res.status(StatusCode.Success).json({
+        message: `Your brain set to private`,
+      });
+      return;
+    }
   } catch (err) {
     res
       .status(StatusCode.ServerError)

@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRefreshTokenMutation } from "../../queries/AuthQueries/queries";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { popupAtom } from "../../store/loadingState";
+import type { PostData } from "../../store/postState";
 import { userAtom } from "../../store/userState";
 import { icons, ui } from "../index";
 //controlled component
@@ -22,9 +24,10 @@ export function CreateContentModal() {
   const tagsRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
     <select value={"input"}></select>
   );
-  const addPostMutation = usePostMutation();
+  const addPostMutation = usePostMutation<PostData>();
+  const refreshTokenMutation = useRefreshTokenMutation();
   function onClose() {
-    setIsModalOpen(false);
+    setIsModalOpen({ open: false, modal: "create" });
     titleRef.current.value = "";
     linkRef.current.value = "";
     typeRef.current.value = "select";
@@ -54,7 +57,7 @@ export function CreateContentModal() {
     if (addPostMutation.status == "success") {
       setTimeout(() => {
         setIsPopup({ popup: true, message: "Content Added Successfully" });
-        setIsModalOpen(false);
+        setIsModalOpen({ open: false, modal: "create" });
         titleRef.current.value = "";
         linkRef.current.value = "";
         typeRef.current.value = "select";
@@ -64,18 +67,23 @@ export function CreateContentModal() {
         setIsPopup({ popup: false, message: "" });
       }, 3000);
     }
-  }, [
-    addPostMutation.data,
-    addPostMutation.status,
-    setIsModalOpen,
-    setIsPopup,
-  ]);
-  if (addPostMutation.isError) {
-    console.log(addPostMutation.error);
-  }
+  }, [addPostMutation.status]);
+  useEffect(() => {
+    if (
+      addPostMutation.status == "error" &&
+      addPostMutation?.error?.response.status == 401
+    ) {
+      refreshTokenMutation.mutate();
+    }
+    if (refreshTokenMutation.status == "success") {
+      addContent();
+    }
+  }, [addPostMutation?.error?.response.status, addPostMutation.status]);
   return (
     <div
-      className={`${isModalOpen ? "flex" : "hidden"} w-screen h-screen
+      className={`${
+        isModalOpen.open && isModalOpen.modal == "create" ? "flex" : "hidden"
+      } w-screen h-screen
        fixed top-0 left-0 justify-center items-center`}
     >
       <div className="bg-white p-4 shadow-md rounded flex flex-col items-center gap-3 min-w-80">
