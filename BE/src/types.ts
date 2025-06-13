@@ -36,11 +36,9 @@ export interface IContent {
     | "image"
     | "video"
     | "article"
-    | "audio"
     | "document"
     | "tweet"
-    | "youtube"
-    | "link";
+    | "youtube";
   title: string;
   tags?: Schema.Types.ObjectId[];
   userId: Schema.Types.ObjectId;

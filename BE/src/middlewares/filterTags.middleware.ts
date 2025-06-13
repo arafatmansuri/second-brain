@@ -2,25 +2,16 @@ import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary";
 import { generateContentLink } from "../utils/generateContentLink";
-const contentSchema = z.object({
+export const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })
     .min(3, { message: "title must be atleast 3 characters" }),
   link: z.string({ message: "link must be a string" }),
-  type: z.enum(
-    [
-      "image",
-      "video",
-      "article",
-      "audio",
-      "document",
-      "tweet",
-      "youtube",
-      "link",
-    ],
-    { message: "Invalid content type" }
-  ),
+  type: z.enum(["image", "video", "article", "raw", "tweet", "youtube"], {
+    message: "Invalid content type",
+  }),
   tags: z.string().array(),
 });
 export const filterTags = async (
@@ -37,16 +28,47 @@ export const filterTags = async (
       });
       return;
     }
-    const match = generateContentLink(
-      contentInput.data.link,
-      contentInput.data.type
-    );
-    console.log(match);
-    if (!match) {
+    let link;
+    let file;
+    if (
+      contentInput.data.type == "raw" ||
+      contentInput.data.type == "video" ||
+      contentInput.data.type == "image"
+    ) {
+      let fileLocalPath = "";
+      if (req.file) {
+        fileLocalPath = req.file.path;
+        console.log(fileLocalPath);
+        try {
+          if (fileLocalPath) {
+            file = await uploadOnCloudinary({
+              localFilePath: fileLocalPath,
+              type: contentInput.data.type,
+            });
+          }
+          console.log(file);
+          link = file?.secure_url;
+        } catch (error) {
+          res
+            .status(StatusCode.ServerError)
+            .json({ message: "Error While Uploading file" });
+          file && (await deleteFromCloudinary(file?.public_id));
+          return;
+        }
+      } else {
+        res.status(StatusCode.InputError).json({ message: "File is required" });
+        return;
+      }
+    } else
+      link = generateContentLink(
+        contentInput.data.link,
+        contentInput.data.type
+      );
+    if (!link) {
       res.status(StatusCode.InputError).json({ message: "Invalid link" });
       return;
     }
-    req.contentLink = match;
+    req.contentLink = link;
     const inputTags = contentInput.data.tags.map((tag) => ({ tagName: tag }));
     try {
       await Tags.insertMany(inputTags, { ordered: false });

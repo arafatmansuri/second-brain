@@ -8,11 +8,9 @@ export const generateContentLink = (
     | "image"
     | "video"
     | "article"
-    | "audio"
-    | "document"
+    | "raw"
     | "tweet"
     | "youtube"
-    | "link"
 ): string | null => {
   let match: string | null | RegExpMatchArray = null;
   switch (contentType) {

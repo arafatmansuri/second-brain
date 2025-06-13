@@ -17,7 +17,8 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     const contentInput = req.contentInput;
     const content: IContent = await Content.create({
       link: req.contentLink,
-      type: contentInput.data.type,
+      type:
+        contentInput.data.type == "raw" ? "document" : contentInput.data.type,
       title: contentInput.data.title,
       tags: tags?.map((tag) => tag._id),
       userId: userId,
@@ -163,7 +164,7 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
       res.status(StatusCode.Success).json({
         message: `Your brain set to public`,
         link: hash,
-        contentCount: Contentcount
+        contentCount: Contentcount,
       });
       return;
     } else if (link && user.shared) {
