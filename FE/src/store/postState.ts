@@ -3,7 +3,7 @@ export interface PostData {
   link: string;
   tags?: { tagName: string; _id: string; _v: number }[];
   title: string;
-  type: "youtube" | "tweet";
+  type: "youtube" | "tweet" | "document" | "video" | "image" | "article";
   userId: string;
   __v: number;
   _id: string;

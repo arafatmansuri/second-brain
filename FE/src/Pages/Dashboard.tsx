@@ -193,6 +193,7 @@ function Dashboard() {
                   createdAt={post.createdAt}
                   key={post._id}
                   id={post._id}
+                  isLoading={posts.isFetching}
                 />
               ))
           ) : (

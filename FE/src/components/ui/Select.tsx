@@ -1,4 +1,12 @@
-const contentTypes = ["select", "youtube", "tweet"];
+const contentTypes = [
+  "select",
+  "youtube",
+  "tweet",
+  "document",
+  "video",
+  "image",
+  "article",
+];
 export function Select({ reference }: { reference?: any }) {
   return (
     <select

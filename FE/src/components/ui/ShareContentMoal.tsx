@@ -1,17 +1,22 @@
 import { useEffect } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { icons, ui } from "..";
 import { useUserQuery } from "../../queries/AuthQueries/queries";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { isCopyAtom, popupAtom } from "../../store/loadingState";
+import { postAtom } from "../../store/postState";
 
 export function ShareContentMoal() {
   const user = useUserQuery();
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const setIsPopup = useSetRecoilState(popupAtom);
   const [isCopy, setIsCopy] = useRecoilState(isCopyAtom);
-  const shareContentMutation = usePostMutation<{ link: string }>();
+  const posts = useRecoilValue(postAtom);
+  const shareContentMutation = usePostMutation<{
+    link: string;
+    contentCount: number;
+  }>();
   function ShareContent() {
     shareContentMutation.mutate({
       endpoint: "share?reqtype=copy",
@@ -67,7 +72,7 @@ export function ShareContentMoal() {
           loading={shareContentMutation.isLoading}
         />
         <span className="text-sm text-center w-full text-gray-400">
-          3 items will be shared
+          {posts.length} items will be shared
         </span>
       </div>
     </div>

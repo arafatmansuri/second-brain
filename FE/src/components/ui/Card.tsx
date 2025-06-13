@@ -9,12 +9,21 @@ import { icons } from "../index";
 interface CardProps {
   title: string;
   link: string;
-  type: "youtube" | "tweet";
+  type: "youtube" | "tweet" | "document" | "video" | "image" | "article";
   tags?: { tagName: string; _id: string; _v: number }[];
   id: string;
-  createdAt?: string;
+  createdAt: string;
+  isLoading?: boolean;
 }
-export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
+export function Card({
+  title,
+  link,
+  type,
+  id,
+  tags,
+  createdAt,
+  isLoading,
+}: CardProps) {
   const { brain } = useParams();
   const deletePostMutation = usePostMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
@@ -46,9 +55,15 @@ export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
           {type == "tweet" ? (
             <icons.TwitterIcon />
           ) : (
-            <icons.YoutubeIcon size="md" />
+            <icons.YoutubeIcon size="sm" />
           )}
-          <h3 className="font-semibold text-black">{title}</h3>
+          <h3
+            className={`font-semibold text-black ${
+              isLoading ? "bg-gray-800" : "bg-none"
+            }`}
+          >
+            {title}
+          </h3>
         </div>
         <div className="flex items-center gap-2 text-gray-500">
           <a href={link} target="_blank">
@@ -81,6 +96,19 @@ export function Card({ title, link, type, id, tags, createdAt }: CardProps) {
             <a href={link}></a>
           </blockquote>
         </div>
+      )}
+      {type == "image" && (
+        <img src={link} alt={title} className="w-full max-h-72 rounded-md" />
+      )}
+      {type == "video" && (
+        <video src={link} className="w-full max-h-72 rounded-md"></video>
+      )}
+      {type == "document" && (
+        <iframe
+          src={link}
+          frameBorder="0"
+          className="w-full max-h-72 rounded-md"
+        ></iframe>
       )}
       {tags && (
         <div className="flex gap-2 text-purple-600 mt-3 flex-wrap">
