@@ -152,6 +152,7 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
       user.shared = true;
     }
     await user.save({ validateBeforeSave: false });
+    const Contentcount = await Content.countDocuments({ userId: userId });
     const link = await Link.findOne({ userId: userId });
     if (!link && user.shared) {
       const hash: string = generateHash(10);
@@ -162,12 +163,14 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
       res.status(StatusCode.Success).json({
         message: `Your brain set to public`,
         link: hash,
+        contentCount: Contentcount
       });
       return;
     } else if (link && user.shared) {
       res.status(StatusCode.Success).json({
         message: `Your brain set to public`,
         link: link?.hash,
+        contentCount: Contentcount,
       });
       return;
     } else {
