@@ -8,11 +8,14 @@ export const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })
     .min(3, { message: "title must be atleast 3 characters" }),
-  link: z.string({ message: "link must be a string" }),
+  // link: z.enum([z.instanceof(File),z.string()]),
+  link: z.string().optional(),
+  // link: z.instanceof(File) || z.string({ message: "Link must be string" }),
   type: z.enum(["image", "video", "article", "raw", "tweet", "youtube"], {
     message: "Invalid content type",
   }),
   tags: z.string().array(),
+  description: z.string().optional(),
 });
 export const filterTags = async (
   req: Request,
@@ -30,6 +33,7 @@ export const filterTags = async (
     }
     let link;
     let file;
+    // console.log(req.file);
     if (
       contentInput.data.type == "raw" ||
       contentInput.data.type == "video" ||
@@ -38,7 +42,7 @@ export const filterTags = async (
       let fileLocalPath = "";
       if (req.file) {
         fileLocalPath = req.file.path;
-        console.log(fileLocalPath);
+        // console.log(fileLocalPath);
         try {
           if (fileLocalPath) {
             file = await uploadOnCloudinary({
@@ -46,7 +50,7 @@ export const filterTags = async (
               type: contentInput.data.type,
             });
           }
-          console.log(file);
+          // console.log(file);
           link = file?.secure_url;
         } catch (error) {
           res
@@ -64,7 +68,7 @@ export const filterTags = async (
         contentInput.data.link,
         contentInput.data.type
       );
-    if (!link) {
+    if (!link && contentInput.data.type != "article") {
       res.status(StatusCode.InputError).json({ message: "Invalid link" });
       return;
     }

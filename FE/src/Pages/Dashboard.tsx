@@ -30,7 +30,7 @@ function Dashboard() {
   const refreshTokenMutation = useRefreshTokenMutation();
   const privateContentMutation = usePostMutation();
   const getBrainMutation = usePostMutation<SahredBrainData>();
-  const [isPopup, setIsPopup] = useRecoilState(popupAtom);
+  const setIsPopup = useSetRecoilState(popupAtom);
   const { brain } = useParams();
   function PrivateContent() {
     privateContentMutation.mutate({
@@ -57,7 +57,6 @@ function Dashboard() {
   }, []);
   useEffect(() => {
     if (brain && getBrainMutation.status == "success") {
-      console.log(brain);
       setPostsData(getBrainMutation.data.content);
       console.log(getBrainMutation.data.content);
     }
@@ -123,7 +122,11 @@ function Dashboard() {
             />
           )}
         </div>
-        <div className="flex justify-between items-center w-full mb-4 md:mr-5 md:pl-7 sticky top-0 p-3">
+        <div
+          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-7 sticky top-0 p-3 bg-gray-100 ${
+            modalOpen.open && "bg-slate-500"
+          }`}
+        >
           <h1 className="font-bold md:text-xl">
             {searchParams.get("content")}
           </h1>
@@ -176,7 +179,6 @@ function Dashboard() {
             postsData
               .filter((post) => {
                 if (searchParams.get("content") == "All Notes") {
-                  console.log(post.tags);
                   return post;
                 }
                 return searchParams
@@ -194,6 +196,7 @@ function Dashboard() {
                   key={post._id}
                   id={post._id}
                   isLoading={posts.isFetching}
+                  description={post.description}
                 />
               ))
           ) : (

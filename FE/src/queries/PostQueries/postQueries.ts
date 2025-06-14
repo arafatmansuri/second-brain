@@ -11,23 +11,31 @@ import { type PostData } from "../../store/postState";
 type PostFormData = {
   method: string;
   endpoint: string;
+  // data?: FormData
   data?: {
-    title: string | undefined;
-    link: string | undefined;
-    type: string | undefined;
+    title?: string;
+    link?: string;
+    type?: string;
     tags: string[];
     userId: string;
+    file?: Blob;
+    description?: string;
   };
+  contentType?: string;
 };
 const fetchPosts = async <T>({
   method,
   endpoint,
   data,
+  contentType = "application/json",
 }: PostFormData): Promise<T> => {
   const posts = await axios(`${BACKEND_URL}/api/v1/content/${endpoint}`, {
     method: method,
     data: data,
     withCredentials: true,
+    headers: {
+      "Content-Type": contentType,
+    },
   });
   if (method == "PUT" || endpoint.includes("display?share=")) {
     return posts.data;
@@ -60,8 +68,9 @@ export const usePostMutation = <T>(): UseMutationResult<
       method,
       endpoint,
       data,
+      contentType,
     }: PostFormData): Promise<T> => {
-      return await fetchPosts<T>({ method, endpoint, data });
+      return await fetchPosts<T>({ method, endpoint, data, contentType });
     },
     onSuccess: () => {
       // Invalidate and refetch

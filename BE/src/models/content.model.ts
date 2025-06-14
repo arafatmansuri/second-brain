@@ -4,22 +4,16 @@ import User from "./user.model";
 
 const contentSchema = new Schema<IContent>(
   {
-    link: { type: String, required: true },
+    link: { type: String },
     type: {
       type: String,
-      enum: [
-        "image",
-        "video",
-        "article",
-        "document",
-        "tweet",
-        "youtube",
-      ],
+      enum: ["image", "video", "article", "document", "tweet", "youtube"],
       required: true,
     },
     title: { type: String, required: true },
     tags: [{ type: Schema.Types.ObjectId, ref: "Tags" }],
     userId: { type: Schema.Types.ObjectId, ref: "User" },
+    description: { type: String },
   },
   { timestamps: true }
 );

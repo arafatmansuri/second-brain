@@ -6,7 +6,7 @@ import { sidebarAtom } from "../../store/sideBarState";
 import { icons, ui } from "../index";
 export function Sidebar() {
   const isModalOpen = useRecoilValue(addContentModalAtom);
-  const [isSidebarOpen,setIsSideBarOpen] = useRecoilState(sidebarAtom);
+  const [isSidebarOpen, setIsSideBarOpen] = useRecoilState(sidebarAtom);
   const isDesktop = useMediaQuery("(min-width:768px)");
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -44,6 +44,10 @@ export function Sidebar() {
         <ui.SidebarItem text="Tweets" icon={<icons.TwitterIcon />} />
         <ui.SidebarItem text="Videos" icon={<icons.YoutubeIcon />} />
         <ui.SidebarItem text="Youtube" icon={<icons.YoutubeIcon />} />
+        <ui.SidebarItem text="Images" icon={<icons.YoutubeIcon />} />
+        <ui.SidebarItem text="Documents" icon={<icons.YoutubeIcon />} />
+        <ui.SidebarItem text="Articles" icon={<icons.YoutubeIcon />} />
+        <ui.SidebarItem text="Tags" icon={<icons.YoutubeIcon />} />
       </div>
     </div>
   );

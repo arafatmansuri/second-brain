@@ -9,11 +9,12 @@ declare global {
       tags?: ITags[];
       contentInput: z.SafeParseSuccess<{
         type: "image" | "video" | "article" | "raw" | "tweet" | "youtube";
-        link: string;
+        link?: string;
         title: string;
         tags: string[];
+        description?: string;
       }>;
-      contentLink: string;
+      contentLink?: string | null;
     }
   }
 }

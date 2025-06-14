@@ -9,6 +9,7 @@ export interface PostData {
   _id: string;
   createdAt?: string;
   updatedAt?: string;
+  description?:string;
 }
 export const postAtom = atom<PostData[]>({
   key: "postAtom",

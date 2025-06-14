@@ -25,7 +25,7 @@ export const uploadOnCloudinary = async ({
       resource_type: type,
       folder: `Brainly/${type}`,
     });
-    console.log("File Uploaded on Cloudinary", response.secure_url);
+    // console.log("File Uploaded on Cloudinary", response.secure_url);
     fs.unlinkSync(localFilePath);
     return response;
   } catch (error) {
@@ -38,7 +38,7 @@ export const uploadOnCloudinary = async ({
 export const deleteFromCloudinary = async (publicId: string) => {
     try {
         await cloudinary.uploader.destroy(publicId);
-        console.log("File Deletion success",publicId);
+        // console.log("File Deletion success",publicId);
     } catch (error) {
         console.log("File Deletion failed");
         return null;

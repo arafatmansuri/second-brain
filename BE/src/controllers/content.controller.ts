@@ -22,6 +22,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
       title: contentInput.data.title,
       tags: tags?.map((tag) => tag._id),
       userId: userId,
+      description: contentInput.data.description,
     });
     res
       .status(StatusCode.Success)

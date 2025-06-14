@@ -12,8 +12,9 @@ interface CardProps {
   type: "youtube" | "tweet" | "document" | "video" | "image" | "article";
   tags?: { tagName: string; _id: string; _v: number }[];
   id: string;
-  createdAt: string;
+  createdAt?: string;
   isLoading?: boolean;
+  description?: string;
 }
 export function Card({
   title,
@@ -23,6 +24,7 @@ export function Card({
   tags,
   createdAt,
   isLoading,
+  description,
 }: CardProps) {
   const { brain } = useParams();
   const deletePostMutation = usePostMutation();
@@ -43,7 +45,7 @@ export function Card({
       }, 3000);
     }
   }, [deletePostMutation.status, setIsPopup]);
-  const date = new Date(createdAt);
+  const date = createdAt ? new Date(createdAt) : new Date(Date.now());
   return (
     <div
       className={`${
@@ -98,20 +100,37 @@ export function Card({
         </div>
       )}
       {type == "image" && (
-        <img src={link} alt={title} className="w-full max-h-72 rounded-md" />
+        <img
+          src={link}
+          alt={title}
+          className="w-full max-h-52 rounded-md mt-3"
+        />
       )}
       {type == "video" && (
-        <video src={link} className="w-full max-h-72 rounded-md"></video>
+        <video
+          src={link}
+          className="w-full max-h-72 rounded-md mt-3"
+          controls
+        ></video>
       )}
       {type == "document" && (
         <iframe
           src={link}
           frameBorder="0"
-          className="w-full max-h-72 rounded-md"
+          className="w-full max-h-72 rounded-md mt-3"
         ></iframe>
       )}
+      {description && (
+        <div
+          className={`text-wrap h-fit w-full ${
+            type == "article" ? "text-lg p-1 text-wrap" : "text-xs p-2"
+          }`}
+        >
+          {description}
+        </div>
+      )}
       {tags && (
-        <div className="flex gap-2 text-purple-600 mt-3 flex-wrap">
+        <div className="flex gap-2 text-purple-600 mt-1 flex-wrap">
           {tags?.map((tag, index) => (
             <span
               className="bg-purple-200 pl-2 pr-2 text-sm rounded-lg cursor-pointer hover:underline"

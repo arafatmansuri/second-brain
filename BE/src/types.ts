@@ -31,7 +31,7 @@ export interface ITags extends Document {
 }
 // Content Schema/Interface
 export interface IContent {
-  link: string;
+  link?: string;
   type:
     | "image"
     | "video"
@@ -42,6 +42,7 @@ export interface IContent {
   title: string;
   tags?: Schema.Types.ObjectId[];
   userId: Schema.Types.ObjectId;
+  description?: string;
 }
 
 export type Handler = (req: Request, res: Response) => any;
