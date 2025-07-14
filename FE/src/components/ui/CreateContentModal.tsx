@@ -26,7 +26,7 @@ export function CreateContentModal() {
     <input value={"input"}></input>
   );
   const textAreaRef =
-    useRef<React.TextareaHTMLAttributes<HTMLTextAreaElement>>();
+    useRef<React.TextareaHTMLAttributes<HTMLTextAreaElement | null>>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const contentType = useRecoilValue(typeAtom);
   const addPostMutation = usePostMutation<PostData>();
@@ -37,6 +37,8 @@ export function CreateContentModal() {
     linkRef.current.value = "";
     typeRef.current.value = "select";
     tagsRef.current.value = "";
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-expect-error
     textAreaRef.current.value = "";
   }
   async function addContent() {
@@ -44,7 +46,7 @@ export function CreateContentModal() {
     const link = linkRef.current?.value?.toString();
     const type = typeRef.current?.value?.toString();
     const tags = tagsRef.current?.value?.toString().split(" ") || [];
-    const desc = textAreaRef.current.value?.toString();
+    const desc = textAreaRef?.current?.value?.toString();
     if (
       (fileRef.current && fileRef.current.files) ||
       type == "youtube" ||
@@ -84,6 +86,8 @@ export function CreateContentModal() {
         titleRef.current.value = "";
         typeRef.current.value = "";
         tagsRef.current.value = "";
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-expect-error
         textAreaRef.current.value = "";
         if (fileRef.current) {
           fileRef.current.value = ""; // Clear the file input

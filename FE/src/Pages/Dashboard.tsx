@@ -82,19 +82,19 @@ function Dashboard() {
     if (user.status == "success" && !brain) {
       setUser(user.data);
     }
-  }, [user.status]);
+  }, [user.status,brain]);
 
   useEffect(() => {
     if (posts.status == "success" && !brain) {
       setPostsData(posts.data);
     }
-  }, [posts.data, posts.status, setPostsData]);
+  }, [posts.data, posts.status, setPostsData,brain]);
 
   useEffect(() => {
     if (privateContentMutation.status == "success" && !brain) {
       user.refetch();
     }
-  }, [privateContentMutation.status]);
+  }, [privateContentMutation.status,brain]);
   return (
     <div className="flex min-h-screen relative">
       <ui.Sidebar />

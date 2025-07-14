@@ -12,6 +12,7 @@ export interface ButtonProps {
   widthFull?: boolean;
   loading?: boolean;
   classes?: string;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 const variantStyles = {
   primary: "bg-purple-600 text-white hover:bg-purple-700",
@@ -34,6 +35,7 @@ export function Button({
   textVisible = true,
   widthFull,
   classes,
+  type
 }: ButtonProps) {
   return (
     <button
@@ -43,6 +45,7 @@ export function Button({
       } disabled:cursor-progress disabled:opacity-70 ${classes}`}
       onClick={onClick}
       disabled={loading}
+      type={type}
     >
       {startIcon}
       <span className={`md:block ${!textVisible && "hidden"}`}>

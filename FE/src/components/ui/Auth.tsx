@@ -1,35 +1,39 @@
-import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { useAuthMutation } from "../../queries/AuthQueries/queries";
 import { popupAtom } from "../../store/loadingState";
 import { icons, ui } from "../index";
+type Inputs = {
+  username: string;
+  password: string;
+};
 interface authData {
   authName: "Signin" | "Signup";
 }
 export function Auth({ authName }: authData) {
-  const usernameRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
-    <input type="text" />
-  );
-  const passwordRef = useRef<React.InputHTMLAttributes<HTMLInputElement>>(
-    <input type="text" />
-  );
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<Inputs>();
   const navigate = useNavigate();
   const navigationUrl: string = authName == "Signin" ? "/dashboard" : "/signin";
   const creds: boolean = authName == "Signin" ? true : false;
   const authMutation = useAuthMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
-  async function onClick() {
-    const username = usernameRef.current?.value?.toString();
-    const password = passwordRef.current?.value?.toString();
-    authMutation.mutate({
-      username,
-      password,
-      endpoint: `${authName.toLowerCase()}`,
-      credentials: creds,
-    });
-  }
+  const onClick: SubmitHandler<Inputs> = async (data) => {
+    if (!errors.password && !errors.username) {
+      authMutation.mutate({
+        username: data.username,
+        password: data.password,
+        endpoint: `${authName.toLowerCase()}`,
+        credentials: creds,
+      });
+    }
+  };
   useEffect(() => {
     if (!authMutation.isLoading && authMutation.isSuccess) {
       setIsPopup({ popup: true, message: `${authName} successfull` });
@@ -46,10 +50,45 @@ export function Auth({ authName }: authData) {
       </div>
       <div className="bg-white rounded border md:min-w-[28rem] min-w-72 flex items-center flex-col pb-4 pr-9 pl-9 pt-4 gap-5 border-gray-300 shadow">
         <h1 className="font-bold text-2xl text-purple-800">{authName}</h1>
-        <div className="flex items-center flex-col gap-3 w-full">
-          <ui.Input placeholder="Username" reference={usernameRef} />
-          <ui.Input placeholder="Password" reference={passwordRef} />
-          {authMutation.error ? (
+        <form
+          onSubmit={handleSubmit(onClick)}
+          className="flex items-center flex-col gap-3 w-full"
+        >
+          <ui.Input
+            placeholder="Username"
+            formHook={{
+              ...register("username", { required: true, minLength: 3 }),
+            }}
+            defaultValue=""
+          />
+          {errors.username?.type == "required" && (
+            <span className="text-red-500 text-sm -mt-3">
+              Username is required
+            </span>
+          )}
+          {errors.username?.type == "minLength" && (
+            <span className="text-red-500 text-sm -mt-3">
+              Username must be atleast of 3 chars
+            </span>
+          )}
+          <ui.Input
+            placeholder="Password"
+            formHook={{
+              ...register("password", { required: true, minLength: 8 }),
+            }}
+            defaultValue=""
+          />
+          {errors.password?.type == "required" && (
+            <span className="text-red-500 text-sm -mt-3">
+              Password is required
+            </span>
+          )}
+          {errors.password?.type == "minLength" && (
+            <span className="text-red-500 text-sm -mt-3">
+              Password length can't be less than 8
+            </span>
+          )}
+          {authMutation.error && (!errors.password && !errors.username) ? (
             <ui.ErrorBox
               errorMessage={
                 authMutation.error.response?.data?.message
@@ -61,12 +100,12 @@ export function Auth({ authName }: authData) {
             ""
           )}
           <ui.Button
+            type="submit"
             varient="primary"
             text={authName}
             loading={authMutation.isLoading}
             size="lg"
             widthFull={true}
-            onClick={onClick}
           />
           {authName == "Signin" ? (
             <p>
@@ -83,7 +122,7 @@ export function Auth({ authName }: authData) {
               </a>
             </p>
           )}
-        </div>
+        </form>
       </div>
       <ui.Popup />
     </div>
