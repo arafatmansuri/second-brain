@@ -14,6 +14,8 @@ const contentSchema = new Schema<IContent>(
     tags: [{ type: Schema.Types.ObjectId, ref: "Tags" }],
     userId: { type: Schema.Types.ObjectId, ref: "User" },
     description: { type: String },
+    fileKey: { type: String },
+    expiry: { type: Date },
   },
   { timestamps: true }
 );

@@ -1,9 +1,12 @@
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
+import { s3 } from "../config/s3Config";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
-import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary";
 import { generateContentLink } from "../utils/generateContentLink";
+import { generateSignedUrl } from "../utils/getSignedUrl";
 export const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })
@@ -33,31 +36,22 @@ export const filterTags = async (
     }
     let link;
     let file;
-    // console.log(req.file);
     if (
       contentInput.data.type == "raw" ||
       contentInput.data.type == "video" ||
       contentInput.data.type == "image"
     ) {
-      let fileLocalPath = "";
       if (req.file) {
-        fileLocalPath = req.file.path;
-        // console.log(fileLocalPath);
         try {
-          if (fileLocalPath) {
-            file = await uploadOnCloudinary({
-              localFilePath: fileLocalPath,
-              type: contentInput.data.type,
-            });
+          const file = req.file as Express.MulterS3.File;
+          if (!file) {
+            return res.status(400).json({ message: "No file uploaded" });
           }
-          // console.log(file);
-          link = file?.secure_url;
-        } catch (error) {
-          res
-            .status(StatusCode.ServerError)
-            .json({ message: "Error While Uploading file" });
-          file && (await deleteFromCloudinary(file?.public_id));
-          return;
+          req.fileKey = file.key;
+          link = await generateSignedUrl(file.key);
+        } catch (err) {
+          console.error(err);
+          return res.status(500).json({ message: "Upload error", err });
         }
       } else {
         res.status(StatusCode.InputError).json({ message: "File is required" });

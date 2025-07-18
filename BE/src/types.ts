@@ -32,17 +32,13 @@ export interface ITags extends Document {
 // Content Schema/Interface
 export interface IContent {
   link?: string;
-  type:
-    | "image"
-    | "video"
-    | "article"
-    | "document"
-    | "tweet"
-    | "youtube";
+  type: "image" | "video" | "article" | "document" | "tweet" | "youtube";
   title: string;
   tags?: Schema.Types.ObjectId[];
   userId: Schema.Types.ObjectId;
   description?: string;
+  fileKey?: string;
+  expiry?: Date;
 }
 
 export type Handler = (req: Request, res: Response) => any;

@@ -5,7 +5,7 @@ const tagsSchema: Schema<ITags> = new Schema<ITags>({
   tagName: { type: String, required: true, unique: true },
 });
 
-tagsSchema.index({ tagName: 1 }, { unique: true });
+// tagsSchema.index({ tagName: 1 }, { unique: true });
 
 const Tags: Model<ITags> = model<ITags>("Tags", tagsSchema);
 

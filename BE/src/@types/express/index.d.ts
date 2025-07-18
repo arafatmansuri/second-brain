@@ -15,6 +15,7 @@ declare global {
         description?: string;
       }>;
       contentLink?: string | null;
+      fileKey?: string;
     }
   }
 }

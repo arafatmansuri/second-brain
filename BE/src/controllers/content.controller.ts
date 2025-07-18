@@ -4,6 +4,7 @@ import Link from "../models/link.model";
 import User from "../models/user.model";
 import { Handler, IContent, StatusCode } from "../types";
 import { generateHash } from "../utils/generateHash.util";
+import { generateSignedUrl } from "../utils/getSignedUrl";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
@@ -23,6 +24,8 @@ export const addContent: Handler = async (req, res): Promise<void> => {
       tags: tags?.map((tag) => tag._id),
       userId: userId,
       description: contentInput.data.description,
+      fileKey: req.fileKey,
+      expiry: new Date(new Date().getTime() + 59 * 60 * 1000),
     });
     res
       .status(StatusCode.Success)
@@ -88,6 +91,26 @@ export const displayContent: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
     const content = await Content.find({ userId: userId }).populate("tags");
+    if (
+      content.some(
+        (c) =>
+          (!c.expiry || c.expiry < new Date()) &&
+          (c.type == "document" || c.type == "image" || c.type == "video") &&
+          c.fileKey
+      )
+    ) {
+      content.map(async (c) => {
+        if (
+          (!c.expiry || c.expiry < new Date()) &&
+          (c.type == "document" || c.type == "image" || c.type == "video") &&
+          c.fileKey
+        ) {
+          c.link = await generateSignedUrl(c.fileKey);
+          c.expiry = new Date(new Date().getTime() + 59 * 60 * 1000);
+          await c.save({ validateBeforeSave: false });
+        }
+      });
+    }
     const user = await User.findById(userId).select("-password -refreshToken");
     if (!content) {
       res.status(StatusCode.NotFound).json({ message: "No contents found" });
