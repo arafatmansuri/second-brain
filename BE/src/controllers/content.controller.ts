@@ -1,4 +1,6 @@
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Schema } from "mongoose";
+import { s3 } from "../config/s3Config";
 import Content from "../models/content.model";
 import Link from "../models/link.model";
 import User from "../models/user.model";
@@ -29,7 +31,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     });
     res
       .status(StatusCode.Success)
-      .json({ message: "Content Added successfully", content });
+      .json({ message: `${content.type} Added successfully`, content });
     return;
   } catch (err: any) {
     res
@@ -72,13 +74,18 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
     const content = await Content.findOneAndDelete({
       $and: [{ _id: contentId, userId: userId }],
     });
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: content?.fileKey,
+    });
+    await s3.send(deleteCommand);
     if (!content) {
       res.status(StatusCode.NotFound).json({ message: "No content found" });
       return;
     }
     res
       .status(StatusCode.Success)
-      .json({ message: "Content deleted successfully" });
+      .json({ message: `${content.type} deleted successfully` });
     return;
   } catch (err) {
     res

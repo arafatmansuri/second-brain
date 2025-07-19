@@ -36,10 +36,6 @@ export function CreateContentModal() {
     setValue("file", null);
   }
   const addContent: SubmitHandler<createContentInputs> = async (data) => {
-    // const formData = new FormData();
-    // if (data.file) {
-    //   formData.append("file", data.file[0]);
-    // }
     addPostMutation.mutate({
       method: "POST",
       endpoint: "add",
