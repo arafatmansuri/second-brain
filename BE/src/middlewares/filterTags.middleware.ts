@@ -1,8 +1,5 @@
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { s3 } from "../config/s3Config";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
 import { generateContentLink } from "../utils/generateContentLink";
@@ -35,7 +32,6 @@ export const filterTags = async (
       return;
     }
     let link;
-    let file;
     if (
       contentInput.data.type == "raw" ||
       contentInput.data.type == "video" ||
@@ -57,7 +53,7 @@ export const filterTags = async (
         res.status(StatusCode.InputError).json({ message: "File is required" });
         return;
       }
-    } else
+    } else if (contentInput.data.type != "article")
       link = generateContentLink(
         contentInput.data.link,
         contentInput.data.type

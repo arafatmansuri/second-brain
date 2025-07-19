@@ -11,14 +11,13 @@ import { type PostData } from "../../store/postState";
 type PostFormData = {
   method: string;
   endpoint: string;
-  // data?: FormData
   data?: {
     title?: string;
     link?: string;
     type?: string;
     tags: string[];
     userId: string;
-    file?: Blob;
+    file?: File | null;
     description?: string;
   };
   contentType?: string;

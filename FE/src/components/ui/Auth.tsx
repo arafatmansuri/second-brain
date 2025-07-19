@@ -16,7 +16,6 @@ export function Auth({ authName }: authData) {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<Inputs>();
   const navigate = useNavigate();
@@ -35,14 +34,14 @@ export function Auth({ authName }: authData) {
     }
   };
   useEffect(() => {
-    if (!authMutation.isLoading && authMutation.isSuccess) {
+    if (!authMutation.isPending && authMutation.isSuccess) {
       setIsPopup({ popup: true, message: `${authName} successfull` });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
         navigate(navigationUrl);
       }, 1000);
     }
-  }, [authMutation.isSuccess, authMutation.isLoading]);
+  }, [authMutation.isSuccess, authMutation.isPending]);
   return (
     <div className="h-screen w-screen bg-gray-200 flex flex-col justify-center items-center">
       <div className="flex items-center gap-1 mb-5 fixed top-0 left-0 m-3">
@@ -72,6 +71,7 @@ export function Auth({ authName }: authData) {
             </span>
           )}
           <ui.Input
+            type="password"
             placeholder="Password"
             formHook={{
               ...register("password", { required: true, minLength: 8 }),
@@ -88,7 +88,7 @@ export function Auth({ authName }: authData) {
               Password length can't be less than 8
             </span>
           )}
-          {authMutation.error && (!errors.password && !errors.username) ? (
+          {authMutation.error && !errors.password && !errors.username ? (
             <ui.ErrorBox
               errorMessage={
                 authMutation.error.response?.data?.message

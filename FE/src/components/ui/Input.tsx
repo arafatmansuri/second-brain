@@ -9,7 +9,7 @@ export function Input({
   type?:string,
   formHook?:any,
   defaultValue?:string,
-  reference: any
+  reference?: any
 }) {
   return (
     <input
