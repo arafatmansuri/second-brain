@@ -50,7 +50,7 @@ export function Card({
     <div
       className={`${
         isModalOpen.open ? "bg-slate-500 opacity-50 border-0" : "bg-white"
-      } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:w-[30%] md:w-[40%] w-[80%]`}
+      } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:w-[45%] md:w-[40%] w-[80%]`}
     >
       <div className="flex justify-between items-center">
         <div className="flex justify-between items-center gap-2 text-gray-500">
@@ -120,7 +120,7 @@ export function Card({
           className="w-full max-h-72 rounded-md mt-3"
         ></iframe>
       )}
-      {description && (
+      {description && type !== "tweet" && (
         <div
           className={`text-wrap h-fit w-full ${
             type == "article" ? "text-lg p-1 text-wrap" : "text-xs p-2"

@@ -17,6 +17,7 @@
     "lodash": "^4.17.21",
     "nodemon": "^3.1.10",
     "react": "^18.3.1",
+    "react-doc-viewer": "^0.1.14",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.57.0",
     "react-router-dom": "^7.6.2",

@@ -45,7 +45,7 @@ export function CreateContentModal() {
         userId: user._id,
         description: data.description,
         link: data.link,
-        type: data.type,
+        type: data.type == "document" ? "raw" : data.type,
         file: data.file ? data.file[0] : null,
       },
       contentType: "multipart/form-data",

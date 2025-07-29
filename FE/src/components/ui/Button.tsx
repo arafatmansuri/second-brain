@@ -48,7 +48,7 @@ export function Button({
       type={type}
     >
       {startIcon}
-      <span className={`md:block ${!textVisible && "hidden"}`}>
+      <span className={`${!textVisible ? "hidden" : "md:block"}`}>
         {loading ? <icons.Loader /> : text}
       </span>
       {endIcon}

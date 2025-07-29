@@ -62,7 +62,6 @@ export const filterTags = async (
       res.status(StatusCode.InputError).json({ message: "Invalid link" });
       return;
     }
-    req.contentLink = link;
     const inputTags = contentInput.data.tags.map((tag) => ({ tagName: tag }));
     try {
       await Tags.insertMany(inputTags, { ordered: false });
@@ -72,6 +71,10 @@ export const filterTags = async (
     });
     req.tags = tags;
     req.contentInput = contentInput;
+    req.contentLink =
+      link !== undefined && typeof link != "string" ? link["contentLink"] : link;
+    req.contentLinkId =
+      link !== undefined && typeof link != "string" ? link["id"] : "";
     next();
   } catch (err) {
     res

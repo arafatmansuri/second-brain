@@ -18,7 +18,7 @@ import { postAtom, type PostData } from "../store/postState";
 import { userAtom } from "../store/userState";
 interface SahredBrainData {
   username: string;
-  content: PostData | ((currVal: PostData[]) => PostData[]);
+  content: PostData[] | ((currVal: PostData[]) => PostData[]);
 }
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
@@ -144,6 +144,16 @@ function Dashboard() {
             />
             <ui.Button
               size="md"
+              text={"Ask AI"}
+              startIcon={<icons.AI size={"sm"} />}
+              varient="primary"
+              textVisible={isDesktop}
+              onClick={() => {
+                setModalOpen({ open: true, modal: "search" });
+              }}
+            />
+            <ui.Button
+              size="md"
               text={"Share Brain"}
               startIcon={<icons.ShareIcon />}
               varient="secondary"
@@ -165,7 +175,7 @@ function Dashboard() {
           </div>
         </div>
         <section
-          className={`flex md:flex-row flex-col w-full flex-wrap md:items-start gap-5 items-center md:pl-8`}
+          className={`flex md:flex-row flex-col w-full flex-wrap md:items-start gap-5 items-center md:pl-5`}
         >
           {postsData.filter((post) => {
             if (searchParams.get("content") == "All Notes") {
@@ -225,6 +235,7 @@ function Dashboard() {
       </div>
       <ui.CreateContentModal />
       <ui.ShareContentMoal />
+      <ui.SearchBox />
       <ui.Popup />
     </div>
   );

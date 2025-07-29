@@ -39,6 +39,7 @@ export interface IContent {
   description?: string;
   fileKey?: string;
   expiry?: Date;
+  contentLinkId?: string
 }
 
 export type Handler = (req: Request, res: Response) => any;

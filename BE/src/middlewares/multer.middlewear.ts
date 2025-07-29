@@ -21,9 +21,11 @@ export const upload = multer({
     bucket: process.env.AWS_BUCKET_NAME || "",
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "private",
+    //@ts-ignore
     metadata: (req, file, cb) => {
       cb(null, { fieldName: file.fieldname });
     },
+    //@ts-ignore
     key: (req, file, cb) => {
       cb(null, `uploads/${Date.now()}-${file.originalname}`);
     },

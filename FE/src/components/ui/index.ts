@@ -10,4 +10,5 @@ export { ShareContentMoal } from "./ShareContentMoal";
 export { Sidebar } from "./Sidebar";
 export { SidebarItem } from "./SidebarItem";
 export { TextArea } from "./TextArea";
+export { SearchBox } from "./Search";
 

@@ -1,7 +1,7 @@
 import { atom } from "recoil";
 interface Modal {
   open: boolean;
-  modal: "share" | "create" | "";
+  modal: "share" | "create" | "" | "search";
 }
 export const addContentModalAtom = atom<Modal>({
   key: "addContentModalAtom",

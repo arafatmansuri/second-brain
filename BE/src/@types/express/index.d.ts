@@ -14,8 +14,9 @@ declare global {
         tags: string[];
         description?: string;
       }>;
-      contentLink?: string | null;
+      contentLink?: string;
       fileKey?: string;
+      contentLinkId?: string;
     }
   }
 }

@@ -16,6 +16,7 @@ const contentSchema = new Schema<IContent>(
     description: { type: String },
     fileKey: { type: String },
     expiry: { type: Date },
+    contentLinkId: { type: String },
   },
   { timestamps: true }
 );

@@ -7,6 +7,7 @@ import User from "../models/user.model";
 import { Handler, IContent, StatusCode } from "../types";
 import { generateHash } from "../utils/generateHash.util";
 import { generateSignedUrl } from "../utils/getSignedUrl";
+import { getTweetDescription } from "../utils/getTwitterDescription";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
@@ -18,6 +19,11 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     const userId = req.userId;
     const tags = req.tags;
     const contentInput = req.contentInput;
+    const contentLinkId = req.contentLinkId;
+    let tweetDescription: string;
+    if (contentLinkId && contentInput.data.type == "tweet") {
+      tweetDescription = await getTweetDescription(contentLinkId);
+    }
     const content: IContent = await Content.create({
       link: req.contentLink,
       type:
@@ -25,9 +31,13 @@ export const addContent: Handler = async (req, res): Promise<void> => {
       title: contentInput.data.title,
       tags: tags?.map((tag) => tag._id),
       userId: userId,
-      description: contentInput.data.description,
+      description:
+        contentLinkId && contentInput.data.type == "tweet"
+          ? tweetDescription
+          : contentInput.data.description,
       fileKey: req.fileKey,
       expiry: new Date(new Date().getTime() + 59 * 60 * 1000),
+      contentLinkId,
     });
     res
       .status(StatusCode.Success)
