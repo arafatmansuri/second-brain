@@ -51,6 +51,7 @@ async function run() {
     const options = { ordered: false };
 
     // Update documents with the new embedding field
+    
     const result = await collection.bulkWrite(updateDocuments, options);
     console.log("Count of documents updated: " + result.modifiedCount);
   } catch (err) {
