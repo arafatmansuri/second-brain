@@ -1,12 +1,11 @@
-import { model, Model, Schema } from "mongoose";
-import { ITags } from "../types";
+import { model, Schema } from "mongoose";
 
-const tagsSchema: Schema<ITags> = new Schema<ITags>({
+const tagsSchema = new Schema({
   tagName: { type: String, required: true, unique: true },
 });
 
 // tagsSchema.index({ tagName: 1 }, { unique: true });
 
-const Tags: Model<ITags> = model<ITags>("Tags", tagsSchema);
+const Tags = model("Tags", tagsSchema);
 
 export default Tags;

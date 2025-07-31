@@ -39,7 +39,7 @@ export const signup: Handler = async (req, res): Promise<void> => {
       });
       return;
     }
-    const user: IUserDocument | IUser = await User.create({
+    const user = await User.create({
       username: userInput.data.username,
       password: userInput.data.password,
     });
@@ -62,7 +62,7 @@ export const signin: Handler = async (req, res): Promise<void> => {
       });
       return;
     }
-    const user = await User.findOne<IUserDocument>({
+    const user = await User.findOne({
       username: username,
     });
     if (!user) {
@@ -105,7 +105,7 @@ export const signin: Handler = async (req, res): Promise<void> => {
 export const getUser: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
-    const user = await User.findById<IUserDocument>(userId);
+    const user = await User.findById(userId);
     res
       .status(StatusCode.Success)
       .json({ message: "user data fetched success", user });
@@ -133,7 +133,7 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
       res.status(StatusCode.Unauthorized).json({ message: "Unauthorized" });
       return;
     }
-    const user = await User.findById<IUserDocument>(decodedToken._id);
+    const user = await User.findById(decodedToken._id);
     if (!user) {
       res
         .status(StatusCode.Unauthorized)

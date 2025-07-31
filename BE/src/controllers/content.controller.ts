@@ -1,13 +1,16 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Schema } from "mongoose";
 import { s3 } from "../config/s3Config";
+import { createEmbeddings } from "../db/create-embeddings";
 import Content from "../models/content.model";
+import Embedding from "../models/embedding.model";
 import Link from "../models/link.model";
 import User from "../models/user.model";
-import { Handler, IContent, StatusCode } from "../types";
+import { Handler, StatusCode } from "../types";
 import { generateHash } from "../utils/generateHash.util";
 import { generateSignedUrl } from "../utils/getSignedUrl";
-import { getTweetDescription } from "../utils/getTwitterDescription";
+import { getTweetDescription } from "../utils/getTranscript";
+import { generateDataAndEmbeddings } from "../utils/generateDataAndEmbeddings";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
@@ -24,7 +27,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     if (contentLinkId && contentInput.data.type == "tweet") {
       tweetDescription = await getTweetDescription(contentLinkId);
     }
-    const content: IContent = await Content.create({
+    const content = await Content.create({
       link: req.contentLink,
       type:
         contentInput.data.type == "raw" ? "document" : contentInput.data.type,
@@ -33,7 +36,8 @@ export const addContent: Handler = async (req, res): Promise<void> => {
       userId: userId,
       description:
         contentLinkId && contentInput.data.type == "tweet"
-          ? tweetDescription
+          ? //@ts-ignore
+            tweetDescription
           : contentInput.data.description,
       fileKey: req.fileKey,
       expiry: new Date(new Date().getTime() + 59 * 60 * 1000),
@@ -42,6 +46,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     res
       .status(StatusCode.Success)
       .json({ message: `${content.type} Added successfully`, content });
+    await generateDataAndEmbeddings(content._id);
     return;
   } catch (err: any) {
     res
@@ -86,7 +91,7 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
     });
     const deleteCommand = new DeleteObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: content?.fileKey,
+      Key: content?.fileKey || "",
     });
     await s3.send(deleteCommand);
     if (!content) {

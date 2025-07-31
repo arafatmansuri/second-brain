@@ -1,8 +1,9 @@
 import { AssemblyAI, TranscribeParams } from "assemblyai";
+import axios from "axios";
 import pdf from "pdf-parse";
-
+import { createWorker } from "tesseract.js";
 import { YoutubeTranscript } from "youtube-transcript";
-export const getTransript = async (link: string) => {
+export const getVideoTransript = async (link: string) => {
   try {
     const client = new AssemblyAI({
       apiKey: process.env.ASSEMBLY_AI as string,
@@ -17,16 +18,17 @@ export const getTransript = async (link: string) => {
     const transcript = await client.transcripts.transcribe(params);
 
     console.log(transcript.text);
-    return transcript.text;
+    return transcript.text || "";
   } catch (err) {
     console.log("Assembly transcipt error", err);
-    return null;
+    return "";
   }
 };
 
 export const getYoutubeTranscript = async (id: string) => {
   const transcript = await YoutubeTranscript.fetchTranscript(id);
-  return transcript;
+  const data: string[] = transcript.map((t) => t.text);
+  return data.join(",");
 };
 
 export const getPDFTranscript = async (url: string) => {
@@ -41,4 +43,29 @@ export const getPDFTranscript = async (url: string) => {
     console.error("Error extracting PDF:", error);
     return "";
   }
+};
+export const getTweetDescription = async (id: string): Promise<string> => {
+  try {
+    const response = await axios.get(
+      `https://api.x.com/2/tweets/${id}?tweet.fields=id,text`,
+      {
+        headers: {
+          Authorization: process.env.X_BEARER_TOKEN,
+        },
+      }
+    );
+    return response.data.data.text;
+  } catch (err) {
+    return "";
+  }
+};
+
+export const getDocumentText = async (link: string) => {
+  const worker = await createWorker("eng", 1, {
+    logger: (m) => console.log(m),
+  });
+  const ret = await worker.recognize(link);
+  console.log(ret.data.text);
+  await worker.terminate();
+  return ret.data.text;
 };

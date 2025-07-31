@@ -1,8 +1,7 @@
 import { model, Schema } from "mongoose";
-import { IContent } from "../types";
 import User from "./user.model";
 
-const contentSchema = new Schema<IContent>(
+const contentSchema = new Schema(
   {
     link: { type: String },
     type: {
@@ -29,6 +28,6 @@ contentSchema.pre("save", async function (next) {
   next();
 });
 
-const Content = model<IContent>("Content", contentSchema);
+const Content = model("Content", contentSchema);
 
 export default Content;

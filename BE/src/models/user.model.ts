@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose, { Schema } from "mongoose";
-import { IUser, IUserDocument } from "../types";
-const userSchema = new Schema<IUser, IUserDocument>({
+import { IUserDocument } from "../types";
+const userSchema = new Schema({
   username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
   shared: { type: Boolean, default: false },
@@ -46,6 +46,6 @@ userSchema.statics.isUserExists = async function (
   }
   return false;
 };
-const User = mongoose.model<IUser, IUserDocument>("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;

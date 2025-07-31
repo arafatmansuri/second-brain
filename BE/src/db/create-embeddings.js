@@ -9,7 +9,7 @@ export const createEmbeddings = async (data, id) => {
     await client.connect();
     const db = client.db("brainly");
     const collection = db.collection("embeddings");
-
+    
     var embedding = await getEmbedding(data);
     // console.log(embedding);
     // const bsonEmbedding = await convertEmbeddingsToBSON([embedding]);

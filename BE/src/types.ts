@@ -31,6 +31,7 @@ export interface ITags extends Document {
 }
 // Content Schema/Interface
 export interface IContent {
+  [x: string]: any;
   link?: string;
   type: "image" | "video" | "article" | "document" | "tweet" | "youtube";
   title: string;
