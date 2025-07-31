@@ -1,33 +1,34 @@
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 dotenv.config();
-// connect to your Atlas deployment
+
 const client = new MongoClient(process.env.MONGODB_URI);
 
 async function run() {
   try {
     const database = client.db("brainly");
-    const collection = database.collection("contents");
+    const collection = database.collection("embeddings");
 
-    // Define your Atlas Vector Search index
+    // ✅ Correct Vector Index Definition
     const index = {
       name: "vector_index",
-      type: "vectorSearch",
       definition: {
-        fields: [
-          {
-            type: "vector",
-            path: "embedding",
-            similarity: "dotProduct",
-            numDimensions: 768,
+        mappings: {
+          dynamic: true,
+          fields: {
+            embedding: {
+              type: "knnVector",
+              dimensions: 768,
+              similarity: "dotProduct", // or "cosine"
+            },
           },
-        ],
+        },
       },
     };
 
-    // Call the method to create the index
+    // 🛠️ Create the search index
     const result = await collection.createSearchIndex(index);
-    console.log(result);
+    console.log("Index created:", result);
   } finally {
     await client.close();
   }

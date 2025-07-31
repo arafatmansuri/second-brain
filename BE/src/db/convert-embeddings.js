@@ -15,7 +15,7 @@ export async function convertEmbeddingsToBSON(float32_embeddings) {
       }
       return Binary.fromFloat32Array(new Float32Array(embedding));
     });
-
+    
     // Return the BSON embedding
     return bsonFloat32Embeddings[0];
   } catch (error) {

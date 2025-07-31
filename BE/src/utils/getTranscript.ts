@@ -26,6 +26,7 @@ export const getTransript = async (link: string) => {
 
 export const getYoutubeTranscript = async (id: string) => {
   const transcript = await YoutubeTranscript.fetchTranscript(id);
+  return transcript;
 };
 
 export const getPDFTranscript = async (url: string) => {

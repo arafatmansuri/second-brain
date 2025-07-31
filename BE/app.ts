@@ -22,7 +22,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.static("./public"));
 
-app.get("/check", (req, res) => {
+app.get("/check", async (req, res) => {
   res.json({ message: "Working" });
   return;
 });
