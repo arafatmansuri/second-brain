@@ -12,9 +12,6 @@ export const generateDataAndEmbeddings = async (
   contentId: mongoose.Types.ObjectId
 ) => {
   const content = await Content.findById(contentId);
-  const embeddingCollection = await Embedding.create({
-    contentId: content?._id,
-  });
   let data = "";
   switch (content?.type) {
     case "article":
@@ -39,5 +36,10 @@ export const generateDataAndEmbeddings = async (
     default:
       break;
   }
+  const embeddingCollection = await Embedding.create({
+    contentId: content?._id,
+    userId: content?.userId,
+    data: data,
+  });
   await createEmbeddings(data, embeddingCollection._id);
 };

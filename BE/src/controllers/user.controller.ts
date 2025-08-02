@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import User from "../models/user.model";
-import { Handler, IUser, IUserDocument, StatusCode } from "../types";
+import { Handler, StatusCode } from "../types";
 const userInputSchema = z.object({
   username: z
     .string()
@@ -150,7 +150,6 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
     };
     res
       .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
       .status(StatusCode.Success)
       .json({ message: "Access token refreshed" });
     return;

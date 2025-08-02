@@ -48,4 +48,49 @@ async function run() {
     await client.close();
   }
 }
-run().catch(console.dir);
+// run().catch(console.dir);
+export const searchFromEmbeddings = async (query) => {
+  try {
+    // Connect to the MongoDB client
+    await client.connect();
+
+    // Specify the database and collection
+    const database = client.db("brainly");
+    const collection = database.collection("embeddings");
+
+    // Generate embedding for the search query
+    const queryEmbedding = await getEmbedding(query);
+    // Define the sample vector search pipeline
+    const pipeline = [
+      {
+        $vectorSearch: {
+          index: "vector_index",
+          queryVector: queryEmbedding,
+          path: "embedding",
+          exact: true,
+          limit: 5,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          data: 1,
+          score: {
+            $meta: "vectorSearchScore",
+          },
+        },
+      },
+    ];
+
+    // run pipeline
+    const result = collection.aggregate(pipeline);
+    const resultArray = [];
+    for await (const doc of result) {
+      // console.dir(JSON.stringify(doc));
+      resultArray.push(doc);
+    }
+    return resultArray;
+  } finally {
+    await client.close();
+  }
+};

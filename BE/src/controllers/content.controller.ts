@@ -1,16 +1,15 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Schema } from "mongoose";
 import { s3 } from "../config/s3Config";
-import { createEmbeddings } from "../db/create-embeddings";
 import Content from "../models/content.model";
-import Embedding from "../models/embedding.model";
 import Link from "../models/link.model";
 import User from "../models/user.model";
 import { Handler, StatusCode } from "../types";
+import { generateDataAndEmbeddings } from "../utils/generateDataAndEmbeddings";
 import { generateHash } from "../utils/generateHash.util";
+import { generateAnswer } from "../utils/generateResult";
 import { generateSignedUrl } from "../utils/getSignedUrl";
 import { getTweetDescription } from "../utils/getTranscript";
-import { generateDataAndEmbeddings } from "../utils/generateDataAndEmbeddings";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
@@ -227,6 +226,23 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
       });
       return;
     }
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from our side" });
+    return;
+  }
+};
+export const queryFromContent: Handler = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { query } = req.body;
+    const result = await generateAnswer(query);
+
+    res
+      .status(StatusCode.Success)
+      .json({ message: "answer generated successfully", answer: result });
+    return;
   } catch (err) {
     res
       .status(StatusCode.ServerError)

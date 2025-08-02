@@ -4,6 +4,7 @@ import {
   deleteContent,
   displayContent,
   displaySharedContent,
+  queryFromContent,
   shareContent,
   updateContent,
 } from "../controllers/content.controller";
@@ -21,5 +22,6 @@ contentRouter.route("/update/:id").put(filterTags, updateContent);
 contentRouter.route("/delete/:id").delete(deleteContent);
 contentRouter.route("/displayall").get(displayContent);
 contentRouter.route("/share").put(shareContent);
+contentRouter.route("/askai").post(queryFromContent);
 
 export default contentRouter;
