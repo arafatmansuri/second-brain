@@ -122,8 +122,10 @@ export function Card({
       )}
       {description && type !== "tweet" && (
         <div
-          className={`text-wrap h-fit w-full ${
-            type == "article" ? "text-lg p-1 text-wrap" : "text-xs p-2"
+          className={`text-wrap w-full ${
+            type == "article"
+              ? "text-md p-2 text-wrap max-h-72 overflow-y-auto text-left"
+              : "text-xs p-2"
           }`}
         >
           {description}
@@ -142,7 +144,8 @@ export function Card({
         </div>
       )}
       <div className="text-sm text-gray-400 mt-2 w-full text-nowrap">
-        Added on {`${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`}
+        Added on{" "}
+        {`${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`}
       </div>
     </div>
   );

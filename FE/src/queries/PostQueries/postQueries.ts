@@ -15,10 +15,11 @@ type PostFormData = {
     title?: string;
     link?: string;
     type?: string;
-    tags: string[];
-    userId: string;
+    tags?: string[];
+    userId?: string;
     file?: File | null;
     description?: string;
+    query?: string;
   };
   contentType?: string;
 };
@@ -38,6 +39,9 @@ const fetchPosts = async <T>({
   });
   if (method == "PUT" || endpoint.includes("display?share=")) {
     return posts.data;
+  }
+  if (endpoint.includes("askai")) {
+    return posts.data.answer;
   }
   return posts.data.content;
 };
