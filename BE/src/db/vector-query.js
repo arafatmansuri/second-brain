@@ -61,7 +61,9 @@ export const searchFromEmbeddings = async (query) => {
     // Generate embedding for the search query
     const queryEmbedding = await getEmbedding(query);
     // Define the sample vector search pipeline
-    const pipeline = [
+
+    // run pipeline
+    const result = collection.aggregate([
       {
         $vectorSearch: {
           index: "vector_index",
@@ -80,14 +82,11 @@ export const searchFromEmbeddings = async (query) => {
           },
         },
       },
-    ];
-
-    // run pipeline
-    const result = collection.aggregate(pipeline);
+    ]);
     const resultArray = [];
     for await (const doc of result) {
-      // console.dir(JSON.stringify(doc));
       resultArray.push(doc);
+      // console.log(doc);
     }
     return resultArray;
   } finally {

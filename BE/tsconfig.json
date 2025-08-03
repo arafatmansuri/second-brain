@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "allowJs": true
   },
-  "include": ["server.ts","src/@types/express"]
+  "include": ["server.ts", "src/@types/express"]
 }

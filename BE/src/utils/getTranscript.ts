@@ -1,6 +1,6 @@
 import { AssemblyAI, TranscribeParams } from "assemblyai";
 import axios from "axios";
-import pdf from "pdf-parse";
+import fetch from "node-fetch";
 import { createWorker } from "tesseract.js";
 import { YoutubeTranscript } from "youtube-transcript";
 export const getVideoTransript = async (link: string) => {
@@ -17,7 +17,7 @@ export const getVideoTransript = async (link: string) => {
     };
     const transcript = await client.transcripts.transcribe(params);
 
-    console.log(transcript.text);
+    // console.log(transcript.text);
     return transcript.text || "";
   } catch (err) {
     console.log("Assembly transcipt error", err);
@@ -36,8 +36,9 @@ export const getPDFTranscript = async (url: string) => {
     const response = await fetch(url);
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    const pdf = (await import("pdf-parse")).default;
     const data = await pdf(buffer);
-    console.log("Extracted Text:", data.text);
+    //console.log("Extracted Text:", data.text);
     return data.text;
   } catch (error) {
     console.error("Error extracting PDF:", error);
@@ -65,7 +66,7 @@ export const getDocumentText = async (link: string) => {
     logger: (m) => console.log(m),
   });
   const ret = await worker.recognize(link);
-  console.log(ret.data.text);
+  // console.log(ret.data.text);
   await worker.terminate();
   return ret.data.text;
 };
