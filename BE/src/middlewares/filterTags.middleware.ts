@@ -14,7 +14,7 @@ export const contentSchema = z.object({
   type: z.enum(["image", "video", "article", "raw", "tweet", "youtube"], {
     message: "Invalid content type",
   }),
-  tags: z.string().array(),
+  tags: z.string().array().optional(),
   description: z.string().optional(),
 });
 export const filterTags = async (
@@ -62,17 +62,19 @@ export const filterTags = async (
       res.status(StatusCode.InputError).json({ message: "Invalid link" });
       return;
     }
-    const inputTags = contentInput.data.tags.map((tag) => ({ tagName: tag }));
+    const inputTags = contentInput.data.tags && contentInput.data.tags.map((tag) => ({ tagName: tag }));
     try {
       await Tags.insertMany(inputTags, { ordered: false });
     } catch (err) {}
-    const tags = await Tags.find({
+    const tags = inputTags && await Tags.find({
       tagName: { $in: inputTags.map((tag) => tag.tagName) },
     });
     req.tags = tags;
     req.contentInput = contentInput;
     req.contentLink =
-      link !== undefined && typeof link != "string" ? link["contentLink"] : link;
+      link !== undefined && typeof link != "string"
+        ? link["contentLink"]
+        : link;
     req.contentLinkId =
       link !== undefined && typeof link != "string" ? link["id"] : "";
     next();

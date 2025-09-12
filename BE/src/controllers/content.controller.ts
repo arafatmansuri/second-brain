@@ -88,14 +88,20 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
     const content = await Content.findOneAndDelete({
       $and: [{ _id: contentId, userId: userId }],
     });
-    const deleteCommand = new DeleteObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: content?.fileKey || "",
-    });
-    await s3.send(deleteCommand);
     if (!content) {
       res.status(StatusCode.NotFound).json({ message: "No content found" });
       return;
+    }
+    if (
+      content.type == "image" ||
+      content.type == "video" ||
+      content.type == "document"
+    ) {
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: content.fileKey || "",
+      });
+      await s3.send(deleteCommand);
     }
     res
       .status(StatusCode.Success)

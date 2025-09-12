@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useRefreshTokenMutation } from "../../queries/AuthQueries/queries";
@@ -21,8 +21,10 @@ type createContentInputs = {
 export function CreateContentModal() {
   const user = useRecoilValue(userAtom);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
+  const [tags, setTags] = useState<string[]>([]);
   const setIsPopup = useSetRecoilState(popupAtom);
-  const { register, handleSubmit, setValue } = useForm<createContentInputs>();
+  const { register, handleSubmit, setValue, getValues } =
+    useForm<createContentInputs>();
   const contentType = useRecoilValue(typeAtom);
   const addPostMutation = usePostMutation<PostData>();
   const refreshTokenMutation = useRefreshTokenMutation();
@@ -41,7 +43,7 @@ export function CreateContentModal() {
       endpoint: "add",
       data: {
         title: data.title,
-        tags: data.tags.split(" "),
+        tags: tags,
         userId: user._id,
         description: data.description,
         link: data.link,
@@ -65,6 +67,7 @@ export function CreateContentModal() {
         setValue("tags", "");
         setValue("type", "select");
         setValue("file", null);
+        setTags([]);
       }, 500);
       setTimeout(() => {
         setIsPopup({ popup: false, message: "" });
@@ -122,7 +125,34 @@ export function CreateContentModal() {
             placeholder={contentType == "article" ? "Article" : "Description"}
             formHook={{ ...register("description") }}
           />
-          <ui.Input placeholder="Tags" formHook={{ ...register("tags") }} />
+          <div className="flex gap-2">
+            <ui.Input placeholder="Tags" formHook={{ ...register("tags") }} />
+            <ui.Button
+              size="sm"
+              text="add"
+              varient="secondary"
+              classes="py-2"
+              textVisible={true}
+              widthFull={false}
+              onClick={() => setTags((prev) => [...prev, getValues("tags")])}
+            />
+          </div>
+          <div className="flex gap-2">
+            {tags.map((tag, index) => (
+              <ui.Button
+                key={index}
+                size="md"
+                text={tag}
+                varient="secondary"
+                endIcon={
+                  <icons.CrossIcon
+                    size="sm"
+                    onClick={() => setTags((p) => p.filter((t) => t != tag))}
+                  />
+                }
+              />
+            ))}
+          </div>
         </div>
         {addPostMutation.isError && (
           <ui.ErrorBox

@@ -11,7 +11,7 @@ declare global {
         type: "image" | "video" | "article" | "raw" | "tweet" | "youtube";
         link?: string;
         title: string;
-        tags: string[];
+        tags?: string[];
         description?: string;
       }>;
       contentLink?: string;

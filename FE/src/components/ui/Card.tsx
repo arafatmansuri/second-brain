@@ -1,3 +1,11 @@
+import {
+  BookText,
+  ImageIcon,
+  Newspaper,
+  SquarePlay,
+  Twitter,
+  VideoIcon,
+} from "lucide-react";
 import type React from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -54,16 +62,14 @@ export function Card({
     >
       <div className="flex justify-between items-center">
         <div className="flex justify-between items-center gap-2 text-gray-500">
-          {type == "tweet" ? (
-            <icons.TwitterIcon />
-          ) : (
-            <icons.YoutubeIcon size="sm" />
-          )}
-          <h3
-            className={`font-semibold text-black ${
-              isLoading ? "bg-gray-800" : "bg-none"
-            }`}
-          >
+          {type == "tweet" && <Twitter />}
+          {type == "youtube" && <SquarePlay />}
+          {type == "image" && <ImageIcon />}
+          {type == "document" && <BookText />}
+          {type == "video" && <VideoIcon />}
+          {type == "article" && <Newspaper />}
+          <h3 className={`font-semibold text-black`}>
+            {/* ${isLoading ? "bg-gray-800" : "bg-none"} */}
             {title}
           </h3>
         </div>

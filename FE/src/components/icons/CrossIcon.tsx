@@ -1,6 +1,6 @@
 import { iconSizeVariants, type IconProps } from ".";
 
-export function CrossIcon({ size }: IconProps) {
+export function CrossIcon({ size,onClick }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -9,6 +9,7 @@ export function CrossIcon({ size }: IconProps) {
       strokeWidth={1.5}
       stroke="currentColor"
       className={iconSizeVariants[size || "md"]}
+      onClick={onClick}
     >
       <path
         strokeLinecap="round"

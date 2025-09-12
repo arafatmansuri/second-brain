@@ -35,7 +35,7 @@ export function Button({
   textVisible = true,
   widthFull,
   classes,
-  type
+  type="button"
 }: ButtonProps) {
   return (
     <button

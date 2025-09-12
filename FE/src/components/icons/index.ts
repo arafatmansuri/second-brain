@@ -16,6 +16,7 @@ export { YoutubeIcon } from "./YoutubeIcon";
 
 export interface IconProps {
   size?: "sm" | "md" | "lg";
+  onClick?: ()=>void;
 }
 
 export const iconSizeVariants = {

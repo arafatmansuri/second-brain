@@ -31,7 +31,7 @@ export const generateDataAndEmbeddings = async (
       data = await getYoutubeTranscript(content.contentLinkId || "");
       break;
     case "video":
-      data = await getVideoTransript(content.contentLinkId || "");
+      data = await getVideoTransript(content.link || "");
       break;
     default:
       break;

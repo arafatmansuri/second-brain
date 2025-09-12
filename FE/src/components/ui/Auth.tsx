@@ -116,7 +116,7 @@ export function Auth({ authName }: authData) {
             </p>
           ) : (
             <p>
-              Having account?{" "}
+              Already have an account?{" "}
               <a href="/signin" className="text-blue-400 hover:underline">
                 signin
               </a>

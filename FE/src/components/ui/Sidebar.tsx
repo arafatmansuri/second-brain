@@ -4,6 +4,8 @@ import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { sidebarAtom } from "../../store/sideBarState";
 import { icons, ui } from "../index";
+import { BookIcon, BookText, ImageIcon, Newspaper, SquarePlay, Twitter, VideoIcon, Youtube } from "lucide-react";
+import { TwitterIcon, YoutubeIcon } from "../icons";
 export function Sidebar() {
   const isModalOpen = useRecoilValue(addContentModalAtom);
   const [isSidebarOpen, setIsSideBarOpen] = useRecoilState(sidebarAtom);
@@ -41,13 +43,13 @@ export function Sidebar() {
         </div>
       </div>
       <div className="flex flex-col gap-2 font-semibold text-gray-700">
-        <ui.SidebarItem text="Tweets" icon={<icons.TwitterIcon />} />
-        <ui.SidebarItem text="Videos" icon={<icons.YoutubeIcon />} />
-        <ui.SidebarItem text="Youtube" icon={<icons.YoutubeIcon />} />
-        <ui.SidebarItem text="Images" icon={<icons.YoutubeIcon />} />
-        <ui.SidebarItem text="Documents" icon={<icons.YoutubeIcon />} />
-        <ui.SidebarItem text="Articles" icon={<icons.YoutubeIcon />} />
-        <ui.SidebarItem text="Tags" icon={<icons.YoutubeIcon />} />
+        <ui.SidebarItem text="Tweets" icon={<Twitter />} />
+        <ui.SidebarItem text="Videos" icon={<VideoIcon />} />
+        <ui.SidebarItem text="Youtube" icon={<SquarePlay />} />
+        <ui.SidebarItem text="Images" icon={<ImageIcon />} />
+        <ui.SidebarItem text="Documents" icon={<BookText />} />
+        <ui.SidebarItem text="Articles" icon={<Newspaper />} />
+        {/* <ui.SidebarItem text="Tags" icon={<icons.YoutubeIcon />} /> */}
       </div>
     </div>
   );
