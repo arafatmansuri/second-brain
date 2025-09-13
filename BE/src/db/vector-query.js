@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 import { getEmbedding } from "./get-embeddings.js";
 dotenv.config();
 
@@ -49,7 +50,7 @@ async function run() {
   }
 }
 // run().catch(console.dir);
-export const searchFromEmbeddings = async (query) => {
+export const searchFromEmbeddings = async (query, userId) => {
   try {
     // Connect to the MongoDB client
     await client.connect();
@@ -61,7 +62,7 @@ export const searchFromEmbeddings = async (query) => {
     // Generate embedding for the search query
     const queryEmbedding = await getEmbedding(query);
     // Define the sample vector search pipeline
-
+    // console.log(JSON.stringify(queryEmbedding));
     // run pipeline
     const result = collection.aggregate([
       {
@@ -71,6 +72,11 @@ export const searchFromEmbeddings = async (query) => {
           path: "embedding",
           exact: true,
           limit: 5,
+        },
+      },
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
         },
       },
       {

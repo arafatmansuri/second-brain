@@ -244,7 +244,7 @@ export const queryFromContent: Handler = async (req, res) => {
   try {
     const userId = req.userId;
     const { query } = req.body;
-    const result = await generateAnswer(query);
+    const result = await generateAnswer(query,userId);
     res
       .status(StatusCode.Success)
       .json({ message: "answer generated successfully", answer: result });
