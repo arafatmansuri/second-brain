@@ -20,6 +20,9 @@ type PostFormData = {
     file?: File | null;
     description?: string;
     query?: string;
+    fileName?:string;
+    fileType?:string;
+    fileKey?:string
   };
   contentType?: string;
 };
@@ -42,6 +45,9 @@ const fetchPosts = async <T>({
   }
   if (endpoint.includes("askai")) {
     return posts.data.answer;
+  }
+  if (endpoint.includes("uploadUrl")) {
+    return posts.data;
   }
   return posts.data.content;
 };

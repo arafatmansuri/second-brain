@@ -1,4 +1,5 @@
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Schema } from "mongoose";
 import { s3 } from "../config/s3Config";
 import Content from "../models/content.model";
@@ -38,8 +39,8 @@ export const addContent: Handler = async (req, res): Promise<void> => {
           ? //@ts-ignore
             tweetDescription
           : contentInput.data.description,
-      fileKey: req.fileKey,
-      expiry: new Date(new Date().getTime() + 59 * 60 * 1000),
+      fileKey: contentInput.data.fileKey,
+      expiry: null,
       contentLinkId,
     });
     res
@@ -248,6 +249,27 @@ export const queryFromContent: Handler = async (req, res) => {
       .status(StatusCode.Success)
       .json({ message: "answer generated successfully", answer: result });
     return;
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from our side" });
+    return;
+  }
+};
+export const generateUploadUrl: Handler = async (req, res) => {
+  try {
+    const { fileName, fileType } = req.body;
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      ContentType: fileType,
+    });
+    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+    res.json({
+      uploadUrl,
+      // fileUrl: `https://${process.env.AWS_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/uploads/${fileName}`,
+    });
+    return
   } catch (err) {
     res
       .status(StatusCode.ServerError)

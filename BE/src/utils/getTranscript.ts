@@ -63,10 +63,11 @@ export const getTweetDescription = async (id: string): Promise<string> => {
 
 export const getDocumentText = async (link: string) => {
   const worker = await createWorker("eng", 1, {
-    logger: (m) => console.log(m),
+    // logger: (m) => console.log(m),
   });
   const ret = await worker.recognize(link);
   // console.log(ret.data.text);
   await worker.terminate();
   return ret.data.text;
+  // return "ret.data.text";
 };

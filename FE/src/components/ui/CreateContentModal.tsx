@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -27,6 +28,7 @@ export function CreateContentModal() {
     useForm<createContentInputs>();
   const contentType = useRecoilValue(typeAtom);
   const addPostMutation = usePostMutation<PostData>();
+  const getUploadUrlMutation = usePostMutation<{ uploadUrl: string }>();
   const refreshTokenMutation = useRefreshTokenMutation();
   function onClose() {
     setIsModalOpen({ open: false, modal: "create" });
@@ -38,20 +40,69 @@ export function CreateContentModal() {
     setValue("file", null);
   }
   const addContent: SubmitHandler<createContentInputs> = async (data) => {
-    addPostMutation.mutate({
-      method: "POST",
-      endpoint: "add",
-      data: {
-        title: data.title,
-        tags: tags,
-        userId: user._id,
-        description: data.description,
-        link: data.link,
-        type: data.type == "document" ? "raw" : data.type,
-        file: data.file ? data.file[0] : null,
-      },
-      contentType: "multipart/form-data",
-    });
+    const file: File | null = data.file ? data.file[0] : null;
+    if (
+      (data.type == "image" ||
+        data.type == "video" ||
+        data.type == "document") &&
+      file
+    ) {
+      let uploadUrl = "";
+      getUploadUrlMutation.mutate(
+        {
+          endpoint: "uploadUrl",
+          method: "POST",
+          data: {
+            fileName: file.name,
+            fileType: file.type,
+          },
+        },
+        {
+          async onSuccess(data1) {
+            uploadUrl = data1.uploadUrl;
+            addPostMutation.mutate({
+              method: "POST",
+              endpoint: "add",
+              data: {
+                title: data.title,
+                tags: tags,
+                userId: user._id,
+                description: data.description,
+                link: data.link,
+                type: data.type == "document" ? "raw" : data.type,
+                fileKey: file.name,
+              },
+            });
+          await axios.put(uploadUrl, file, {
+              headers: {
+                "Content-Type": file.type,
+              },
+              // onUploadProgress: (progressEvent) => {
+              //   const progress = Math.round(
+              //     (progressEvent.loaded * 100) / progressEvent.total
+              //   );
+              //   setUploadProgress(progress);
+              // },
+            });
+          },
+          
+        }
+      );
+    } else
+      addPostMutation.mutate({
+        method: "POST",
+        endpoint: "add",
+        data: {
+          title: data.title,
+          tags: tags,
+          userId: user._id,
+          description: data.description,
+          link: data.link,
+          type: data.type == "document" ? "raw" : data.type,
+          // file: file,
+        },
+        // contentType: "multipart/form-data",
+      });
   };
   useEffect(() => {
     setValue("type", "select");

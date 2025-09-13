@@ -13,6 +13,7 @@ declare global {
         title: string;
         tags?: string[];
         description?: string;
+        fileKey?:string
       }>;
       contentLink?: string;
       fileKey?: string;
