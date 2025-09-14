@@ -3,8 +3,8 @@ import cors from "cors";
 import express from "express";
 import contentRouter from "./src/routes/content.route";
 import userRouter from "./src/routes/user.route";
+import { apiLimiter, rateLimiterMiddleware, userKeyGenerator } from "./src/middlewares/rateLimiter.middleware";
 const app = express();
-
 const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
 app.use(express.json());
 app.use(
@@ -21,7 +21,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.static("./public"));
-
+app.use(rateLimiterMiddleware(apiLimiter,userKeyGenerator))
 app.get("/check", async (req, res) => {
   res.json({ message: "Working" });
   return;
