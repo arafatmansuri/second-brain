@@ -83,3 +83,7 @@ export const useRefreshTokenMutation = () => {
     });
   });
 };
+export const googleAuth = (code: string) =>
+  axios.get(`${BACKEND_URL}/api/v1/user/auth/google?code=${code}`, {
+    withCredentials: true,
+  });

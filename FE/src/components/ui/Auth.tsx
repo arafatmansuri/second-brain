@@ -5,6 +5,8 @@ import { useSetRecoilState } from "recoil";
 import { useAuthMutation } from "../../queries/AuthQueries/queries";
 import { popupAtom } from "../../store/loadingState";
 import { icons, ui } from "../index";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import GoogleLoginButton from "./GoogleLogin";
 type Inputs = {
   username: string;
   password: string;
@@ -123,6 +125,9 @@ export function Auth({ authName }: authData) {
             </p>
           )}
         </form>
+        <GoogleOAuthProvider clientId="671836512515-qml9ur04oo8rfu9rvs257i4uf2bka2eb.apps.googleusercontent.com">
+        <GoogleLoginButton text={authName}/>
+        </GoogleOAuthProvider>
       </div>
       <ui.Popup />
     </div>

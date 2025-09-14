@@ -1,7 +1,9 @@
+import axios from "axios";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import User from "../models/user.model";
 import { Handler, StatusCode } from "../types";
+import { oAuth2Client } from "../utils/OAuth2Client";
 const userInputSchema = z.object({
   username: z
     .string()
@@ -42,6 +44,7 @@ export const signup: Handler = async (req, res): Promise<void> => {
     const user = await User.create({
       username: userInput.data.username,
       password: userInput.data.password,
+      method: "normal",
     });
     res
       .status(StatusCode.Success)
@@ -94,6 +97,44 @@ export const signin: Handler = async (req, res): Promise<void> => {
       .cookie("accessToken", accessToken, cookieOptions)
       .cookie("refreshToken", refreshToken, cookieOptions)
       .status(StatusCode.Success)
+      .json({ message: "signin successfull", user });
+    return;
+  } catch (err: any) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: err.message || "Something went wrong from ourside" });
+  }
+};
+export const googleSignin: Handler = async (req, res): Promise<void> => {
+  try {
+    const code = req.query.code;
+    const googleResponse = await oAuth2Client.getToken(code as string);
+    oAuth2Client.setCredentials(googleResponse.tokens);
+    const userRes = await axios.get(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleResponse.tokens.access_token}`
+    );
+
+    let user = await User.findOne({ email: userRes.data.email });
+    if (!user) {
+      user = await User.create({
+        username: userRes.data.name,
+        email: userRes.data.email,
+        method: "oauth",
+      });
+    }
+    const { accessToken, refreshToken } =
+      await user.generateAccessAndRefreshToken();
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: <"none">"none",
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    };
+    res
+      .status(StatusCode.Success)
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
       .json({ message: "signin successfull", user });
     return;
   } catch (err: any) {
