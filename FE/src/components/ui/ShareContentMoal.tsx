@@ -8,7 +8,7 @@ import { isCopyAtom, popupAtom } from "../../store/loadingState";
 import { postAtom } from "../../store/postState";
 
 export function ShareContentMoal() {
-  const user = useUserQuery();
+  const user = useUserQuery({credentials:true});
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const setIsPopup = useSetRecoilState(popupAtom);
   const [isCopy, setIsCopy] = useRecoilState(isCopyAtom);

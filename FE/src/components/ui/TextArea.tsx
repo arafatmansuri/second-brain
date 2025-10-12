@@ -1,12 +1,10 @@
 export function TextArea({
   placeholder,
   reference,
-  type,
   formHook
 }: {
   placeholder?: string;
   reference?: any;
-  type?: string;
   formHook?:any;
 }) {
   return (

@@ -1,11 +1,18 @@
+import {
+  BookText,
+  ImageIcon,
+  Newspaper,
+  SquarePlay,
+  Twitter,
+  VideoIcon,
+} from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { sidebarAtom } from "../../store/sideBarState";
 import { icons, ui } from "../index";
-import { BookIcon, BookText, ImageIcon, Newspaper, SquarePlay, Twitter, VideoIcon, Youtube } from "lucide-react";
-import { TwitterIcon, YoutubeIcon } from "../icons";
+// import { TwitterIcon, YoutubeIcon } from "../icons";
 export function Sidebar() {
   const isModalOpen = useRecoilValue(addContentModalAtom);
   const [isSidebarOpen, setIsSideBarOpen] = useRecoilState(sidebarAtom);

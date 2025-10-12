@@ -93,8 +93,8 @@ export function Auth({ authName }: authData) {
           {authMutation.error && !errors.password && !errors.username ? (
             <ui.ErrorBox
               errorMessage={
-                authMutation.error.response?.data?.message
-                  ? authMutation.error.response.data.message
+                authMutation.error.message
+                  ? authMutation.error.message
                   : authMutation.error.message
               }
             />

@@ -59,7 +59,7 @@ export function CreateContentModal() {
         },
         {
           async onSuccess(data1) {
-            uploadUrl = data1.uploadUrl;
+            uploadUrl = (await data1).uploadUrl;
             addPostMutation.mutate({
               method: "POST",
               endpoint: "add",
@@ -73,7 +73,7 @@ export function CreateContentModal() {
                 fileKey: file.name,
               },
             });
-          await axios.put(uploadUrl, file, {
+            await axios.put(uploadUrl, file, {
               headers: {
                 "Content-Type": file.type,
               },
@@ -85,7 +85,6 @@ export function CreateContentModal() {
               // },
             });
           },
-          
         }
       );
     } else
@@ -128,14 +127,14 @@ export function CreateContentModal() {
   useEffect(() => {
     if (
       addPostMutation.status == "error" &&
-      addPostMutation?.error?.response.status == 401
+      addPostMutation?.error.status == 401
     ) {
       refreshTokenMutation.mutate();
     }
     // if (refreshTokenMutation.status == "success") {
     //   handleSubmit(addContent)
     // }
-  }, [addPostMutation?.error?.response.status, addPostMutation.status]);
+  }, [addPostMutation.error?.message, addPostMutation.status]);
   return (
     <div
       className={`${
@@ -206,9 +205,7 @@ export function CreateContentModal() {
           </div>
         </div>
         {addPostMutation.isError && (
-          <ui.ErrorBox
-            errorMessage={addPostMutation?.error?.response.data.message}
-          />
+          <ui.ErrorBox errorMessage={addPostMutation?.error?.message} />
         )}
         <ui.Button
           varient="primary"

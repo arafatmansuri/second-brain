@@ -23,7 +23,7 @@ interface SahredBrainData {
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
   const isDesktop: boolean = useMediaQuery("(min-width:768px)");
-  const user = useUserQuery();
+  const user = useUserQuery({ credentials: true });
   const posts = useGetPosts();
   const [postsData, setPostsData] = useRecoilState(postAtom);
   const setUser = useSetRecoilState(userAtom);
@@ -63,7 +63,7 @@ function Dashboard() {
   }, [getBrainMutation.status]);
   useEffect(() => {
     if (
-      (user.status == "error" || posts?.error?.response?.status == 401) &&
+      (user.status == "error" || posts?.error?.status == 401) &&
       !hasTriedRefresh.current &&
       !brain
     ) {
@@ -76,25 +76,25 @@ function Dashboard() {
         onError: () => navigate("/signin"),
       });
     }
-  }, [posts?.error?.response?.status, user.status]);
+  }, [posts?.error?.status, user.status]);
 
   useEffect(() => {
     if (user.status == "success" && !brain) {
       setUser(user.data);
     }
-  }, [user.status,brain]);
+  }, [user.status, brain]);
 
   useEffect(() => {
     if (posts.status == "success" && !brain) {
       setPostsData(posts.data);
     }
-  }, [posts.data, posts.status, setPostsData,brain]);
+  }, [posts.data, posts.status, setPostsData, brain]);
 
   useEffect(() => {
     if (privateContentMutation.status == "success" && !brain) {
       user.refetch();
     }
-  }, [privateContentMutation.status,brain]);
+  }, [privateContentMutation.status, brain]);
   return (
     <div className="flex min-h-screen relative">
       <ui.Sidebar />

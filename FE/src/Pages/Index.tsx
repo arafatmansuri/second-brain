@@ -6,7 +6,7 @@ import {
 } from "../queries/AuthQueries/queries";
 
 function Index() {
-  const user = useUserQuery();
+  const user = useUserQuery({credentials:true});
   const refreshTokenMutation = useRefreshTokenMutation();
   const navigate = useNavigate();
   const hasTriedRefresh = useRef(false);

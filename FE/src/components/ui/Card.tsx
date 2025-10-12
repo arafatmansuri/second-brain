@@ -31,7 +31,7 @@ export function Card({
   id,
   tags,
   createdAt,
-  isLoading,
+  // isLoading,
   description,
 }: CardProps) {
   const { brain } = useParams();
