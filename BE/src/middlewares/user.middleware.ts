@@ -17,6 +17,7 @@ export const verifyJWT = async (
       res.status(StatusCode.Unauthorized).json({ message: "Unautorized" });
       return;
     }
+    //@ts-ignore
     const user = await User.findById(decodedToken._id);
     if (!user) {
       res.status(StatusCode.Unauthorized).json({ message: "Unauthorized" });

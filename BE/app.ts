@@ -5,7 +5,11 @@ import contentRouter from "./src/routes/content.route";
 import userRouter from "./src/routes/user.route";
 import { apiLimiter, rateLimiterMiddleware, userKeyGenerator } from "./src/middlewares/rateLimiter.middleware";
 const app = express();
-const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://second-brain-alpha.vercel.app",
+];
 app.use(express.json());
 app.use(
   cors({

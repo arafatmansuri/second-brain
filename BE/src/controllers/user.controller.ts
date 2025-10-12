@@ -174,6 +174,7 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
       res.status(StatusCode.Unauthorized).json({ message: "Unauthorized" });
       return;
     }
+    //@ts-ignore
     const user = await User.findById(decodedToken._id);
     if (!user) {
       res
