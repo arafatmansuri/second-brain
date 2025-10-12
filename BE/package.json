@@ -39,6 +39,7 @@
     "@types/multer-s3": "^3.0.3",
     "@types/redis": "^4.0.10",
     "@types/validator": "^13.15.3",
+    "@vercel/node": "^5.3.26",
     "@xenova/transformers": "^2.17.2",
     "assemblyai": "^4.14.0",
     "aws-sdk": "^2.1692.0",
