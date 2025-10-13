@@ -11,7 +11,8 @@
     "allowJs": true,
     "noEmit": false,
     "isolatedModules": true,
-    "typeRoots": ["./src/@types", "./node_modules/@types"]
+    "typeRoots": ["./src/@types", "./node_modules/@types"],
+    "types": ["node"]
   },
-  "include": ["./src/server.ts", "./src/@types/express", "./src/**/*"]
+  "include": ["./src/server.ts", "./src/@types/express","./src/**/*"]
 }
