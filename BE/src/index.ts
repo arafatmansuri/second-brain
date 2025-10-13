@@ -1,9 +1,13 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import {
+  apiLimiter,
+  rateLimiterMiddleware,
+  userKeyGenerator,
+} from "./middlewares/rateLimiter.middleware";
 import contentRouter from "./routes/content.route";
 import userRouter from "./routes/user.route";
-import { apiLimiter, rateLimiterMiddleware, userKeyGenerator } from "./middlewares/rateLimiter.middleware";
 const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
@@ -25,8 +29,8 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.static("./public"));
-app.use(rateLimiterMiddleware(apiLimiter,userKeyGenerator))
-app.get("/check", async (req, res) => {
+app.use(rateLimiterMiddleware(apiLimiter, userKeyGenerator));
+app.get("/", async (req, res) => {
   res.json({ message: "Working" });
   return;
 });
