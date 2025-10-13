@@ -13,6 +13,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "https://second-brain-alpha.vercel.app",
+  "https://second-brain-backend-g2fo.onrender.com",
 ];
 app.use(express.json());
 app.use(
