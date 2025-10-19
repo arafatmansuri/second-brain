@@ -57,6 +57,8 @@ jobs:
             mkdir ~/second-brain
             tar -xzf ~/BE/second-brain.tar.gz -C ~/second-brain
             cd ~/second-brain
+            echo "🧾 Creating .env file..."
+            echo "${{ secrets.ENV_FILE }}" > .env
             npm ci --omit=dev
 
             echo "🚀 Restarting server with PM2..."
