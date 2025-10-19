@@ -55,7 +55,7 @@ jobs:
             echo "🔄 Deploying second-brain backend..."
             rm -rf ~/second-brain
             mkdir ~/second-brain
-            tar -xzf ~/second-brain.tar.gz -C ~/second-brain
+            tar -xzf ~/BE/second-brain.tar.gz -C ~/second-brain
             cd ~/second-brain
             npm ci --omit=dev
 
