@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3001;
 connectDB()
   .then(() => {
     console.log("mongoDB connected");
+    console.log("Redis connected");
     app.listen(PORT, () => {
       console.log(`server is running on port ${PORT}`);
     });
