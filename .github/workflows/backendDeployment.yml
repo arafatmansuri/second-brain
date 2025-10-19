@@ -37,7 +37,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: 22
-          source: "second-brain.tar.gz"
+          source: "BE/second-brain.tar.gz"
           target: "~/"
 
       - name: 🔧 Deploy on EC2
