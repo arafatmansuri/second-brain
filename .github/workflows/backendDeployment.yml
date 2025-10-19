@@ -1,0 +1,65 @@
+name: Deploy Express second-brain (TypeScript) to EC2
+
+on:
+  push:
+    branches:
+      - main # change if you deploy from another branch
+    paths:
+      - "BE/**" # ✅ only run when backend folder changes
+
+jobs:
+  deploy:
+    name: Build and Deploy second-brain backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BE # ✅ run all commands inside backend folder
+
+    steps:
+      - name: 🧾 Check out repository code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Install dependencies and build TypeScript
+        run: |
+          npm ci
+          npm run build
+
+      - name: 📦 Prepare deployment package
+        run: |
+          mkdir deploy
+          cp -r dist package.json package-lock.json deploy/
+          cd deploy && tar -czf ../second-brain.tar.gz .
+
+      - name: 🚀 Upload to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          port: 22
+          source: "BE/second-brain.tar.gz" # ✅ updated path
+          target: "~/"
+
+      - name: 🔧 Deploy on EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          port: 22
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+            echo "🔄 Deploying second-brain backend..."
+            rm -rf ~/second-brain
+            mkdir ~/second-brain
+            tar -xzf ~/second-brain.tar.gz -C ~/second-brain
+            cd ~/second-brain
+            npm ci --omit=dev
+
+            echo "🚀 Restarting server with PM2..."
+            pm2 delete sb || true
+            pm2 start dist/server.js --name "sb"
+            pm2 save
