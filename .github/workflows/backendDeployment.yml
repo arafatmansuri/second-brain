@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    paths:
-      - "BE/**" # ✅ only run when backend folder changes
+    # paths:
+    #   - "BE/**" # ✅ only run when backend folder changes
 
 jobs:
   deploy:
@@ -37,7 +37,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: 22
-          source: "BE/second-brain.tar.gz"
+          source: "second-brain.tar.gz"
           target: "~/"
 
       - name: 🔧 Deploy on EC2
