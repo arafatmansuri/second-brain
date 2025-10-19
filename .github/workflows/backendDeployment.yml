@@ -3,7 +3,7 @@ name: Deploy Express second-brain (TypeScript) to EC2
 on:
   push:
     branches:
-      - main # change if you deploy from another branch
+      - master
     paths:
       - "BE/**" # ✅ only run when backend folder changes
 
@@ -37,7 +37,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: 22
-          source: "BE/second-brain.tar.gz" # ✅ updated path
+          source: "BE/second-brain.tar.gz"
           target: "~/"
 
       - name: 🔧 Deploy on EC2
