@@ -4,3 +4,4 @@ node_modules/.bin
 .env
 dist
 eng.traineddata
+nginx-conf
