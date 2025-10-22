@@ -50,10 +50,14 @@ export const getPDFTranscript = async (url: string) => {
     return "";
   }
 };
-export const getPDFTranscriptPy = async (url: string): Promise<any[]> => {
+export const getPDFTranscriptPy = async (key: string): Promise<any[]> => {
   try {
+    const pythonPath =
+      process.env.NODE_ENV == "development"
+        ? "python"
+        : process.env.PYTHON_PATH;
     return new Promise((resolve, reject) => {
-      const py = spawn("python", [path.join(__dirname, "extractPDF.py"), url]);
+      const py = spawn(pythonPath || "python", [path.join(__dirname, "extractPDF.py"), key]);
       let data = "";
       py.stdout.on("data", (chunk) => {
         data += chunk;

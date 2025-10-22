@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { createEmbeddings } from "../db/create-embeddings";
-import { embedPDFFromURL } from "../db/createPDFEmedding";
+import { embedPDFFromKey } from "../db/createPDFEmedding";
 import Content from "../models/content.model";
 import Embedding from "../models/embedding.model";
 import {
@@ -23,7 +23,7 @@ export const generateDataAndEmbeddings = async (
       break;
     case "document":
       // await getPDFTranscriptPy(content.link || "");
-      await embedPDFFromURL(content.link || "", content._id, content.userId);
+      await embedPDFFromKey(content.fileKey || "", content._id, content.userId);
       return;
       break;
     case "tweet":

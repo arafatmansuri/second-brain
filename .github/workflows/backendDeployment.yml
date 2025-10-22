@@ -60,6 +60,15 @@ jobs:
             echo "🧾 Creating .env file..."
             echo "${{ secrets.ENV_FILE }}" > .env
             npm ci --omit=dev
+            python -m venv venv
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+            pip install pymupdf
+            pip install requests
+            pip install boto3
+            pip install dotenv
+            deactivate
 
             echo "🚀 Restarting server with PM2..."
             pm2 delete sb || true

@@ -7,14 +7,14 @@ dotenv.config();
 const MONGODB_URI = process.env.MONGODB_URI!;
 const DB_NAME = process.env.DB_NAME!;
 const COLLECTION = "embeddings";
-export async function embedPDFFromURL(
-  url: string,
+export async function embedPDFFromKey(
+  key: string,
   contentId?: mongoose.Types.ObjectId,
   userId?: mongoose.Types.ObjectId | null
 ) {
   try {
-    //console.log("⏳ Extracting PDF from URL...");
-    const docs = await getPDFTranscriptPy(url);
+    //console.log("⏳ Extracting PDF from key...");
+    const docs = await getPDFTranscriptPy(key);
   
     //console.log("🔹 Loading Xenova embedding model...");
     const embedder = await pipeline(
