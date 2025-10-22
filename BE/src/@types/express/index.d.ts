@@ -18,6 +18,7 @@ declare global {
       contentLink?: string;
       fileKey?: string;
       contentLinkId?: string;
+      expiry?:Date;
     }
   }
 }

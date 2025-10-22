@@ -5,7 +5,7 @@ import redisClient from "../config/redisClient";
 export const loginLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "login",
-  points: 5, // 5 attempts
+  points: 10, // 5 attempts
   duration: 15 * 60, // per 15 minutes
 });
 
@@ -15,6 +15,13 @@ export const signupLimiter = new RateLimiterRedis({
   keyPrefix: "signup",
   points: 10, // 10 attempts
   duration: 60 * 60, // per hour
+});
+
+export const askAILimiter = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "askai",
+  points: 5,
+  duration: 60 * 60 * 24,
 });
 
 // General API limiter
@@ -35,6 +42,20 @@ export const rateLimiterMiddleware =
     } catch (rejRes: any) {
       res.status(429).json({
         message: "Too many requests. Please try again later.",
+        retryAfter: Math.ceil(rejRes.msBeforeNext / 1000),
+      });
+    }
+  };
+export const rateLimiterMiddlewareAskAI =
+  (limiter: RateLimiterRedis, keyGenerator?: (req: Request) => string) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const key = keyGenerator ? keyGenerator(req) : req.ip || "";
+      await limiter.consume(key);
+      next();
+    } catch (rejRes: any) {
+      res.status(429).json({
+        message: "Daily limit reached.",
         retryAfter: Math.ceil(rejRes.msBeforeNext / 1000),
       });
     }

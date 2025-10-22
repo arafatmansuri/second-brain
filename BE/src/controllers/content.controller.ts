@@ -40,7 +40,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
             tweetDescription
           : contentInput.data.description,
       fileKey: contentInput.data.fileKey,
-      expiry: null,
+      expiry: req.expiry || null,
       contentLinkId,
     });
     res
@@ -244,7 +244,7 @@ export const queryFromContent: Handler = async (req, res) => {
   try {
     const userId = req.userId;
     const { query } = req.body;
-    const result = await generateAnswer(query,userId);
+    const result = await generateAnswer(query, userId);
     res
       .status(StatusCode.Success)
       .json({ message: "answer generated successfully", answer: result });
@@ -269,7 +269,7 @@ export const generateUploadUrl: Handler = async (req, res) => {
       uploadUrl,
       // fileUrl: `https://${process.env.AWS_BUCKET_NAME}.s3.ap-south-1.amazonaws.com/uploads/${fileName}`,
     });
-    return
+    return;
   } catch (err) {
     res
       .status(StatusCode.ServerError)

@@ -1,8 +1,9 @@
-import { NextFunction, Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
 import { generateContentLink } from "../utils/generateContentLink";
+import { generateSignedUrl } from "../utils/getSignedUrl";
 export const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })
@@ -40,6 +41,9 @@ export const contentData = async (
       if (!contentInput.data.fileKey) {
         res.status(StatusCode.InputError).json({ message: "File is required" });
         return;
+      }else{
+        link = await generateSignedUrl(contentInput.data.fileKey);
+        req.expiry = new Date(new Date().getTime() + 59 * 60 * 1000);
       }
     } else if (
       contentInput.data.type == "tweet" ||

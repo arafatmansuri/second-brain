@@ -1,7 +1,13 @@
 import { AssemblyAI, TranscribeParams } from "assemblyai";
 import axios from "axios";
+import { spawn } from "child_process";
 import fetch from "node-fetch";
+import path,{dirname} from "path";
+//@ts-ignore
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 import { createWorker } from "tesseract.js";
+import { fileURLToPath } from "url";
 import { YoutubeTranscript } from "youtube-transcript";
 export const getVideoTransript = async (link: string) => {
   try {
@@ -43,6 +49,30 @@ export const getPDFTranscript = async (url: string) => {
   } catch (error) {
     console.error("Error extracting PDF:", error);
     return "";
+  }
+};
+export const getPDFTranscriptPy = async (url: string): Promise<any[]> => {
+  console.log("Reached Inside getPDFTranscriptPy");
+  try {
+    return new Promise((resolve, reject) => {
+      const py = spawn("python", [path.join(__dirname, "extractPDF.py"), url]);
+      let data = "";
+      py.stdout.on("data", (chunk) => {
+        data += chunk;
+      });
+      py.stderr.on("data", (err) => console.error(err.toString()));
+
+      py.on("close", () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Error extracting PDF:", error);
+    return [];
   }
 };
 export const getTweetDescription = async (id: string): Promise<string> => {

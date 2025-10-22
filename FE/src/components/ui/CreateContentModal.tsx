@@ -77,6 +77,7 @@ export function CreateContentModal() {
               headers: {
                 "Content-Type": file.type,
               },
+              
               // onUploadProgress: (progressEvent) => {
               //   const progress = Math.round(
               //     (progressEvent.loaded * 100) / progressEvent.total

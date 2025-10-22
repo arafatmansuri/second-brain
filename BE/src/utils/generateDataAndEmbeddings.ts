@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { createEmbeddings } from "../db/create-embeddings";
+import { embedPDFFromURL } from "../db/createPDFEmedding";
 import Content from "../models/content.model";
 import Embedding from "../models/embedding.model";
 import {
   getDocumentText,
-  getPDFTranscript,
   getVideoTransript,
   getYoutubeTranscript,
 } from "../utils/getTranscript";
@@ -18,10 +18,13 @@ export const generateDataAndEmbeddings = async (
       data = content.description || "";
       break;
     case "image":
+      console.log("content Link: ", content.link);
       data = await getDocumentText(content.link || "");
       break;
     case "document":
-      data = await getPDFTranscript(content.link || "");
+      // await getPDFTranscriptPy(content.link || "");
+      await embedPDFFromURL(content.link || "", content._id, content.userId);
+      return;
       break;
     case "tweet":
       // data = await getTweetDescription(content.contentLinkId || "");
