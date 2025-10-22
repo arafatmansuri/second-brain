@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/server.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deev": "ts-node-dev --respawn --pretty --transpile-only ./src/server.ts",
     "dev": "tsx watch ./src/server.ts",
     "build": "tsc",
+    "postbuild": "cp src/utils/extractPDF.py dist/utils/",
     "start": "node ./dist/server.js",
     "tsc": "tsc",
     "devv": "nodemon ./src/server.ts"

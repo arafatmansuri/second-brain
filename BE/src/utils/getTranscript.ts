@@ -2,13 +2,12 @@ import { AssemblyAI, TranscribeParams } from "assemblyai";
 import axios from "axios";
 import { spawn } from "child_process";
 import fetch from "node-fetch";
-import path,{dirname} from "path";
-//@ts-ignore
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import path from "path";
 import { createWorker } from "tesseract.js";
-import { fileURLToPath } from "url";
 import { YoutubeTranscript } from "youtube-transcript";
+
+// const __filename = __filename || path.resolve();
+// const __dirname = dirname(__filename);
 export const getVideoTransript = async (link: string) => {
   try {
     const client = new AssemblyAI({
@@ -52,7 +51,6 @@ export const getPDFTranscript = async (url: string) => {
   }
 };
 export const getPDFTranscriptPy = async (url: string): Promise<any[]> => {
-  console.log("Reached Inside getPDFTranscriptPy");
   try {
     return new Promise((resolve, reject) => {
       const py = spawn("python", [path.join(__dirname, "extractPDF.py"), url]);

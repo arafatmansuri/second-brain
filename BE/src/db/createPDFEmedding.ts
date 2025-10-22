@@ -13,17 +13,17 @@ export async function embedPDFFromURL(
   userId?: mongoose.Types.ObjectId | null
 ) {
   try {
-    console.log("⏳ Extracting PDF from URL...");
+    //console.log("⏳ Extracting PDF from URL...");
     const docs = await getPDFTranscriptPy(url);
   
-    console.log("🔹 Loading Xenova embedding model...");
+    //console.log("🔹 Loading Xenova embedding model...");
     const embedder = await pipeline(
       "feature-extraction",
       // "Xenova/all-MiniLM-L6-v2"
       "Xenova/nomic-embed-text-v1"
     );
   
-    console.log("⚙️ Embedding pages...");
+    //console.log("⚙️ Embedding pages...");
     const client = new MongoClient(MONGODB_URI);
     await client.connect();
     const collection = client.db(DB_NAME).collection(COLLECTION);
@@ -72,7 +72,7 @@ export async function embedPDFFromURL(
     }
   
     await client.close();
-    console.log("✅ Embeddings stored in MongoDB.");
+    //console.log("✅ Embeddings stored in MongoDB.");
   } catch (err) {
     console.log(err);
   }
