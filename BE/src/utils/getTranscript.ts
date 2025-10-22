@@ -53,9 +53,7 @@ export const getPDFTranscript = async (url: string) => {
 export const getPDFTranscriptPy = async (key: string): Promise<any[]> => {
   try {
     const pythonPath =
-      process.env.NODE_ENV == "development"
-        ? "python"
-        : process.env.PYTHON_PATH;
+      process.env.NODE_ENV == "development" ? "python" : "./venv/bin/python";
     return new Promise((resolve, reject) => {
       const py = spawn(pythonPath || "python", [path.join(__dirname, "extractPDF.py"), key]);
       let data = "";
