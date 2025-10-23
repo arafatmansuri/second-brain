@@ -8,4 +8,15 @@
   --color-gray-100: #f3f4f4;
   --color-gray-200: #e9ebeb;
   --color-gray-600: #95989c;
+
+  --color-darkbg: #090A0A;
+  --color-navbg: #1A1A1A;
+  --color-cardbg: #1E1E1E;
+  --color-accent: #A855F7;
+  --color-accent-hover: #C084FC;
+  --color-secondary: #B3B3B3;
+
+  
+  --background-image-custom-gradient: linear-gradient(115deg, #c266ff, #9966ff, #6699ff);
+  --background-image-custom-gradient2: linear-gradient(115deg, #d080ff, #aa80ff, #80b3ff);
 }

@@ -11,4 +11,5 @@ export { Sidebar } from "./Sidebar";
 export { SidebarItem } from "./SidebarItem";
 export { TextArea } from "./TextArea";
 export { SearchBox } from "./Search";
+export {LandingSection} from "./LandingSection"
 
