@@ -104,7 +104,11 @@ function Dashboard() {
         } ${brain && !getBrainMutation.data ? "hidden" : "block"}`}
       >
         <div className="flex w-full justify-between">
-          <h1 className="md:block hidden font-bold md:text-2xl text-md md:mr-5 md:ml-6 text-purple-500">
+          <h1
+            className={`md:block ${
+              brain ? "block" : "hidden"
+            } font-bold md:text-2xl text-md md:mr-5 md:ml-6 text-purple-500`}
+          >
             {`${
               brain
                 ? `${getBrainMutation.data?.username}'s Brain`
