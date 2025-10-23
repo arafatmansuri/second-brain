@@ -1,5 +1,3 @@
-import React from 'react'
-
 export const GoogleIcon = () => {
   return (
     <svg
@@ -28,4 +26,4 @@ export const GoogleIcon = () => {
       ></path>
     </svg>
   );
-}
+};
