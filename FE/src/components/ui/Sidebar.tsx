@@ -6,7 +6,7 @@ import {
   Twitter,
   VideoIcon,
 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useAuthMutation } from "../../queries/AuthQueries/queries";
@@ -21,6 +21,7 @@ export function Sidebar() {
   const isDesktop = useMediaQuery("(min-width:768px)");
   const [searchParams, setSearchParams] = useSearchParams();
   const logoutMutation = useAuthMutation();
+  const { brain } = useParams();
   const navigate = useNavigate();
   function logout() {
     logoutMutation.mutate(
@@ -77,14 +78,14 @@ export function Sidebar() {
           {/* <ui.SidebarItem text="Tags" icon={<icons.YoutubeIcon />} /> */}
         </div>
       </div>
-      <Button
+      {!brain && <Button
         text="Log out"
         size="md"
         varient="primary"
         widthFull={true}
         classes="mt-10"
         onClick={logout}
-      />
+      />}
     </div>
   );
 }
