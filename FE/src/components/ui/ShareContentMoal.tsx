@@ -8,7 +8,7 @@ import { isCopyAtom, popupAtom } from "../../store/loadingState";
 import { postAtom } from "../../store/postState";
 
 export function ShareContentMoal() {
-  const user = useUserQuery({credentials:true});
+  const user = useUserQuery({ credentials: true });
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const setIsPopup = useSetRecoilState(popupAtom);
   const [isCopy, setIsCopy] = useRecoilState(isCopyAtom);
@@ -29,7 +29,7 @@ export function ShareContentMoal() {
       if (shareContentMutation.data?.link !== "" && !isCopy) {
         setIsPopup({ message: "Your Brain set to Public", popup: true });
         setIsCopy(true);
-        const link = `http://localhost:5173/dashboard/${shareContentMutation.data?.link}`;
+        const link = `https://second-brain-alpha.vercel.app/dashboard/${shareContentMutation.data?.link}`;
         navigator.clipboard.writeText(link);
       }
       setTimeout(() => {
