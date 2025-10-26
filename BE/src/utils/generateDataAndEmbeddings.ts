@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 import { createEmbeddings } from "../db/create-embeddings";
-import { embedPDFFromKey } from "../db/createPDFEmedding";
+import { embedPDFFromKey } from "../db/createEmedding";
 import Content from "../models/content.model";
 import Embedding from "../models/embedding.model";
 import {
   getDocumentText,
+  getImageSummary,
+  getTweetDescription2,
   getVideoTransript,
   getYoutubeTranscript,
   getYoutubeTranscriptPy,
@@ -19,8 +21,7 @@ export const generateDataAndEmbeddings = async (
       data = content.description || "";
       break;
     case "image":
-      console.log("content Link: ", content.link);
-      data = await getDocumentText(content.link || "");
+      data = await getImageSummary(content.link || "");
       break;
     case "document":
       // await getPDFTranscriptPy(content.link || "");
@@ -28,8 +29,13 @@ export const generateDataAndEmbeddings = async (
       return;
     case "tweet":
       // data = await getTweetDescription(content.contentLinkId || "");
-      data = content.description || "";
-      break;
+      await embedPDFFromKey(
+        content.contentLinkId || "",
+        content._id,
+        content.userId,
+        "tweet"
+      );
+      return;
     case "youtube":
       // data = await getYoutubeTranscript(content.contentLinkId || "");
       await embedPDFFromKey(content.contentLinkId || "", content._id, content.userId,"youtube");

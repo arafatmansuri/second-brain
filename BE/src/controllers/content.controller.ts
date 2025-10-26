@@ -23,10 +23,10 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     const tags = req.tags;
     const contentInput = req.contentInput;
     const contentLinkId = req.contentLinkId;
-    let tweetDescription: string;
-    if (contentLinkId && contentInput.data.type == "tweet") {
-      tweetDescription = await getTweetDescription(contentLinkId);
-    }
+    // let tweetDescription: string;
+    // if (contentLinkId && contentInput.data.type == "tweet") {
+    //   tweetDescription = await getTweetDescription(contentLinkId);
+    // }
     const content = await Content.create({
       link: req.contentLink,
       type:
@@ -34,11 +34,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
       title: contentInput.data.title,
       tags: tags?.map((tag) => tag._id),
       userId: userId,
-      description:
-        contentLinkId && contentInput.data.type == "tweet"
-          ? //@ts-ignore
-            tweetDescription
-          : contentInput.data.description,
+      description:contentInput.data.description,
       fileKey: contentInput.data.fileKey,
       expiry: req.expiry || null,
       contentLinkId,

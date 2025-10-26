@@ -4,6 +4,7 @@ import { MongoClient } from "mongodb";
 import mongoose from "mongoose";
 import {
   getPDFTranscriptPy,
+  getTweetDescription2,
   getYoutubeTranscriptPy,
 } from "../utils/getTranscript";
 dotenv.config();
@@ -28,7 +29,7 @@ export async function embedPDFFromKey(
   key: string,
   contentId?: mongoose.Types.ObjectId,
   userId?: mongoose.Types.ObjectId | null,
-  type?: "youtube" | "pdf"
+  type?: "youtube" | "pdf" | "tweet"
 ) {
   try {
     //console.log("🔹 Loading Xenova embedding model...");
@@ -76,7 +77,7 @@ export async function embedPDFFromKey(
     } else if (type == "youtube") {
       const transcript = await getYoutubeTranscriptPy(key);
       for (const chunk of transcript) {
-        let data = chunk?.data || JSON.stringify({...chunk});
+        let data = chunk?.data || JSON.stringify({ ...chunk });
         const embedding = await embedder(data, {
           pooling: "mean",
           normalize: true,
@@ -88,6 +89,19 @@ export async function embedPDFFromKey(
           ...chunk,
         });
       }
+    } else if (type == "tweet") {
+      const data = await getTweetDescription2(key);
+      const tweetData = data.extendedTweet || data.full_text || "";
+      const embedding = await embedder(tweetData, {
+        pooling: "mean",
+        normalize: true,
+      });
+      await collection.insertOne({
+        embedding: Array.from(embedding.data),
+        contentId,
+        userId,
+        ...data,
+      });
     }
 
     await client.close();
