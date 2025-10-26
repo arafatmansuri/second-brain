@@ -68,6 +68,7 @@ jobs:
             pip install requests
             pip install boto3
             pip install dotenv
+            pip install youtube-transcript-api
             deactivate
 
             echo "🚀 Restarting server with PM2..."

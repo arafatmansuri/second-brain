@@ -82,10 +82,24 @@ export const searchFromEmbeddings = async (query, userId) => {
       {
         $project: {
           _id: 0,
+          title: 1,
+          page: 1,
           data: 1,
           score: {
             $meta: "vectorSearchScore",
           },
+          start: 1,
+          end: 1,
+          videoTitle: 1,
+          description: 1,
+          staticstics: {
+            viewCount: 1,
+            likeCount: 1,
+            favoriteCount: 1,
+            commentCount: 1,
+          },
+          duration: 1,
+          channelName: 1,
         },
       },
     ]);

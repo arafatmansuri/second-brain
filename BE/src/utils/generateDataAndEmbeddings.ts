@@ -7,6 +7,7 @@ import {
   getDocumentText,
   getVideoTransript,
   getYoutubeTranscript,
+  getYoutubeTranscriptPy,
 } from "../utils/getTranscript";
 export const generateDataAndEmbeddings = async (
   contentId: mongoose.Types.ObjectId
@@ -23,18 +24,18 @@ export const generateDataAndEmbeddings = async (
       break;
     case "document":
       // await getPDFTranscriptPy(content.link || "");
-      await embedPDFFromKey(content.fileKey || "", content._id, content.userId);
+      await embedPDFFromKey(content.fileKey || "", content._id, content.userId,"pdf");
       return;
-      break;
     case "tweet":
       // data = await getTweetDescription(content.contentLinkId || "");
       data = content.description || "";
       break;
     case "youtube":
-      data = await getYoutubeTranscript(content.contentLinkId || "");
-      break;
+      // data = await getYoutubeTranscript(content.contentLinkId || "");
+      await embedPDFFromKey(content.contentLinkId || "", content._id, content.userId,"youtube");
+      return;
     case "video":
-      data = await getVideoTransript(content.link || "");
+      data = await getVideoTransript(content.link || "",);
       break;
     default:
       break;

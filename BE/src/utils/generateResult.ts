@@ -13,10 +13,10 @@ export async function generateAnswer(
     model: "gemini-2.5-flash",
     contents: `Here's is the context which is data fetched using emmbedding ans it has thier scores of related data, more higher score it has the correct answer OR if the context is not provided or context is not proper as per you then just answer that no related data found: ${JSON.stringify(
       context
-    )} based on this data answer the following question in detail: "${query}"`,
+    )} based on this data answer the following question in detail from the context: "${query}"`,
     config: {
       systemInstruction:
-        "You're a chat bot who just answer the question that is asked to you, no other stuffs",
+        "You're a chat bot who just answer the question that is asked to you, no other stuffs also don't give ** or any other special characters only plain text. and If you don't find the answer from given context just return a message-:'No Content found related to question'",
     },
   });
   return response.text;

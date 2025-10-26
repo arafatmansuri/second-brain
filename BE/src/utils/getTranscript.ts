@@ -4,10 +4,15 @@ import { spawn } from "child_process";
 import fetch from "node-fetch";
 import path from "path";
 import { createWorker } from "tesseract.js";
+import { fileURLToPath } from "url";
 import { YoutubeTranscript } from "youtube-transcript";
-
+const pythonPath =
+  process.env.NODE_ENV == "development" ? "python" : "./venv/bin/python";
 // const __filename = __filename || path.resolve();
 // const __dirname = dirname(__filename);
+//@ts-ignore
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 export const getVideoTransript = async (link: string) => {
   try {
     const client = new AssemblyAI({
@@ -35,6 +40,63 @@ export const getYoutubeTranscript = async (id: string) => {
   const data: string[] = transcript.map((t) => t.text);
   return data.join(",");
 };
+interface YoutubeData {
+  title: string;
+  description: string;
+  staticstics: {
+    viewCount: string;
+    likeCount: string;
+    favoriteCount: string;
+    commentCount: string;
+  };
+  duration: string;
+  channelName: string;
+}
+export const getYoutubeTranscriptPy = async (
+  id: string
+): Promise<{
+  data: string;
+  start: number;
+  end: number;
+  videoTitle: string;
+  description: string;
+  staticstics: string;
+  duration: string;
+  channelName: string;
+}[]> => {
+  const resposne = await axios.get(
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${process.env.YOUTUBE_DATA_KEY}`
+  );
+  const ytData: YoutubeData = {
+    title: resposne.data["items"][0]["snippet"]["title"],
+    description: resposne.data["items"][0]["snippet"]["description"],
+    staticstics: resposne.data["items"][0]["statistics"],
+    duration: resposne.data["items"][0]["contentDetails"]["duration"],
+    channelName: resposne.data["items"][0]["snippet"]["channelTitle"],
+  };
+
+  return new Promise((resolve, reject) => {
+    const py = spawn(pythonPath || "python", [
+      path.join(__dirname, "extractData.py"),
+      "youtube",
+      id,
+      JSON.stringify(ytData),
+    ]);
+    let data = "";
+    py.stdout.on("data", (chunk) => {
+      data += chunk;
+    });
+    py.stderr.on("data", (err) => console.error(err.toString()));
+
+    py.on("close", () => {
+      try {
+        resolve(JSON.parse(data));
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
+};
 
 export const getPDFTranscript = async (url: string) => {
   try {
@@ -52,10 +114,12 @@ export const getPDFTranscript = async (url: string) => {
 };
 export const getPDFTranscriptPy = async (key: string): Promise<any[]> => {
   try {
-    const pythonPath =
-      process.env.NODE_ENV == "development" ? "python" : "./venv/bin/python";
     return new Promise((resolve, reject) => {
-      const py = spawn(pythonPath || "python", [path.join(__dirname, "extractPDF.py"), key]);
+      const py = spawn(pythonPath || "python", [
+        path.join(__dirname, "extractData.py"),
+        "pdf",
+        key,
+      ]);
       let data = "";
       py.stdout.on("data", (chunk) => {
         data += chunk;

@@ -71,6 +71,7 @@ export function SearchBox() {
           ) : (
             answer
           )}
+          {askAIMutation.isError && askAIMutation.error.message}
         </p>
       </div>
     </div>

@@ -9,7 +9,7 @@
     "deev": "ts-node-dev --respawn --pretty --transpile-only ./src/server.ts",
     "dev": "tsx watch ./src/server.ts",
     "build": "tsc",
-    "postbuild": "cp src/utils/extractPDF.py dist/utils/",
+    "postbuild": "cp src/utils/extractData.py dist/utils/",
     "start": "node ./dist/server.js",
     "tsc": "tsc",
     "devv": "nodemon ./src/server.ts"
