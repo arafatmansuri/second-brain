@@ -22,6 +22,7 @@ type createContentInputs = {
 export function CreateContentModal() {
   const user = useRecoilValue(userAtom);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
+  const [isFileError, setIsFileError] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const setIsPopup = useSetRecoilState(popupAtom);
   const { register, handleSubmit, setValue, getValues } =
@@ -41,6 +42,12 @@ export function CreateContentModal() {
   }
   const addContent: SubmitHandler<createContentInputs> = async (data) => {
     const file: File | null = data.file ? data.file[0] : null;
+    const MAX_PDF_SIZE_MB = 10;
+    if (file && file.size > MAX_PDF_SIZE_MB * 1024 * 1024) {
+      setIsFileError(true);
+      console.log(file.type);
+      // return;
+    }
     if (
       (data.type == "image" ||
         data.type == "video" ||
@@ -55,6 +62,7 @@ export function CreateContentModal() {
           data: {
             fileName: file.name,
             fileType: file.type,
+            fileSize: file.size,
           },
         },
         {
@@ -71,13 +79,15 @@ export function CreateContentModal() {
                 link: data.link,
                 type: data.type == "document" ? "raw" : data.type,
                 fileKey: file.name,
+                fileSize: file.size,
+                fileType: file.type,
               },
             });
             await axios.put(uploadUrl, file, {
               headers: {
                 "Content-Type": file.type,
               },
-              
+
               // onUploadProgress: (progressEvent) => {
               //   const progress = Math.round(
               //     (progressEvent.loaded * 100) / progressEvent.total
@@ -205,9 +215,18 @@ export function CreateContentModal() {
             ))}
           </div>
         </div>
-        {addPostMutation.isError && (
+        {(addPostMutation.isError && (
           <ui.ErrorBox errorMessage={addPostMutation?.error?.message} />
-        )}
+        )) ||
+          (isFileError && (
+            <ui.ErrorBox
+              errorMessage={"Please upload a PDF smaller than 10 MB."}
+            />
+          )) ||
+          (getUploadUrlMutation.isError && (
+            <ui.ErrorBox errorMessage={getUploadUrlMutation?.error?.message} />
+          ))}
+
         <ui.Button
           varient="primary"
           text="Submit"

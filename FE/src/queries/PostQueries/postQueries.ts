@@ -22,6 +22,7 @@ type PostFormData = {
     fileName?: string;
     fileType?: string;
     fileKey?: string;
+    fileSize?:number;
   };
   contentType?: string;
 };

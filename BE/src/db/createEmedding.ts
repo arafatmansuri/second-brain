@@ -3,8 +3,10 @@ import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import mongoose from "mongoose";
 import {
+  getImageSummary,
   getPDFTranscriptPy,
   getTweetDescription2,
+  getVideoTransript,
   getYoutubeTranscriptPy,
 } from "../utils/getTranscript";
 dotenv.config();
@@ -25,12 +27,24 @@ function chunkText(text: string) {
   }
   return chunks;
 }
-export async function embedPDFFromKey(
-  key: string,
-  contentId?: mongoose.Types.ObjectId,
-  userId?: mongoose.Types.ObjectId | null,
-  type?: "youtube" | "pdf" | "tweet"
-) {
+type IEmbedData = {
+  key?: string;
+  contentId?: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId | null;
+  type?: "youtube" | "document" | "tweet" | "image" | "video" | "article";
+  link?: string;
+  linkId?: string;
+  data?: string;
+};
+export async function embedData({
+  key,
+  contentId,
+  userId,
+  type,
+  link,
+  linkId,
+  data,
+}: IEmbedData) {
   try {
     //console.log("🔹 Loading Xenova embedding model...");
     const embedder = await pipeline(
@@ -44,8 +58,8 @@ export async function embedPDFFromKey(
     const collection = client.db(DB_NAME).collection(COLLECTION);
 
     //console.log("⏳ Extracting PDF from key...");
-    if (type == "pdf") {
-      const docs = await getPDFTranscriptPy(key);
+    if (type == "document") {
+      const docs = await getPDFTranscriptPy(key || "");
       for (const doc of docs) {
         const textChunks = chunkText(doc.text);
         for (const chunk of textChunks) {
@@ -75,10 +89,10 @@ export async function embedPDFFromKey(
         }
       }
     } else if (type == "youtube") {
-      const transcript = await getYoutubeTranscriptPy(key);
+      const transcript = await getYoutubeTranscriptPy(linkId || "");
       for (const chunk of transcript) {
-        let data = chunk?.data || JSON.stringify({ ...chunk });
-        const embedding = await embedder(data, {
+        let transcriptData = chunk?.data || JSON.stringify({ ...chunk });
+        const embedding = await embedder(transcriptData, {
           pooling: "mean",
           normalize: true,
         });
@@ -90,8 +104,9 @@ export async function embedPDFFromKey(
         });
       }
     } else if (type == "tweet") {
-      const data = await getTweetDescription2(key);
-      const tweetData = data.extendedTweet || data.full_text || "";
+      const fullTweetData = await getTweetDescription2(linkId || "");
+      const tweetData =
+        fullTweetData.extendedTweet || fullTweetData.full_text || "";
       const embedding = await embedder(tweetData, {
         pooling: "mean",
         normalize: true,
@@ -100,7 +115,42 @@ export async function embedPDFFromKey(
         embedding: Array.from(embedding.data),
         contentId,
         userId,
-        ...data,
+        ...fullTweetData,
+      });
+    } else if (type == "image") {
+      const imageData = await getImageSummary(link || "");
+      const embedding = await embedder(imageData, {
+        pooling: "mean",
+        normalize: true,
+      });
+      await collection.insertOne({
+        embedding: Array.from(embedding.data),
+        contentId,
+        userId,
+        data: imageData,
+      });
+    } else if (type == "video") {
+      const videoData = await getVideoTransript(link || "");
+      const embedding = await embedder(videoData, {
+        pooling: "mean",
+        normalize: true,
+      });
+      await collection.insertOne({
+        embedding: Array.from(embedding.data),
+        contentId,
+        userId,
+        data: videoData,
+      });
+    } else if (type == "article") {
+      const embedding = await embedder(data || "", {
+        pooling: "mean",
+        normalize: true,
+      });
+      await collection.insertOne({
+        embedding: Array.from(embedding.data),
+        contentId,
+        userId,
+        data,
       });
     }
 

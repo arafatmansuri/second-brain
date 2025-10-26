@@ -1,4 +1,4 @@
-import e, { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
@@ -17,6 +17,8 @@ export const contentSchema = z.object({
   tags: z.string().array().optional(),
   description: z.string().optional(),
   fileKey: z.string().optional(),
+  fileSize: z.number().optional(),
+  fileType: z.string().optional(),
 });
 export const contentData = async (
   req: Request,
@@ -38,10 +40,15 @@ export const contentData = async (
       contentInput.data.type == "video" ||
       contentInput.data.type == "image"
     ) {
-      if (!contentInput.data.fileKey) {
+      if (!contentInput.data.fileKey || !contentInput.data.fileSize) {
         res.status(StatusCode.InputError).json({ message: "File is required" });
         return;
-      }else{
+      } else if (contentInput.data.fileSize > 10 * 1024 * 1024) {
+        res
+          .status(StatusCode.InputError)
+          .json({ message: "File is too Large" });
+        return;
+      } else {
         link = await generateSignedUrl(contentInput.data.fileKey);
         req.expiry = new Date(new Date().getTime() + 59 * 60 * 1000);
       }

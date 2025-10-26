@@ -13,12 +13,15 @@ declare global {
         title: string;
         tags?: string[];
         description?: string;
-        fileKey?:string
+        fileKey?: string;
+        fileType?: string;
+        fileSize?: number;
       }>;
       contentLink?: string;
       fileKey?: string;
+      fileType?: string;
       contentLinkId?: string;
-      expiry?:Date;
+      expiry?: Date;
     }
   }
 }

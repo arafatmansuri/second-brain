@@ -10,7 +10,6 @@ import { generateDataAndEmbeddings } from "../utils/generateDataAndEmbeddings";
 import { generateHash } from "../utils/generateHash.util";
 import { generateAnswer } from "../utils/generateResult";
 import { generateSignedUrl } from "../utils/getSignedUrl";
-import { getTweetDescription } from "../utils/getTranscript";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
@@ -34,10 +33,13 @@ export const addContent: Handler = async (req, res): Promise<void> => {
       title: contentInput.data.title,
       tags: tags?.map((tag) => tag._id),
       userId: userId,
-      description:contentInput.data.description,
+      description: contentInput.data.description,
       fileKey: contentInput.data.fileKey,
       expiry: req.expiry || null,
       contentLinkId,
+      fileType: contentInput.data.fileType,
+      fileSize: contentInput.data.fileSize,
+      isProcessing: true,
     });
     res
       .status(StatusCode.Success)
@@ -254,7 +256,11 @@ export const queryFromContent: Handler = async (req, res) => {
 };
 export const generateUploadUrl: Handler = async (req, res) => {
   try {
-    const { fileName, fileType } = req.body;
+    const { fileName, fileType, fileSize } = req.body;
+    if (Number(fileSize) > 10 * 1024 * 1024) {
+      res.status(StatusCode.InputError).json({ message: "File is too large" });
+      return;
+    }
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: fileName,

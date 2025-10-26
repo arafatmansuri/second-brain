@@ -16,6 +16,9 @@ const contentSchema = new Schema(
     fileKey: { type: String },
     expiry: { type: Date },
     contentLinkId: { type: String },
+    fileType:{type:String},
+    fileSize:{type:Number},
+    isProcessing:{type:Boolean}
   },
   { timestamps: true }
 );

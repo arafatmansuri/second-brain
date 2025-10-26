@@ -12,8 +12,8 @@ const pythonPath =
 // const __filename = __filename || path.resolve();
 // const __dirname = dirname(__filename);
 //@ts-ignore
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 export const getVideoTransript = async (link: string) => {
   try {
     const client = new AssemblyAI({
