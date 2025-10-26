@@ -22,6 +22,6 @@ export const generateDataAndEmbeddings = async (
   content.isProcessing = false;
   await content.save({ validateBeforeSave: false });
 };
-export const queueDataEmbedding = async (id: mongoose.Types.ObjectId) => {
+export const queueDataEmbedding = (id: mongoose.Types.ObjectId) => {
   setImmediate(() => generateDataAndEmbeddings(id));
 };

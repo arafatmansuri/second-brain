@@ -6,7 +6,7 @@ import Content from "../models/content.model";
 import Link from "../models/link.model";
 import User from "../models/user.model";
 import { Handler, StatusCode } from "../types";
-import { generateDataAndEmbeddings } from "../utils/generateDataAndEmbeddings";
+import { generateDataAndEmbeddings, queueDataEmbedding } from "../utils/generateDataAndEmbeddings";
 import { generateHash } from "../utils/generateHash.util";
 import { generateAnswer } from "../utils/generateResult";
 import { generateSignedUrl } from "../utils/getSignedUrl";
@@ -44,7 +44,8 @@ export const addContent: Handler = async (req, res): Promise<void> => {
     res
       .status(StatusCode.Success)
       .json({ message: `${content.type} Added successfully`, content });
-    await generateDataAndEmbeddings(content._id);
+    // await generateDataAndEmbeddings(content._id);
+    queueDataEmbedding(content._id);
     return;
   } catch (err: any) {
     res
