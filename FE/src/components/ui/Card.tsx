@@ -23,6 +23,7 @@ interface CardProps {
   createdAt?: string;
   isLoading?: boolean;
   description?: string;
+  isProcessing?:boolean
 }
 export function Card({
   title,
@@ -33,6 +34,7 @@ export function Card({
   createdAt,
   // isLoading,
   description,
+  isProcessing
 }: CardProps) {
   const { brain } = useParams();
   const deletePostMutation = usePostMutation();
@@ -74,6 +76,12 @@ export function Card({
           </h3>
         </div>
         <div className="flex items-center gap-2 text-gray-500">
+          {isProcessing && <span
+            className={`h-3 mr-1 w-3 rounded-full bg-yellow-500`}
+            title={
+              "Content is still being processed. AI searches might not find this content yet. Refresh after sometime"
+            } // shows tooltip on hover
+          ></span>}
           <a href={link} target="_blank">
             <icons.ShareIcon />
           </a>

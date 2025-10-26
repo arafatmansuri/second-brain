@@ -11,12 +11,12 @@ export async function generateAnswer(
   const context = await searchFromEmbeddings(query, userId);
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
-    contents: `Here's is the context which is data fetched using emmbedding ans it has thier scores of related data, more higher score it has the correct answer OR if the context is not provided or context is not proper as per you then just answer that no related data found: ${JSON.stringify(
-      context
-    )} based on this data answer the following question in detail from the context: "${query}"`,
+    contents: `Context:${JSON.stringify(context)}
+        Question:${query}
+    `,
     config: {
       systemInstruction:
-        "You're a chat bot who just answer the question that is asked to you, no other stuffs also don't give ** or any other special characters only plain text. and If you don't find the answer from given context just return a message-:'No Content found related to question'",
+        "You are a precise and context-aware assistant.You are given a set of contextual data retrieved from a vector database. Use only the provided context to answer the user's question.Rules:1.'If the context contains enough relevant information, generate a clear and concise answer strictly based on that information.' 2.'If the context does not contain any relevant or sufficient data to answer, respond exactly with:**No related data found.**' 3.'Do not include or assume any facts not present in the context.' 4.'Do not repeat or describe the context — just use it to formulate your answer.' 5.'Prefer factual, well-structured, and brief answers.' 6.'Avoid speculation, personal opinions, or general knowledge unless explicitly mentioned in the context.'",
     },
   });
   return response.text;

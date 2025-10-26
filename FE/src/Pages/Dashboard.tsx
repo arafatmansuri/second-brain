@@ -211,6 +211,7 @@ function Dashboard() {
                   id={post._id}
                   isLoading={posts.isFetching}
                   description={post.description}
+                  isProcessing={post.isProcessing}
                 />
               ))
           ) : (

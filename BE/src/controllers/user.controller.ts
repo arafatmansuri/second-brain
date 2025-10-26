@@ -203,9 +203,16 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
 };
 export const signout: Handler = async (req, res): Promise<void> => {
   try {
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: <"none">"none",
+      path: "/",
+      maxAge: 0, // 1 day
+    };
     res
-      .clearCookie("accessToken")
-      .clearCookie("refreshToken")
+      .clearCookie("accessToken",cookieOptions)
+      .clearCookie("refreshToken",cookieOptions)
       .status(StatusCode.Success)
       .json({ message: "user signout success" });
     return;

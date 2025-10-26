@@ -35,6 +35,7 @@ type IEmbedData = {
   link?: string;
   linkId?: string;
   data?: string;
+  fileType?: string;
 };
 export async function embedData({
   key,
@@ -44,6 +45,7 @@ export async function embedData({
   link,
   linkId,
   data,
+  fileType,
 }: IEmbedData) {
   try {
     //console.log("🔹 Loading Xenova embedding model...");
@@ -118,16 +120,23 @@ export async function embedData({
         ...fullTweetData,
       });
     } else if (type == "image") {
-      const imageData = await getImageSummary(link || "");
+      const imageData = await getImageSummary(link || "", fileType);
       const embedding = await embedder(imageData, {
         pooling: "mean",
         normalize: true,
       });
+      let parsedImageData = {};
+      try {
+        parsedImageData = JSON.parse(imageData);
+      } catch (error) {
+        console.log("Invalid JSON");
+      }
       await collection.insertOne({
         embedding: Array.from(embedding.data),
         contentId,
         userId,
         data: imageData,
+        ...parsedImageData,
       });
     } else if (type == "video") {
       const videoData = await getVideoTransript(link || "");

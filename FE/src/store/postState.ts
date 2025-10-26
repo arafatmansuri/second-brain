@@ -9,7 +9,8 @@ export interface PostData {
   _id: string;
   createdAt?: string;
   updatedAt?: string;
-  description?:string;
+  description?: string;
+  isProcessing?: boolean;
 }
 export const postAtom = atom<PostData[]>({
   key: "postAtom",

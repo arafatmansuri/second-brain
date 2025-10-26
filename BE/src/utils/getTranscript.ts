@@ -260,7 +260,7 @@ export const getDocumentText = async (link: string) => {
   return ret.data.text;
   // return "ret.data.text";
 };
-export const getImageSummary = async (link: string) => {
+export const getImageSummary = async (link: string, fileType?: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY });
 
   const response = await fetch(link);
@@ -272,11 +272,13 @@ export const getImageSummary = async (link: string) => {
     contents: [
       {
         inlineData: {
-          mimeType: "image/jpeg",
+          mimeType: fileType,
           data: base64ImageData,
         },
       },
-      { text: "Caption this image." },
+      {
+        text: "You are an expert document analyst. Your task is to extract, understand, and clean the textual and structural content from the given image. The goal is to produce text that captures all the *meaningful information* for semantic embedding, removing visual clutter or irrelevant layout details.Follow these rules carefully:1. Read and interpret **all readable text** in the image, including headings, tables, and annotations.2. If the image contains structured data (tables, lists, charts), **convert it to plain text format** with clear labels.3. **Preserve key context**, logical relationships, and meanings — not formatting or coordinates.4. **Ignore** decorative elements, watermarks, page numbers, or repeated headers/footers.5. If the image contains multiple sections, summarize each one clearly under a heading.6. For handwritten or unclear text, make your **best guess** but note uncertainty in brackets `[unclear: word]`.7. Return the final output strictly as a JSON object. 8.Output only the JSON object — no text, no explanation, no code block formatting. 9.Do not include triple backticks (```) or any labels like 'json'. 10. Ensure the JSON is properly formatted and parsable. the fields: title, content, summary, and keywords.Output format: ---Title: [If the image has a clear title or heading]Main Content:[Cleaned, structured text here] Summary (optional):[A 2–3 line summary capturing main topic or insight] Keywords:[List of 5–10 relevant keywords]---",
+      },
     ],
   });
   return result?.text || "";

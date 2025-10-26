@@ -108,6 +108,10 @@ export const searchFromEmbeddings = async (query, userId) => {
           totalViews: 1,
           totalFollowers: 1,
           totalFollowings: 1,
+          title: 1,
+          main_content: 1,
+          summary: 1,
+          keywords: 1,
         },
       },
     ]);
