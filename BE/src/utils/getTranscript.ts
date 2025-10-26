@@ -55,9 +55,9 @@ interface YoutubeData {
 export const getYoutubeTranscriptPy = async (
   id: string
 ): Promise<{
-  data: string;
-  start: number;
-  end: number;
+  data?: string;
+  start?: number;
+  end?: number;
   videoTitle: string;
   description: string;
   staticstics: string;

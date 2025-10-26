@@ -42,28 +42,50 @@ def extract_pdf_form_key(key:str):
     return docs
 
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig
 
 def chunk_by_duration(transcript,metadata):
         chunks = []
         current_chunk = {"data": "", "start": None, "end": None, "duration": 0.0}
         max_chunk_duration = 60;
-        for entry in transcript:
-            text = entry["text"].strip()
-            start = entry["start"]
-            duration = entry["duration"]
-            end = start + duration
+        if len(transcript) > 0:
+            for entry in transcript:
+                text = entry["text"].strip()
+                start = entry["start"]
+                duration = entry["duration"]
+                end = start + duration
 
-            # Initialize the first chunk
-            if current_chunk["start"] is None:
-                current_chunk["start"] = start
+                # Initialize the first chunk
+                if current_chunk["start"] is None:
+                    current_chunk["start"] = start
 
-            # Check if adding this entry exceeds max duration
-            if current_chunk["duration"] + duration <= max_chunk_duration:
-                current_chunk["data"] += " " + text
-                current_chunk["end"] = end
-                current_chunk["duration"] += duration
-            else:
-                # Save current chunk and start a new one
+                # Check if adding this entry exceeds max duration
+                if current_chunk["duration"] + duration <= max_chunk_duration:
+                    current_chunk["data"] += " " + text
+                    current_chunk["end"] = end
+                    current_chunk["duration"] += duration
+                else:
+                    # Save current chunk and start a new one
+                    chunks.append({
+                        "data": current_chunk["data"].strip(),
+                        "start": current_chunk["start"],
+                        "end": current_chunk["end"],
+                        "videoTitle":metadata["title"],
+                        "description":metadata["description"],
+                        "staticstics":metadata["staticstics"],
+                        "duration":metadata["duration"],
+                        "channelName":metadata["channelName"],
+                    })
+
+                    current_chunk = {
+                        "data": text,
+                        "start": start,
+                        "end": end,
+                        "duration": duration
+                    }
+
+            # Add the last chunk
+            if current_chunk["data"]:
                 chunks.append({
                     "data": current_chunk["data"].strip(),
                     "start": current_chunk["start"],
@@ -74,34 +96,30 @@ def chunk_by_duration(transcript,metadata):
                     "duration":metadata["duration"],
                     "channelName":metadata["channelName"],
                 })
-
-                current_chunk = {
-                    "data": text,
-                    "start": start,
-                    "end": end,
-                    "duration": duration
-                }
-
-        # Add the last chunk
-        if current_chunk["data"]:
+        else:
             chunks.append({
-                "data": current_chunk["data"].strip(),
-                "start": current_chunk["start"],
-                "end": current_chunk["end"],
                 "videoTitle":metadata["title"],
                 "description":metadata["description"],
                 "staticstics":metadata["staticstics"],
                 "duration":metadata["duration"],
                 "channelName":metadata["channelName"],
+                "data":None,
+                "start":None,
+                "end":None,
             })
-
         return chunks
 
 def fetch_transcript(video_id:str,metadata):
-
-    transcript = YouTubeTranscriptApi().fetch(video_id)
-    chunks = chunk_by_duration(transcript.to_raw_data(),metadata)
-    return chunks
+    try:
+        transcript = YouTubeTranscriptApi(proxy_config=WebshareProxyConfig(
+            proxy_username=os.getenv("PROXY_USERNAME"),
+            proxy_password=os.getenv("PROXY_PASSWORD"),
+        )).fetch(video_id)
+    except(Exception):
+        pass
+    finally:
+        chunks = chunk_by_duration(transcript.to_raw_data(),metadata)
+        return chunks
 
 if __name__ == "__main__":
     contentType = sys.argv[1]

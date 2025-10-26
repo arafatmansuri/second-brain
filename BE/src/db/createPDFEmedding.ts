@@ -76,7 +76,8 @@ export async function embedPDFFromKey(
     } else if (type == "youtube") {
       const transcript = await getYoutubeTranscriptPy(key);
       for (const chunk of transcript) {
-        const embedding = await embedder(chunk.data, {
+        let data = chunk?.data || JSON.stringify({...chunk});
+        const embedding = await embedder(data, {
           pooling: "mean",
           normalize: true,
         });
