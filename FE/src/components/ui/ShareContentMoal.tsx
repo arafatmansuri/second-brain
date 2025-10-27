@@ -29,7 +29,7 @@ export function ShareContentMoal() {
       if (shareContentMutation.data?.link !== "" && !isCopy) {
         setIsPopup({ message: "Your Brain set to Public", popup: true });
         setIsCopy(true);
-        const link = `https://second-brain-alpha.vercel.app/dashboard/${shareContentMutation.data?.link}`;
+        const link = `https://www.secondbrain.services//dashboard/${shareContentMutation.data?.link}`;
         navigator.clipboard.writeText(link);
       }
       setTimeout(() => {

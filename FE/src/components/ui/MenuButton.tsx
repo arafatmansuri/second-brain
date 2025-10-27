@@ -6,8 +6,9 @@ export function MenuButton({size}:IconProps) {
   const setIsModalOpen = useSetRecoilState(sidebarAtom);
   return (
     <button
-      className="md:hidden flex items-center cursor-pointer"
+      className="sm:hidden flex items-center cursor-pointer"
       onClick={() => setIsModalOpen((p) => !p)}
+      title="menu"
     >
       <Menu size={size} />
     </button>

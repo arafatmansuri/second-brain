@@ -60,7 +60,7 @@ export function Card({
     <div
       className={`${
         isModalOpen.open ? "bg-slate-500 opacity-50 border-0" : "bg-white"
-      } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:w-[45%] md:w-[40%] w-[80%]`}
+      } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:min-w-72 sm:min-w-64 w-[80%]`}
     >
       <div className="flex justify-between items-center">
         <div className="flex justify-between items-center gap-2 text-gray-500">

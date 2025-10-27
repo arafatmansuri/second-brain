@@ -96,23 +96,21 @@ function Dashboard() {
     }
   }, [privateContentMutation.status, brain]);
   return (
-    <div className="flex min-h-screen relative">
-      <ui.Sidebar />
+    <div className="sm:w-[75%] lg:w-[82%] w-full">
       <div
-        className={`bg-gray-100 md:w-[80%] p-3 w-full ${
+        className={`bg-gray-100 p-3 w-full ${
           modalOpen.open && "bg-slate-500 opacity-70"
         } ${brain && !getBrainMutation.data ? "hidden" : "block"}`}
       >
         <div className="flex w-full justify-between">
           <h1
-            className={`md:block ${
+            className={`${
               brain ? "block" : "hidden"
             } font-bold md:text-2xl text-md md:mr-5 md:ml-6 text-purple-500`}
           >
             {`${
-              brain
-                ? `${getBrainMutation.data?.username}'s Brain`
-                : `Welcome, ${user.data?.username}`
+              brain && `${getBrainMutation.data?.username}'s Brain`
+                // : `Welcome, ${user.data?.username}`
             }`}
           </h1>
           {brain && (
@@ -127,7 +125,7 @@ function Dashboard() {
           )}
         </div>
         <div
-          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-7 sticky top-0 p-3 bg-gray-100 ${
+          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-4 sticky top-0 p-3 bg-gray-100 ${
             modalOpen.open && "bg-slate-500"
           }`}
         >
@@ -179,7 +177,7 @@ function Dashboard() {
           </div>
         </div>
         <section
-          className={`flex md:flex-row flex-col w-full flex-wrap md:items-start gap-5 items-center md:pl-5`}
+          className={`flex lg:grid-cols-3 flex-col w-full flex-wrap lg:gap-5 items-center lg:pl-1 md:pl-4 sm:pl-1 sm:grid sm:grid-cols-2 gap-5`}
         >
           {postsData.filter((post) => {
             if (searchParams.get("content") == "All Notes") {
@@ -237,11 +235,11 @@ function Dashboard() {
           widthFull={false}
           classes={`font-semibold text-2xl`}
         />
-      </div>
       <ui.CreateContentModal />
       <ui.ShareContentMoal />
       <ui.SearchBox />
       <ui.Popup />
+      </div>
     </div>
   );
 }
