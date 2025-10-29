@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NavbarLayout from "./components/ui/NavbarLayout";
 import { ThemeProvider } from "./hooks/themeContext";
@@ -11,6 +12,7 @@ import Signup from "./Pages/Signup";
 function App() {
   return (
     <ThemeProvider>
+      <Analytics />
       <BrowserRouter>
         <Routes>
           <Route element={<NavbarLayout />}>

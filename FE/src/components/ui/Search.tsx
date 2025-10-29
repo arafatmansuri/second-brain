@@ -61,7 +61,7 @@ export function SearchBox() {
             text={""}
             size="md"
             textVisible={false}
-            startIcon={<SendHorizonal className="size-8" />}
+            startIcon={<SendHorizonal className="size-5" />}
             //   loading={shareContentMutation.isPending}
           />
         </div>
