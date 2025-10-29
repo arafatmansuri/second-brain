@@ -13,6 +13,7 @@ export interface ButtonProps {
   loading?: boolean;
   classes?: string;
   type?: "submit" | "reset" | "button" | undefined;
+  isCenterText?:boolean
 }
 const variantStyles = {
   primary: "bg-purple-600 text-white hover:bg-purple-700",
@@ -35,13 +36,16 @@ export function Button({
   textVisible = true,
   widthFull,
   classes,
-  type="button"
+  type="button",
+  isCenterText
 }: ButtonProps) {
   return (
     <button
       className={`${defaultStyles} ${variantStyles[varient]} 
       ${sizeStyles[size]} ${
         widthFull && "w-full flex items-center justify-center"
+      } ${
+        isCenterText && "flex items-center justify-center"
       } disabled:cursor-progress disabled:opacity-70 ${classes}`}
       onClick={onClick}
       disabled={loading}

@@ -13,6 +13,7 @@ import { contentData } from "../middlewares/contentData.middleware";
 import { filterTags } from "../middlewares/filterTags.middleware";
 import { upload } from "../middlewares/multer.middlewear";
 import { verifyJWT } from "../middlewares/user.middleware";
+import { askAILimiter, rateLimiterMiddlewareAskAI } from "../middlewares/rateLimiter.middleware";
 
 const contentRouter: Router = Router();
 
@@ -27,10 +28,10 @@ contentRouter.route("/update/:id").put(filterTags, updateContent);
 contentRouter.route("/delete/:id").delete(deleteContent);
 contentRouter.route("/displayall").get(displayContent);
 contentRouter.route("/share").put(shareContent);
-contentRouter.route("/askai").post(queryFromContent);
-// contentRouter
-//   .route("/askai")
-//   .post(rateLimiterMiddlewareAskAI(askAILimiter), queryFromContent);
+// contentRouter.route("/askai").post(queryFromContent);
+contentRouter
+  .route("/askai")
+  .post(rateLimiterMiddlewareAskAI(askAILimiter), queryFromContent);
 contentRouter.route("/uploadUrl").post(generateUploadUrl);
 
 export default contentRouter;

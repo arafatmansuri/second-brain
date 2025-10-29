@@ -96,7 +96,7 @@ function Dashboard() {
     }
   }, [privateContentMutation.status, brain]);
   return (
-    <div className="sm:w-[75%] lg:w-[82%] w-full">
+    <div className="sm:w-[80%] lg:w-[82%] w-full">
       <div
         className={`bg-gray-100 p-3 w-full ${
           modalOpen.open && "bg-slate-500 opacity-70"
@@ -110,7 +110,7 @@ function Dashboard() {
           >
             {`${
               brain && `${getBrainMutation.data?.username}'s Brain`
-                // : `Welcome, ${user.data?.username}`
+              // : `Welcome, ${user.data?.username}`
             }`}
           </h1>
           {brain && (
@@ -170,14 +170,14 @@ function Dashboard() {
               text="Add Content"
               varient="primary"
               startIcon={<icons.PlusIcon size={"md"} />}
-              onClick={() => setModalOpen({ open: true, modal: "create" })}
+              onClick={() => navigate("/add-content")}
               textVisible={isDesktop}
             />
             <ui.MenuButton size="md" />
           </div>
         </div>
         <section
-          className={`flex lg:grid-cols-3 flex-col w-full flex-wrap lg:gap-5 items-center lg:pl-1 md:pl-4 sm:pl-1 sm:grid sm:grid-cols-2 gap-5`}
+          className={`flex lg:grid-cols-3 flex-col w-full flex-wrap items-center lg:pl-1 md:pl-4 sm:grid sm:grid-cols-2 gap-5`}
         >
           {postsData.filter((post) => {
             if (searchParams.get("content") == "All Notes") {
@@ -235,11 +235,11 @@ function Dashboard() {
           widthFull={false}
           classes={`font-semibold text-2xl`}
         />
-      <ui.CreateContentModal />
-      <ui.ShareContentMoal />
-      <ui.SearchBox />
-      <ui.Popup />
       </div>
+        {/* <ui.CreateContentModal /> */}
+        <ui.ShareContentMoal />
+        <ui.SearchBox />
+        <ui.Popup />
     </div>
   );
 }

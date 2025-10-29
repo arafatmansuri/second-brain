@@ -20,7 +20,7 @@ export const signupLimiter = new RateLimiterRedis({
 export const askAILimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "askai",
-  points: 5,
+  points: 10,
   duration: 60 * 60 * 24,
 });
 

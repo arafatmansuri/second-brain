@@ -53,7 +53,7 @@ export const signup: Handler = async (req, res): Promise<void> => {
   } catch (err: any) {
     res
       .status(StatusCode.ServerError)
-      .json({ message: err.message || "Something went wrong from ourside" });
+      .json({ message: "Something went wrong from ourside" });
   }
 };
 export const signin: Handler = async (req, res): Promise<void> => {
@@ -102,7 +102,7 @@ export const signin: Handler = async (req, res): Promise<void> => {
   } catch (err: any) {
     res
       .status(StatusCode.ServerError)
-      .json({ message: err.message || "Something went wrong from ourside" });
+      .json({ message:"Something went wrong from ourside" });
   }
 };
 export const googleSignin: Handler = async (req, res): Promise<void> => {

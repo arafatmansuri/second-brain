@@ -1,15 +1,15 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { icons, ui } from "../components";
 import { userAtom } from "../store/userState";
-import { addContentModalAtom } from "../store/AddContentModalState";
 import { popupAtom } from "../store/loadingState";
 import { typeAtom } from "../store/typeState";
 import type { PostData } from "../store/postState";
 import { usePostMutation } from "../queries/PostQueries/postQueries";
 import { useRefreshTokenMutation } from "../queries/AuthQueries/queries";
+import { useNavigate } from "react-router-dom";
 type createContentInputs = {
   title: string;
   link: string;
@@ -21,7 +21,6 @@ type createContentInputs = {
 //controlled component
 function AddContent() {
   const user = useRecoilValue(userAtom);
-  const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const [isFileError, setIsFileError] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const setIsPopup = useSetRecoilState(popupAtom);
@@ -31,8 +30,8 @@ function AddContent() {
   const addPostMutation = usePostMutation<PostData>();
   const getUploadUrlMutation = usePostMutation<{ uploadUrl: string }>();
   const refreshTokenMutation = useRefreshTokenMutation();
+  const navigate = useNavigate();
   function onClose() {
-    setIsModalOpen({ open: false, modal: "create" });
     setValue("title", "");
     setValue("link", "");
     setValue("description", "");
@@ -46,7 +45,7 @@ function AddContent() {
     if (file && file.size > MAX_PDF_SIZE_MB * 1024 * 1024) {
       setIsFileError(true);
       console.log(file.type);
-      // return;
+      return;
     }
     if (
       (data.type == "image" ||
@@ -115,13 +114,10 @@ function AddContent() {
       });
   };
   useEffect(() => {
-    setValue("type", "select");
-  }, [isModalOpen]);
-  useEffect(() => {
     if (addPostMutation.status == "success") {
+      navigate("/dashboard");
       setTimeout(() => {
         setIsPopup({ popup: true, message: "Content Added Successfully" });
-        setIsModalOpen({ open: false, modal: "create" });
         setValue("title", "");
         setValue("link", "");
         setValue("description", "");
@@ -147,24 +143,19 @@ function AddContent() {
     // }
   }, [addPostMutation.error?.message, addPostMutation.status]);
   return (
-    <div
-      className={`${
-        isModalOpen.open && isModalOpen.modal == "create" ? "flex" : "hidden"
-      } w-screen h-screen
-       fixed top-0 left-0 justify-center items-center`}
-    >
+    <div className={`flex sm:w-[75%] lg:w-[82%] w-full h-screen sm:pl-5`}>
       <form
         onSubmit={handleSubmit(addContent)}
-        className="bg-white p-4 shadow-md rounded flex flex-col items-center gap-3 min-w-96"
+        className="p-4 flex flex-col items-center gap-3 w-[100%]"
       >
         <div
-          className="flex self-end cursor-pointer w-full justify-between font-medium text-purple-800"
+          className="flex self-end cursor-pointer w-full justify-between font-medium text-purple-800 items-center"
           onClick={onClose}
         >
-          <h1>Add Content</h1>
-          <icons.CrossIcon size="sm" />
+          <h1 className="font-bold md:text-xl">Add Content</h1>
+          <ui.MenuButton size="sm" />
         </div>
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full sm:pt-5">
           <ui.Input
             placeholder="Title"
             formHook={{ ...register("title", { minLength: 3 }) }}
@@ -177,6 +168,10 @@ function AddContent() {
               formHook={{ ...register("link") }}
             />
           )}
+          {contentType == "document" ||
+            (contentType == "image" && (
+              <input type="radio" value={"link"} name="link" />
+            ))}
           {(contentType == "document" ||
             contentType == "video" ||
             contentType == "image") && (
@@ -189,10 +184,10 @@ function AddContent() {
           <div className="flex gap-2">
             <ui.Input placeholder="Tags" formHook={{ ...register("tags") }} />
             <ui.Button
-              size="sm"
+              size="md"
               text="add"
               varient="secondary"
-              classes="py-2"
+              classes="py-4"
               textVisible={true}
               widthFull={false}
               onClick={() => setTags((prev) => [...prev, getValues("tags")])}
@@ -227,15 +222,26 @@ function AddContent() {
             <ui.ErrorBox errorMessage={getUploadUrlMutation?.error?.message} />
           ))}
 
-        <ui.Button
-          varient="primary"
-          text="Submit"
-          size="md"
-          textVisible={true}
-          widthFull={true}
-          loading={addPostMutation.isPending}
-          type="submit"
-        />
+        <div className="grid sm:grid-cols-2 w-full gap-2 ">
+          <ui.Button
+            varient="primary"
+            text="Submit"
+            size="md"
+            textVisible={true}
+            loading={addPostMutation.isPending}
+            type="submit"
+            isCenterText={true}
+          />
+          <ui.Button
+            varient="secondary"
+            text="Cancel"
+            size="md"
+            textVisible={true}
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            isCenterText={true}
+          />
+        </div>
       </form>
     </div>
   );

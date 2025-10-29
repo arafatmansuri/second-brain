@@ -1,3 +1,4 @@
+import { SendHorizonal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { icons, ui } from "..";
@@ -30,7 +31,7 @@ export function SearchBox() {
       className={`${
         isModalOpen.open && isModalOpen.modal == "search" ? "flex" : "hidden"
       } w-screen h-screen
-         fixed top-0 left-0 justify-center items-center`}
+         fixed top-0 left-0 justify-center items-center z-10`}
     >
       <div className="bg-white p-4 shadow-md rounded-xl flex flex-col items-center gap-5 w-[40rem]">
         <div className="flex self-end w-full justify-between font-bold text-purple-800 text-lg">
@@ -60,7 +61,7 @@ export function SearchBox() {
             text={""}
             size="md"
             textVisible={false}
-            startIcon={<icons.Search size="sm" />}
+            startIcon={<SendHorizonal className="size-8" />}
             //   loading={shareContentMutation.isPending}
           />
         </div>
@@ -71,7 +72,7 @@ export function SearchBox() {
           ) : (
             answer
           )}
-          {askAIMutation.isError && askAIMutation.error.message}
+          {askAIMutation.status == "error" && askAIMutation.error.message}
         </p>
       </div>
     </div>

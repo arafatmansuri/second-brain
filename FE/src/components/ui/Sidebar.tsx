@@ -8,12 +8,12 @@ import {
   Twitter,
   VideoIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 // import { useMediaQuery } from "../../hooks/useMediaQuery";
-import { useAuthMutation } from "../../queries/AuthQueries/queries";
+import { useAuthMutation, useUserQuery } from "../../queries/AuthQueries/queries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { sidebarAtom } from "../../store/sideBarState";
 import { userAtom } from "../../store/userState";
@@ -24,7 +24,14 @@ export function Sidebar() {
   const [isSidebarOpen, setIsSideBarOpen] = useRecoilState(sidebarAtom);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   // const isDesktop = useMediaQuery("(min-width:768px)");
-  const user = useRecoilValue(userAtom);
+  const userQuery = useUserQuery({credentials:true});
+  const [user,setUser] = useRecoilState(userAtom);
+  useEffect(() => {
+    if (userQuery.status =="success") {
+      setUser(userQuery.data);
+    }
+  }, [userQuery.status])
+  
   const [searchParams, setSearchParams] = useSearchParams();
   const logoutMutation = useAuthMutation();
   const { brain } = useParams();
@@ -54,7 +61,7 @@ export function Sidebar() {
       <div>
         <div className="flex items-center gap-2 md:mb-5 mb-3 cursor-pointer">
           <div
-            className="md:hidden flex items-center cursor-pointer"
+            className="sm:hidden flex items-center cursor-pointer"
             onClick={() => setIsSideBarOpen((p) => !p)}
           >
             {isSidebarOpen ? (
