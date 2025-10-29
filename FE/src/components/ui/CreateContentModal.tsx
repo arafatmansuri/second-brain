@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useRefreshTokenMutation } from "../../queries/AuthQueries/queries";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
@@ -21,7 +21,7 @@ type createContentInputs = {
 //controlled component
 export function CreateContentModal() {
   const user = useRecoilValue(userAtom);
-  const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
+  const isModalOpen = useRecoilValue(addContentModalAtom);
   const [isFileError, setIsFileError] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const setIsPopup = useSetRecoilState(popupAtom);
@@ -32,7 +32,7 @@ export function CreateContentModal() {
   const getUploadUrlMutation = usePostMutation<{ uploadUrl: string }>();
   const refreshTokenMutation = useRefreshTokenMutation();
   function onClose() {
-    setIsModalOpen({ open: false, modal: "create" });
+    // setIsModalOpen({ open: false, modal: "create" });
     setValue("title", "");
     setValue("link", "");
     setValue("description", "");
@@ -121,7 +121,7 @@ export function CreateContentModal() {
     if (addPostMutation.status == "success") {
       setTimeout(() => {
         setIsPopup({ popup: true, message: "Content Added Successfully" });
-        setIsModalOpen({ open: false, modal: "create" });
+        // setIsModalOpen({ open: false, modal: "create" });
         setValue("title", "");
         setValue("link", "");
         setValue("description", "");
@@ -149,7 +149,8 @@ export function CreateContentModal() {
   return (
     <div
       className={`${
-        isModalOpen.open && isModalOpen.modal == "create" ? "flex" : "hidden"
+        isModalOpen.open ? "flex" : "hidden"
+        // isModalOpen.modal == "create"
       } w-screen h-screen
        fixed top-0 left-0 justify-center items-center`}
     >
