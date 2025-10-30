@@ -3,10 +3,11 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Schema } from "mongoose";
 import { s3 } from "../config/s3Config";
 import Content from "../models/content.model";
+import Embedding from "../models/embedding.model";
 import Link from "../models/link.model";
 import User from "../models/user.model";
 import { Handler, StatusCode } from "../types";
-import { generateDataAndEmbeddings, queueDataEmbedding } from "../utils/generateDataAndEmbeddings";
+import { queueDataEmbedding } from "../utils/generateDataAndEmbeddings";
 import { generateHash } from "../utils/generateHash.util";
 import { generateAnswer } from "../utils/generateResult";
 import { generateSignedUrl } from "../utils/getSignedUrl";
@@ -92,6 +93,7 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
       res.status(StatusCode.NotFound).json({ message: "No content found" });
       return;
     }
+    await Embedding.deleteMany({ contentId });
     if (
       content.type == "image" ||
       content.type == "video" ||
@@ -243,15 +245,18 @@ export const queryFromContent: Handler = async (req, res) => {
   try {
     const userId = req.userId;
     const { query } = req.body;
-    const result = await generateAnswer(query, userId);
-    res
-      .status(StatusCode.Success)
-      .json({ message: "answer generated successfully", answer: result });
+    const { result, contentIds } = await generateAnswer(query, userId);
+    const contents = await Content.find({ _id: { $in: contentIds } });
+    res.status(StatusCode.Success).json({
+      message: "answer generated successfully",
+      answer: result,
+      content: contents,
+    });
     return;
-  } catch (err) {
+  } catch (err: any) {
     res
       .status(StatusCode.ServerError)
-      .json({ message: "Something went wrong from our side" });
+      .json({ message: err || "Something went wrong from our side" });
     return;
   }
 };

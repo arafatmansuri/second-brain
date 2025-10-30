@@ -33,7 +33,9 @@ export function SearchBox() {
       } w-screen h-screen
          fixed top-0 left-0 justify-center items-center z-10`}
     >
-      <div className="bg-white p-4 shadow-md rounded-xl flex flex-col items-center gap-5 w-[40rem]">
+      <div
+        className={`bg-white p-4 shadow-md rounded-xl flex flex-col items-center gap-5 w-[40rem]`}
+      >
         <div className="flex self-end w-full justify-between font-bold text-purple-800 text-lg">
           <h1>Ask anything from your brain</h1>
           <button

@@ -21,9 +21,6 @@ export function Auth({ authName }: authData) {
     formState: { errors },
   } = useForm<Inputs>();
   const navigate = useNavigate();
-  const navigationUrl: string =
-    authName == "Sign in" ? "/dashboard" : "/signin";
-  const creds: boolean = authName == "Sign in" ? true : false;
   const authMutation = useAuthMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
   const onClick: SubmitHandler<Inputs> = async (data) => {
@@ -32,7 +29,7 @@ export function Auth({ authName }: authData) {
         username: data.username,
         password: data.password,
         endpoint: `${authName == "Sign in" ? "signin" : "signup"}`,
-        credentials: creds,
+        credentials: true,
       });
     }
   };
@@ -41,7 +38,7 @@ export function Auth({ authName }: authData) {
       setIsPopup({ popup: true, message: `${authName} successfull` });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
-        navigate(navigationUrl);
+        navigate("/dashboard?content=All+Notes");
       }, 1000);
     }
   }, [authMutation.isSuccess, authMutation.isPending]);

@@ -5,7 +5,11 @@ export const DashboardLayout = () => {
   return (
     <div className="flex min-h-screen relative w-full">
       <ui.Sidebar />
-        <Outlet />
+      <Outlet />
+      {/* <ui.CreateContentModal /> */}
+      <ui.ShareContentMoal />
+      <ui.SearchBox />
+      <ui.Popup />
     </div>
   );
 };

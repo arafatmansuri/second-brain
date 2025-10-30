@@ -46,8 +46,17 @@ export const signup: Handler = async (req, res): Promise<void> => {
       password: userInput.data.password,
       method: "normal",
     });
+    const { accessToken, refreshToken } = user.generateAccessAndRefreshToken();
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: <"none">"none",
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    };
     res
-      .status(StatusCode.Success)
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
       .json({ message: "signup successfull", user });
     return;
   } catch (err: any) {

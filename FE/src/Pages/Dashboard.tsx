@@ -96,7 +96,11 @@ function Dashboard() {
     }
   }, [privateContentMutation.status, brain]);
   return (
-    <div className="sm:w-[80%] lg:w-[82%] w-full">
+    <div
+      className={`sm:w-[80%] lg:w-[82%] w-full bg-gray-100 ${
+        modalOpen.open && "bg-slate-500 opacity-70"
+      }`}
+    >
       <div
         className={`bg-gray-100 p-3 w-full ${
           modalOpen.open && "bg-slate-500 opacity-70"
@@ -236,10 +240,6 @@ function Dashboard() {
           classes={`font-semibold text-2xl`}
         />
       </div>
-        {/* <ui.CreateContentModal /> */}
-        <ui.ShareContentMoal />
-        <ui.SearchBox />
-        <ui.Popup />
     </div>
   );
 }

@@ -36,6 +36,8 @@ type IEmbedData = {
   linkId?: string;
   data?: string;
   fileType?: string;
+  title?: string;
+  description?: string;
 };
 export async function embedData({
   key,
@@ -46,6 +48,8 @@ export async function embedData({
   linkId,
   data,
   fileType,
+  title,
+  description,
 }: IEmbedData) {
   try {
     //console.log("🔹 Loading Xenova embedding model...");
@@ -160,6 +164,7 @@ export async function embedData({
         contentId,
         userId,
         data,
+        title,
       });
     }
 

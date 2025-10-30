@@ -121,7 +121,7 @@ export function Sidebar() {
             className="fixed z-10 cursor-pointer"
             onClick={() => setIsDropdownOpen(false)}
           />
-          <div className="absolute left-45 bottom-14 bg-white border border-gray-200 rounded-xl shadow-xl z-20 w-54 py-2">
+          <div className="absolute sm:left-45 sm:bottom-14 bottom-14 right-40 bg-white border border-gray-200 rounded-xl shadow-xl z-20 w-54 py-2">
             <div className="px-4 py-3 border-b border-gray-200">
               <p className="text-sm font-semibold text-gray-900">
                 {user?.username}
@@ -130,7 +130,7 @@ export function Sidebar() {
             <div className="pt-2">
               <button
                 onClick={() => setIsDropdownOpen(false)}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100transition-colors cursor-pointer"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 <Settings className="h-4 w-4" />
                 Settings
