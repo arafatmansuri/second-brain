@@ -24,7 +24,7 @@ function App() {
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path=":brain" element={<Dashboard />} />
+            <Route path="/dashboard/:brain" element={<Dashboard />} />
             <Route path="/add-content" element={<AddContent />} />
           </Route>
         </Routes>
