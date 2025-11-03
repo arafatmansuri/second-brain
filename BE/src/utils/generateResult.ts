@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import { searchFromEmbeddings } from "../db/vector-query";
+import { searchFromEmbeddings } from "../db/vectorQuery";
 dotenv.config();
 const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY });
 export async function generateAnswer(
