@@ -106,7 +106,7 @@ export function Sidebar() {
         >
           <div className="flex justify-center items-center gap-2">
             <div className="rounded-full bg-purple-600 w-8 h-8 font-medium flex items-center justify-center text-white">
-            {user?.username.charAt(0).toUpperCase()}
+            {user?.username?.charAt(0).toUpperCase()}
           </div>
             <h3 className="font-medium">{user.username}</h3></div>
           <BsThreeDots

@@ -38,7 +38,8 @@ export function Auth({ authName }: authData) {
       setIsPopup({ popup: true, message: `${authName} successfull` });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
-        navigate("/dashboard?content=All+Notes");
+        navigate("/dashboard");
+        // navigate("/dashboard?content=All+Notes");
       }, 1000);
     }
   }, [authMutation.isSuccess, authMutation.isPending]);

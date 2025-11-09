@@ -46,8 +46,11 @@ function Dashboard() {
   const hasTriedRefresh = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
-    searchParams.set("content", "All Notes");
-    setSearchParams(searchParams);
+    // searchParams.set("content", "All Notes");
+    // searchParams.append("content","All Notes")
+    // navigate("/dashboard?content=All+Notes");
+    setSearchParams({content:"All Notes"});
+    // setSearchParams(searchParams);
     if (brain) {
       getBrainMutation.mutate({
         method: "GET",
