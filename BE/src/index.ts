@@ -15,6 +15,7 @@ const allowedOrigins = [
   "https://second-brain-alpha.vercel.app",
   "https://second-brain-backend-g2fo.onrender.com",
   "https://www.secondbrain.services",
+  "https://secondbrain.services",
 ];
 app.use(express.json());
 app.use(
@@ -33,7 +34,7 @@ app.use(cookieParser());
 app.use(express.static("./public"));
 app.use(rateLimiterMiddleware(apiLimiter, userKeyGenerator));
 app.get("/", async (req, res) => {
-  res.json({ message: "Working" });
+  res.json({ message: "Server is healthy", pid: process.pid });
   return;
 });
 
