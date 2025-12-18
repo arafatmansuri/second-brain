@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 
 const OTPSchema = new Schema({
   username: { type: String, required: true, trim: true },
-  password: { type: String, required: true },
+  password: { type: String},
   email: { type: String, required: true },
   subject: { type: String, required: true },
   otp: { type: Number, required: true },

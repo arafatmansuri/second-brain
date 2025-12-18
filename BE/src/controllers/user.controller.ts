@@ -1,5 +1,6 @@
 import axios from "axios";
-import { CookieOptions } from "express";
+import bcrypt from "bcrypt";
+import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import { z } from "zod";
@@ -11,6 +12,24 @@ const userInputSchema = z.object({
   username: z
     .string()
     .min(3, { message: "Username must be atleast 3 characters" }),
+  password: z
+    .string()
+    .regex(/[A-Z]/, {
+      message: "Pasword should include atlist 1 uppercasecharacter",
+    })
+    .regex(/[a-z]/, {
+      message: "Pasword should include atlist 1 lowercasecharacter",
+    })
+    .regex(/[0-9]/, {
+      message: "Pasword should include atlist 1 number character",
+    })
+    .regex(/[^A-Za-z0-9]/, {
+      message: "Pasword should include atlist 1 special character",
+    })
+    .min(8, { message: "Password length shouldn't be less than 8" }),
+});
+const forgetInputSchema = z.object({
+  otp: z.number(),
   password: z
     .string()
     .regex(/[A-Z]/, {
@@ -59,7 +78,7 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       return;
     }
     const { email, password, username } = userInput.data;
-    const isUsernameAvailable = await User.isUserExists(username, email);
+    const isUsernameAvailable = await User.isUserExists({ username, email });
     if (isUsernameAvailable) {
       res
         .status(StatusCode.DocumentExists)
@@ -125,7 +144,7 @@ export const signupOTPVerification: Handler = async (
       return;
     }
     const { email } = req.cookies.signup_id;
-    const IsOtpExists = await OTP.find({ email: email })
+    const IsOtpExists = await OTP.find({ email: email,type:"signup" })
       .sort({ createdAt: -1 })
       .limit(1);
     if (IsOtpExists.length === 0 || parsedOTP !== IsOtpExists[0]?.otp) {
@@ -150,7 +169,7 @@ export const signupOTPVerification: Handler = async (
         .json({ message: "Something went wrong from our side." });
       return;
     }
-    await OTP.deleteMany({ email });
+    await OTP.deleteMany({ email,type:"signup" });
     const { accessToken, refreshToken } =
       createdUser.generateAccessAndRefreshToken();
     await createdUser.updateOne(
@@ -187,7 +206,9 @@ export const signupOTPVerification: Handler = async (
 };
 export const signup: Handler = async (req, res): Promise<void> => {
   try {
-    const isUsernameAvailable = await User.isUserExists(req.body.username);
+    const isUsernameAvailable = await User.isUserExists({
+      username: req.body.username,
+    });
     if (isUsernameAvailable) {
       res
         .status(StatusCode.DocumentExists)
@@ -369,6 +390,202 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
     res
       .status(StatusCode.Unauthorized)
       .json({ message: err.message || "Something went wrong from ourside" });
+  }
+};
+export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
+  try {
+    const userEmail = z.string().email({ message: "Invalid email address" });
+    const userInput = userEmail.safeParse(req.body.email);
+    if (!userInput.success) {
+      res.status(StatusCode.InputError).json({
+        message: userInput.error.errors[0].message || "Invalid email address",
+      });
+      return;
+    }
+    const email = userInput.data;
+    const user = await User.findOne({ email });
+    if (!user) {
+      res
+        .status(StatusCode.DocumentExists)
+        .json({ message: "User not found with this email" });
+      return;
+    }
+    const isOTPExists = await OTP.findOne({ email, type: "forget" })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    if (isOTPExists) {
+      const otpCreatedTime = new Date(isOTPExists.createdAt);
+      if (new Date().getTime() - otpCreatedTime.getTime() <= 120000) {
+        res
+          .status(StatusCode.DocumentExists)
+          .json({ message: "Wait for 2 minutes before sending new OTP" });
+        return;
+      }
+    }
+    const otp = otpGenerator.generate(6, {
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+    const newOtp = await OTP.create({
+      email,
+      otp,
+      subject: "OTP for forget password",
+      username: user.username,
+      type: "forget",
+    });
+    if (!newOtp) {
+      res.status(500).json({ message: "OTP not generated" });
+      return;
+    }
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      maxAge: 10 * 60000, // 10 minutes
+    };
+    res
+      .cookie("signup_id", { email: newOtp.email }, cookieOptions)
+      .status(200)
+      .json({ message: "OTP sent successfully" });
+    return;
+  } catch (err: any) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from ourside", err });
+    return;
+  }
+};
+export const forgetOTPVerification: Handler = async (
+  req,
+  res
+): Promise<void> => {
+  try {
+    const parsedInput = forgetInputSchema.safeParse(req.body);
+    if (!parsedInput.success) {
+      res.status(StatusCode.NotFound).json({
+        message:
+          parsedInput.error.issues[0].message || "OTP/Password is required",
+      });
+      return;
+    }
+    const { otp, password } = parsedInput.data;
+    const { email } = req.cookies.signup_id;
+    const IsOtpExists = await OTP.find({ email: email, type: "forget" })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    if (IsOtpExists.length === 0 || otp !== IsOtpExists[0]?.otp) {
+      res.status(StatusCode.NotFound).json({
+        message: "Invalid OTP",
+      });
+      return;
+    }
+    await OTP.deleteMany({ email,type:"forget" });
+    await User.updateOne(
+      { email },
+      {
+        $set: {
+          password: bcrypt.hashSync(password, 10),
+        },
+      }
+    );
+    // const cookieOptions: CookieOptions = {
+    //   httpOnly: true,
+    //   secure: true,
+    //   sameSite: "none",
+    //   path: "/",
+    //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+    // };
+    res
+      .status(StatusCode.Success)
+      // .cookie("accessToken", accessToken, cookieOptions)
+      // .cookie("refreshToken", refreshToken, cookieOptions)
+      .json({
+        message: "password changed successfully",
+        // user,
+      });
+    return;
+  } catch (err: any) {
+    res.status(StatusCode.ServerError).json({
+      message: err.message || "Something went wrong from our side",
+      err,
+    });
+    return;
+  }
+};
+export const OTPVerification = async (
+  req: Request,
+  res: Response,
+  type: "signup" | "forget"
+): Promise<void> => {
+  try {
+    const parsedOTP = Number(req.body.otp);
+    if (!parsedOTP) {
+      res.status(StatusCode.NotFound).json({ message: "OTP not found" });
+      return;
+    }
+    const { email } = req.cookies.signup_id;
+    const IsOtpExists = await OTP.find({ email: email })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    if (IsOtpExists.length === 0 || parsedOTP !== IsOtpExists[0]?.otp) {
+      res.status(StatusCode.NotFound).json({
+        message: "Invalid OTP",
+      });
+      return;
+    }
+    let user;
+    if (type == "signup") {
+      const newUser = await User.create({
+        username: IsOtpExists[0].username,
+        email,
+        password: IsOtpExists[0].password,
+        method: "normal",
+      });
+      user = await User.findById(newUser._id).select("-password -refreshToken");
+      if (!user) {
+        res
+          .status(StatusCode.ServerError)
+          .json({ message: "Something went wrong from our side." });
+        return;
+      }
+    }
+    const { accessToken, refreshToken } = user
+      ? user.generateAccessAndRefreshToken()
+      : { accessToken: "", refreshToken: "" };
+
+    await OTP.deleteMany({ email });
+    await User.updateOne(
+      { email },
+      {
+        $set: {
+          refreshToken,
+        },
+      }
+    );
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    };
+    res
+      .status(StatusCode.Success)
+      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
+      .json({
+        message: "User signup successfull",
+        user: user,
+      });
+    return;
+  } catch (err: any) {
+    res.status(StatusCode.ServerError).json({
+      message: err.message || "Something went wrong from our side",
+      err,
+    });
+    return;
   }
 };
 export const signout: Handler = async (req, res): Promise<void> => {

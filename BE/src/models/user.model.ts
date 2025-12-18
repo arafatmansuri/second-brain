@@ -19,6 +19,10 @@ const userSchema = new Schema(
         }
         return bcrypt.compareSync(inputPassword, this.password);
       },
+      async hashPassword(inputPassword: string) {
+        this.password = await bcrypt.hash(inputPassword, 10);
+        return;
+      },
       generateAccessAndRefreshToken() {
         const accessToken = jwt.sign(
           { _id: this._id, username: this.username },
@@ -36,7 +40,13 @@ const userSchema = new Schema(
       },
     },
     statics: {
-      async isUserExists(username: string, email?: string) {
+      async isUserExists({
+        username,
+        email,
+      }: {
+        username?: string;
+        email?: string;
+      }) {
         const user = await this.findOne<IUserDocument>({ username, email });
         if (user) {
           return user;
@@ -46,13 +56,6 @@ const userSchema = new Schema(
     },
   }
 );
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password") || this.method == "oauth") {
-//     next();
-//   }
-//   if (this.password) this.password = await bcrypt.hash(this.password, 10);
-//   next();
-// });
 
 const User = mongoose.model("User", userSchema);
 

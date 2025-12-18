@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  forgetOTPVerification,
+  forgetWithOTP,
   getUser,
   googleSignin,
   refreshTokens,
@@ -29,6 +31,8 @@ userRouter
 userRouter.route("/signin").post(rateLimiterMiddleware(loginLimiter), signin);
 userRouter.route("/auth/google").get(googleSignin);
 userRouter.route("/refreshtokens").post(refreshTokens);
+userRouter.route("/forgetotp").post(forgetWithOTP);
+userRouter.route("/forgetverify").post(forgetOTPVerification);
 
 //Secured Routes
 userRouter.use(verifyJWT);
