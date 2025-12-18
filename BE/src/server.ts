@@ -31,4 +31,15 @@ if (cluster.isPrimary) {
     .catch((err) => {
       console.log("Server error", err);
     });
-}
+  }
+  // connectDB()
+  //   .then(() => {
+  //     console.log("mongoDB connected");
+  //     console.log("Redis connected");
+  //     app.listen(PORT, () => {
+  //       console.log(`server is running on port ${PORT}`);
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     console.log("Server error", err);
+  //   });

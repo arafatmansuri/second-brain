@@ -6,16 +6,16 @@ const userSchema = new Schema(
   {
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String },
-    email:{type:String},
+    email: { type: String },
     shared: { type: Boolean, default: false },
     refreshToken: { type: String },
-    method:{type:String,enum:["oauth","normal"]}
+    method: { type: String, enum: ["oauth", "normal"] },
   },
   {
     methods: {
       comparePassword(inputPassword: string) {
         if (this.method == "oauth" || !this.password) {
-          return
+          return;
         }
         return bcrypt.compareSync(inputPassword, this.password);
       },
@@ -36,8 +36,8 @@ const userSchema = new Schema(
       },
     },
     statics: {
-      async isUserExists(username: string) {
-        const user = await this.findOne<IUserDocument>({ username: username });
+      async isUserExists(username: string, email?: string) {
+        const user = await this.findOne<IUserDocument>({ username, email });
         if (user) {
           return user;
         }
@@ -50,8 +50,7 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || this.method == "oauth") {
     next();
   }
-  if(this.password)
-  this.password = await bcrypt.hash(this.password, 10);
+  if (this.password) this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
