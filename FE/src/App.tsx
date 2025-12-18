@@ -1,8 +1,9 @@
 import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import NavbarLayout from "./components/ui/NavbarLayout";
+import { OTPBox } from "./components/ui/OTPBox";
 import { ThemeProvider } from "./hooks/themeContext";
 import { DashboardLayout } from "./layout/DashboardLayout";
+import NavbarLayout from "./layout/NavbarLayout";
 import AddContent from "./Pages/AddContent";
 import { Contact } from "./Pages/contact";
 import Dashboard from "./Pages/Dashboard";
@@ -18,6 +19,7 @@ function App() {
           <Route element={<NavbarLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/signup/verify" element={<OTPBox />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/landing" element={<LandingPage />} />

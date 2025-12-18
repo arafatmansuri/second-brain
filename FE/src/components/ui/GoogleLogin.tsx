@@ -34,9 +34,10 @@ const GoogleLoginButton = ({ text }: { text: string }) => {
     <Button
       text={`${text} with Google`}
       size="lg"
-      varient="secondary"
+      varient="google"
       onClick={googleLogin}
       widthFull={true}
+      classes=""
       startIcon={<GoogleIcon />}
     />
   );

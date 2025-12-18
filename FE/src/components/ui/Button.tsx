@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import { icons } from "../index";
 
 export interface ButtonProps {
-  varient: "primary" | "secondary";
+  varient: "primary" | "secondary" | "google";
   size: "sm" | "md" | "lg";
   text: string;
   textVisible?: boolean;
@@ -18,6 +18,7 @@ export interface ButtonProps {
 const variantStyles = {
   primary: "bg-purple-600 text-white hover:bg-purple-700",
   secondary: "bg-purple-200 text-purple-500 hover:bg-purple-300",
+  google: "bg-gray-200 text-black hover:bg-gray-300 gap-3",
 };
 const sizeStyles = {
   lg: "py-2 px-5 gap-1 text-lg",

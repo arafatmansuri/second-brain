@@ -5,15 +5,17 @@ import type { userData } from "../../store/userState";
 
 export type UserData = {
   _id: string;
-  username: string | undefined;
-  password: string | undefined;
+  username?: string;
+  password?: string;
   shared: boolean;
   _v: number;
   refreshToken?: string;
 };
 export type UserFormData = {
-  username?: string | undefined;
-  password?: string | undefined;
+  username?: string;
+  password?: string;
+  email?: string;
+  otp?: number;
   credentials?: boolean;
   endpoint?: string;
   method?: "GET" | "POST" | "DELETE" | "PUT";
@@ -62,11 +64,21 @@ export const useAuthMutation = () =>
     async ({
       username,
       password,
+      email,
+      otp,
       credentials = false,
       endpoint,
       method = "POST",
     }: UserFormData): Promise<userData> =>
-      await authUser({ username, password, credentials, endpoint, method }),
+      await authUser({
+        username,
+        otp,
+        password,
+        email,
+        credentials,
+        endpoint,
+        method,
+      }),
     {
       onError: (error: any) => {
         if (!error.response) {

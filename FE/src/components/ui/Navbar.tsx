@@ -34,9 +34,9 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex justify-center pt-2 md:pt-6">
+    <div className="flex justify-center pt-2 md:pt-3">
       <header
-        className="fixed z-[999] h-16 w-full max-w-[1250px] bg-purple-200/30 backdrop-blur-md rounded-full md:rounded-xl
+        className="fixed z-[999] h-16 w-full bg-purple-200/30 backdrop-blur-md rounded-full md:rounded-xl
   border-purple-600 shadow-md px-4 md:px-6 py-4 mx-1 md:mt-0 flex items-center justify-between gap-4"
       >
         {/* Logo + Title */}
