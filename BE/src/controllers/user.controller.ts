@@ -105,7 +105,7 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
     res
       .cookie("signup_id", { email: newOtp.email }, cookieOptions)
       .status(200)
-      .json({ message: "OTP sent successfully", newOtp });
+      .json({ message: "OTP sent successfully" });
     return;
   } catch (err: any) {
     res
@@ -140,7 +140,9 @@ export const signupOTPVerification: Handler = async (
       password: IsOtpExists[0].password,
       method: "normal",
     });
-    const createdUser = await User.findById(newUser._id).select("-password");
+    const createdUser = await User.findById(newUser._id).select(
+      "-password -refreshToken"
+    );
 
     if (!createdUser) {
       res
@@ -314,7 +316,7 @@ export const googleSignin: Handler = async (req, res): Promise<void> => {
 export const getUser: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password -refreshToken");
     res
       .status(StatusCode.Success)
       .json({ message: "user data fetched success", user });

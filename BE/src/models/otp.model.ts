@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import { sendMail } from "../utils/mailer";
+import bcrypt from 'bcrypt';
 
 const OTPSchema = new Schema({
   username: { type: String, required: true, trim: true },
@@ -15,6 +16,7 @@ OTPSchema.pre("save", async function (next) {
   if (this.isNew) {
     await sendMail(this.email, this.subject, this.username, this.otp);
   }
+  if (this.password) this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
