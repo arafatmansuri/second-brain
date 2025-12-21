@@ -10,6 +10,8 @@ import Dashboard from "./Pages/Dashboard";
 import LandingPage from "./Pages/Landing";
 import Signin from "./Pages/Signin";
 import Signup from "./Pages/Signup";
+import { EmailBox} from "./components/ui/ForgetBoxes";
+import { OTPPasswordBox } from "./components/ui/ForgetPasswordBox";
 function App() {
   return (
     <ThemeProvider>
@@ -20,6 +22,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signup/verify" element={<OTPBox />} />
+            <Route path="/forgot-password" element={<EmailBox />} />
+            <Route path="/forgot-password/verify" element={<OTPPasswordBox />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/landing" element={<LandingPage />} />

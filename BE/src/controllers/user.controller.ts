@@ -78,7 +78,9 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       return;
     }
     const { email, password, username } = userInput.data;
-    const isUsernameAvailable = await User.isUserExists({ username, email });
+    const isUsernameAvailable = await User.findOne({
+      $or: [{ username }, { email }],
+    });
     if (isUsernameAvailable) {
       res
         .status(StatusCode.DocumentExists)
@@ -88,7 +90,95 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
     const isOTPExists = await OTP.findOne({ email, type: "signup" })
       .sort({ createdAt: -1 })
       .limit(1);
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      maxAge: 20 * 60000, // 20 minutes
+    };
     if (isOTPExists) {
+      const otpCreatedTime = new Date(isOTPExists.createdAt);
+      if (new Date().getTime() - otpCreatedTime.getTime() <= 120000) {
+        await OTP.deleteMany({ email, type: "signup" });
+        const newOtp = await OTP.create({
+          email,
+          otp: isOTPExists.otp,
+          subject: "OTP for user signup",
+          password: bcrypt.hashSync(password, 10),
+          username,
+          type: "signup",
+        });
+        res
+          .cookie(
+            "otp_data",
+            { email: newOtp.email, type: "signup" },
+            cookieOptions
+          )
+          .status(200)
+          .json({ message: "OTP sent successfully" });
+        return;
+      }
+    }
+    const otp = otpGenerator.generate(6, {
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+    const newOtp = await OTP.create({
+      email,
+      otp,
+      subject: "OTP for user signup",
+      password: bcrypt.hashSync(password, 10),
+      username,
+      type: "signup",
+    });
+    if (!newOtp) {
+      res.status(500).json({ message: "OTP not generated" });
+      return;
+    }
+    res
+      .cookie(
+        "otp_data",
+        { email: newOtp.email, type: "signup" },
+        cookieOptions
+      )
+      .status(200)
+      .json({ message: "OTP sent successfully" });
+    return;
+  } catch (err: any) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from ourside", err });
+    return;
+  }
+};
+export const resenedOTP: Handler = async (req, res): Promise<void> => {
+  try {
+    const otpData = req.cookies.otp_data;
+    if (!otpData || !otpData.email || !otpData.type) {
+      res.status(StatusCode.InputError).json({
+        message: "Invalid email address",
+      });
+      return;
+    }
+    const isUserExists = await User.isUserExists({ email: otpData.email });
+    if (isUserExists) {
+      res
+        .status(StatusCode.DocumentExists)
+        .json({ message: "User already exists with this email" });
+      return;
+    }
+    const isOTPExists = await OTP.findOne({
+      email: otpData.email,
+      type: otpData.type,
+    })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    if (
+      isOTPExists &&
+      new Date().getTime() - new Date(isOTPExists.createdAt).getTime() <= 600000
+    ) {
       const otpCreatedTime = new Date(isOTPExists.createdAt);
       if (new Date().getTime() - otpCreatedTime.getTime() <= 120000) {
         res
@@ -103,12 +193,13 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       specialChars: false,
     });
     const newOtp = await OTP.create({
-      email,
+      email: otpData.email,
       otp,
-      subject: "OTP for user signup",
-      password,
-      username,
-      type: "signup",
+      subject: `OTP for user ${otpData.type}`,
+      password: isOTPExists?.password || "",
+      username: isOTPExists?.username || "",
+      type: otpData.type,
+      createdAt: new Date(),
     });
     if (!newOtp) {
       res.status(500).json({ message: "OTP not generated" });
@@ -119,10 +210,14 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       secure: true,
       sameSite: "none",
       path: "/",
-      maxAge: 10 * 60000, // 10 minutes
+      maxAge: 20 * 60000, // 20 minutes
     };
     res
-      .cookie("signup_id", { email: newOtp.email }, cookieOptions)
+      .cookie(
+        "otp_data",
+        { email: newOtp.email, type: newOtp.type },
+        cookieOptions
+      )
       .status(200)
       .json({ message: "OTP sent successfully" });
     return;
@@ -143,8 +238,8 @@ export const signupOTPVerification: Handler = async (
       res.status(StatusCode.NotFound).json({ message: "OTP not found" });
       return;
     }
-    const { email } = req.cookies.signup_id;
-    const IsOtpExists = await OTP.find({ email: email,type:"signup" })
+    const { email } = req.cookies.otp_data;
+    const IsOtpExists = await OTP.find({ email: email, type: "signup" })
       .sort({ createdAt: -1 })
       .limit(1);
     if (IsOtpExists.length === 0 || parsedOTP !== IsOtpExists[0]?.otp) {
@@ -169,7 +264,7 @@ export const signupOTPVerification: Handler = async (
         .json({ message: "Something went wrong from our side." });
       return;
     }
-    await OTP.deleteMany({ email,type:"signup" });
+    await OTP.deleteMany({ email, type: "signup" });
     const { accessToken, refreshToken } =
       createdUser.generateAccessAndRefreshToken();
     await createdUser.updateOne(
@@ -446,7 +541,11 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
       maxAge: 10 * 60000, // 10 minutes
     };
     res
-      .cookie("signup_id", { email: newOtp.email }, cookieOptions)
+      .cookie(
+        "otp_data",
+        { email: newOtp.email, type: "forget" },
+        cookieOptions
+      )
       .status(200)
       .json({ message: "OTP sent successfully" });
     return;
@@ -471,7 +570,7 @@ export const forgetOTPVerification: Handler = async (
       return;
     }
     const { otp, password } = parsedInput.data;
-    const { email } = req.cookies.signup_id;
+    const { email } = req.cookies.otp_data;
     const IsOtpExists = await OTP.find({ email: email, type: "forget" })
       .sort({ createdAt: -1 })
       .limit(1);
@@ -481,7 +580,7 @@ export const forgetOTPVerification: Handler = async (
       });
       return;
     }
-    await OTP.deleteMany({ email,type:"forget" });
+    await OTP.deleteMany({ email, type: "forget" });
     await User.updateOne(
       { email },
       {
@@ -525,7 +624,7 @@ export const OTPVerification = async (
       res.status(StatusCode.NotFound).json({ message: "OTP not found" });
       return;
     }
-    const { email } = req.cookies.signup_id;
+    const { email } = req.cookies.otp_data;
     const IsOtpExists = await OTP.find({ email: email })
       .sort({ createdAt: -1 })
       .limit(1);

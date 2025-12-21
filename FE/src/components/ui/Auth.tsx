@@ -45,8 +45,9 @@ export function Auth({ authName }: authData) {
       setIsPopup({ popup: true, message: message });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
-        localStorage.setItem("mail",authMutation.variables?.email || "")
-        navigate(authName == "Sign in" ? "/dashboard" : "/verifyotp")
+        localStorage.setItem("mail", authMutation.variables?.email || "");
+        localStorage.setItem("isOTPSent", "true");
+        navigate(authName == "Sign in" ? "/dashboard" : "/signup/verify");
         // navigate("/dashboard?content=All+Notes");
       }, 1000);
     }

@@ -13,7 +13,8 @@ export interface ButtonProps {
   loading?: boolean;
   classes?: string;
   type?: "submit" | "reset" | "button" | undefined;
-  isCenterText?:boolean
+  isCenterText?:boolean;
+  isDisabled?:boolean;
 }
 const variantStyles = {
   primary: "bg-purple-600 text-white hover:bg-purple-700",
@@ -38,7 +39,8 @@ export function Button({
   widthFull,
   classes,
   type="button",
-  isCenterText
+  isCenterText,
+  isDisabled
 }: ButtonProps) {
   return (
     <button
@@ -49,7 +51,7 @@ export function Button({
         isCenterText && "flex items-center justify-center"
       } disabled:cursor-progress disabled:opacity-70 ${classes}`}
       onClick={onClick}
-      disabled={loading}
+      disabled={loading || isDisabled}
       type={type}
     >
       {startIcon}

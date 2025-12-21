@@ -42,7 +42,7 @@ export const Navbar = () => {
         {/* Logo + Title */}
         <div
           onClick={() => navigate("/")}
-          className="cursor-pointer flex items-center gap-2 text-xl font-semibold text-gray-900"
+          className="cursor-pointer flex items-center gap-1 md:gap-2 md:text-xl font-semibold text-gray-900"
         >
           {/* <img src={brain2icon} alt="logo" className="w-10 h-10  " /> */}
           <Brain />
@@ -51,7 +51,7 @@ export const Navbar = () => {
 
         {/* Links + Dark Mode Button */}
         <nav className="font-medium">
-          <div className="flex justify-end items-center space-x-6">
+          <div className="flex justify-end items-center gap-3 md:gap-4">
             {/* <a
               onClick={() => navigate("/about")}
               href="#"
@@ -71,9 +71,7 @@ export const Navbar = () => {
               onClick={() => {
                 navigate("/signin");
               }}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 md:px-4 md:py-2
-                    lg:px-8 lg:py-2 xl:px-8 xl:py-4 rounded-md md:rounded-md lg:rounded-lg xl:rounded-lg
-                     text-sm font-semibold transition cursor-pointer"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 md:px-4 md:py-2 lg:px-8 lg:py-2 xl:px-8 xl:py-4 rounded-md md:rounded-md lg:rounded-lg xl:rounded-lg text-sm font-semibold transition cursor-pointer"
             >
               Log in
             </button>

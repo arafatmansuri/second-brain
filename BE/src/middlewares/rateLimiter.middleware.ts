@@ -6,13 +6,37 @@ export const loginLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "login",
   points: 10, // 5 attempts
-  duration: 15 * 60, // per 15 minutes
+  duration: 15 * 60, // per 15 minutes  
 });
 
 // Signup limiter
 export const signupLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "signup",
+  points: 10, // 10 attempts
+  duration: 60 * 60, // per hour
+});
+export const signupOTPLimiter = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "signupotp",
+  points: 10, // 10 attempts
+  duration: 60 * 60, // per hour
+});
+export const forgetLimiter = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "forget",
+  points: 10, // 10 attempts
+  duration: 60 * 60, // per hour
+});
+export const forgetOTPLimiter = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "forgetotp",
+  points: 10, // 10 attempts
+  duration: 60 * 60, // per hour
+});
+export const resendOTPLimiter = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "resendotp",
   points: 10, // 10 attempts
   duration: 60 * 60, // per hour
 });

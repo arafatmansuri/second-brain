@@ -5,6 +5,7 @@ import {
   getUser,
   googleSignin,
   refreshTokens,
+  resenedOTP,
   signin,
   signout,
   signup,
@@ -12,9 +13,13 @@ import {
   signupWithOTP,
 } from "../controllers/user.controller";
 import {
+  forgetLimiter,
+  forgetOTPLimiter,
   loginLimiter,
   rateLimiterMiddleware,
+  resendOTPLimiter,
   signupLimiter,
+  signupOTPLimiter,
 } from "../middlewares/rateLimiter.middleware";
 import { verifyJWT } from "../middlewares/user.middleware";
 const userRouter: Router = Router();
@@ -27,12 +32,19 @@ userRouter
   .post(rateLimiterMiddleware(signupLimiter), signupWithOTP);
 userRouter
   .route("/signupverify")
-  .post(rateLimiterMiddleware(signupLimiter), signupOTPVerification);
+  .post(rateLimiterMiddleware(signupOTPLimiter), signupOTPVerification);
 userRouter.route("/signin").post(rateLimiterMiddleware(loginLimiter), signin);
 userRouter.route("/auth/google").get(googleSignin);
 userRouter.route("/refreshtokens").post(refreshTokens);
-userRouter.route("/forgetotp").post(forgetWithOTP);
-userRouter.route("/forgetverify").post(forgetOTPVerification);
+userRouter
+  .route("/forgetotp")
+  .post(rateLimiterMiddleware(forgetLimiter), forgetWithOTP);
+userRouter
+  .route("/forgetverify")
+  .post(rateLimiterMiddleware(forgetOTPLimiter), forgetOTPVerification);
+userRouter
+  .route("/resendotp")
+  .post(rateLimiterMiddleware(resendOTPLimiter), resenedOTP);
 
 //Secured Routes
 userRouter.use(verifyJWT);

@@ -23,6 +23,8 @@ export type UserFormData = {
 const authUser = async <T>({
   username,
   password,
+  email,
+  otp,
   credentials,
   endpoint,
   method,
@@ -33,6 +35,8 @@ const authUser = async <T>({
       data: {
         username,
         password,
+        email,
+        otp
       },
       withCredentials: credentials,
     });
