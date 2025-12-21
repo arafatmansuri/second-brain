@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { useAuthMutation } from "../../queries/AuthQueries/queries";
+import { countMinutesSeconds } from "../../services/countMinutes";
 import { popupAtom } from "../../store/loadingState";
 import { ui } from "../index";
 
@@ -17,13 +18,19 @@ export function OTPPasswordBox() {
     handleSubmit,
     formState: { errors },
   } = useForm<OTPBoxInputs>();
+  const [resnendActive, setIsResendActive] = useState(
+    localStorage.getItem("isResendActive") === "true" ? true : false
+  );
+  const [timer, setTimer] = useState(
+    localStorage.getItem("timer")
+      ? parseInt(localStorage.getItem("timer") || "120")
+      : 120
+  );
   const navigate = useNavigate();
   const authMutation = useAuthMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
   const onClick: SubmitHandler<OTPBoxInputs> = async (data) => {
-    console.log("Reached1");
     if (!errors.otp && !errors.password) {
-      console.log("Reached2");
       authMutation.mutate({
         otp: Number(data.otp),
         password: data.password,
@@ -33,22 +40,76 @@ export function OTPPasswordBox() {
     }
   };
   useEffect(() => {
-    if (!authMutation.isPending && authMutation.isSuccess) {
-      setIsPopup({ popup: true, message: "password changed successfully" });
+    if (
+      !authMutation.isPending &&
+      authMutation.isSuccess &&
+      authMutation.variables?.endpoint == "forgetverify"
+    ) {
+      setIsPopup({ popup: true, message: "Password changed successfully" });
+      setTimer(120);
+      localStorage.setItem("timer", "120");
+      setIsResendActive(false);
+      localStorage.setItem("isResendActive", "false");
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
         navigate("/signin");
         // navigate("/dashboard?content=All+Notes");
       }, 1000);
     }
+    if (
+      !authMutation.isPending &&
+      authMutation.isSuccess &&
+      authMutation.variables?.endpoint === "resendotp"
+    ) {
+      setIsResendActive(false);
+      localStorage.setItem("isResendActive", "false");
+      setIsPopup({ popup: true, message: "OTP resent successfully" });
+      setTimeout(() => {
+        setIsPopup({ popup: false, message: `` });
+      }, 1000);
+    }
   }, [authMutation.isSuccess, authMutation.isPending]);
+  const sendOTP = async () => {
+    authMutation.mutate({
+      endpoint: "resendotp",
+      credentials: true,
+    });
+  };
+  useEffect(() => {
+    localStorage.setItem("isResendActive", "false");
+    localStorage.setItem("timer", "120");
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("isResendActive", "" + resnendActive);
+    localStorage.setItem("timer", "" + timer);
+    let interval: NodeJS.Timeout;
+    if (!resnendActive) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      if (timer === 0) {
+        setIsResendActive(true);
+        setTimer(120);
+      }
+    }
+    return () => clearInterval(interval);
+  }, [timer, resnendActive]);
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center">
       <div className="rounded border md:min-w-[28rem] min-w-72 flex items-center flex-col pb-4 pr-9 pl-9 pt-4 gap-5 border-gray-300 shadow">
         <p className="self-start font-semibold w-full flex gap-1">
           OTP is sent to{" "}
           <span className="font-bold">{localStorage.getItem("mail")}</span>(
-          <Link className="text-blue-500 underline" to={"/forgot-password"}>
+          <Link
+            className="text-blue-500 underline"
+            to={"/forgot-password"}
+            onClick={() => {
+              setTimer(120);
+              localStorage.setItem("timer", "120");
+              setIsResendActive(false);
+              localStorage.setItem("isResendActive", "false");
+            }}
+          >
             not you?
           </Link>
           )
@@ -76,7 +137,7 @@ export function OTPPasswordBox() {
               ...register("password", { required: true, minLength: 8 }),
             }}
             defaultValue=""
-            type="text"
+            type="password"
           />
           {errors.password?.type == "required" && (
             <span className="text-red-500 text-sm -mt-3 self-start">
@@ -108,10 +169,22 @@ export function OTPPasswordBox() {
             widthFull={true}
           />
           <p>
-            didn't recieved an OTP?{" "}
-            <a href="/signup" className="text-blue-400 hover:underline">
-              Resend
-            </a>
+            {resnendActive ? "didn't recieved an OTP?" : "resend OTP in"}{" "}
+            <button type="button">
+              {resnendActive && (
+                <span
+                  onClick={() => {
+                    sendOTP();
+                  }}
+                  className="text-blue-400 hover:underline"
+                >
+                  Resend
+                </span>
+              )}
+              {!resnendActive && (
+                <span className="text-black">{countMinutesSeconds(timer)}</span>
+              )}
+            </button>
           </p>
         </form>
       </div>

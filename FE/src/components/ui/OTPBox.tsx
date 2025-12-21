@@ -9,9 +9,6 @@ import { ui } from "../index";
 interface Inputs {
   otp: number;
 }
-// interface authData {
-//   authName: "Sign in" | "Sign up";
-// }
 
 export function OTPBox() {
   const [resnendActive, setIsResendActive] = useState(
@@ -46,20 +43,11 @@ export function OTPBox() {
     });
   };
   useEffect(() => {
-    // if (localStorage.getItem("isOTPSent") == "true") {
-      console.log("Inside");
-      localStorage.setItem("isResendActive", "false");
-      localStorage.setItem("isOTPSent", "false");
-    // }
+    localStorage.setItem("isResendActive", "false");
     localStorage.setItem("timer", "120");
-    // console.log("2",localStorage.getItem("isResendActive"));
   }, []);
   useEffect(() => {
-    // if (localStorage.getItem("isOTPSent") == "false") {
-      localStorage.setItem("isResendActive", "" + resnendActive);
-      // localStorage.setItem("isOTPSent", "false");
-    // }
-    // console.log("3",localStorage.getItem("isResendActive"));
+    localStorage.setItem("isResendActive", "" + resnendActive);
     localStorage.setItem("timer", "" + timer);
     let interval: NodeJS.Timeout;
     if (!resnendActive) {
@@ -80,6 +68,10 @@ export function OTPBox() {
       authMutation.variables?.endpoint === "signupverify"
     ) {
       setIsPopup({ popup: true, message: "Signup successfull" });
+      setIsResendActive(false);
+      localStorage.setItem("isResendActive", "false");
+      setTimer(120);
+      localStorage.setItem("timer", "120");
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
         navigate("/dashboard");
@@ -92,7 +84,8 @@ export function OTPBox() {
       authMutation.variables?.endpoint === "resendotp"
     ) {
       setIsResendActive(false);
-      setIsPopup({ popup: true, message: "OTP sent again successfully" });
+      localStorage.setItem("isResendActive", "false");
+      setIsPopup({ popup: true, message: "OTP resent successfully" });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
       }, 1000);
@@ -107,7 +100,16 @@ export function OTPBox() {
         <p className="self-start font-semibold w-full flex gap-1">
           OTP is sent to{" "}
           <span className="font-bold">{localStorage.getItem("mail")}</span>(
-          <Link className="text-blue-500 underline" to={"/signup"}>
+          <Link
+            className="text-blue-500 underline"
+            to={"/signup"}
+            onClick={() => {
+              setTimer(120);
+              localStorage.setItem("timer", "120");
+              setIsResendActive(false);
+              localStorage.setItem("isResendActive", "false");
+            }}
+          >
             not you?
           </Link>
           )
@@ -154,7 +156,6 @@ export function OTPBox() {
                 <span
                   onClick={() => {
                     sendOTP();
-                    // localStorage.setItem("isOTPSent", "true");
                   }}
                   className="text-blue-400 hover:underline"
                 >
