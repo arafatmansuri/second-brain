@@ -68,11 +68,11 @@ export function OTPBox() {
       authMutation.variables?.endpoint === "signupverify"
     ) {
       setIsPopup({ popup: true, message: "Signup successfull" });
-      setIsResendActive(false);
-      localStorage.setItem("signupisResendActive", "false");
-      setTimer(120);
-      localStorage.setItem("signuptimer", "120");
       setTimeout(() => {
+        setIsResendActive(false);
+        localStorage.setItem("signupisResendActive", "false");
+        setTimer(120);
+        localStorage.setItem("signuptimer", "120");
         setIsPopup({ popup: false, message: `` });
         navigate("/dashboard");
         // navigate("/dashboard?content=All+Notes");
@@ -83,10 +83,10 @@ export function OTPBox() {
       authMutation.isSuccess &&
       authMutation.variables?.endpoint === "resendotp"
     ) {
-      setIsResendActive(false);
-      localStorage.setItem("signupisResendActive", "false");
       setIsPopup({ popup: true, message: "OTP resent successfully" });
       setTimeout(() => {
+        setIsResendActive(false);
+        localStorage.setItem("signupisResendActive", "false");
         setIsPopup({ popup: false, message: `` });
       }, 1000);
     }

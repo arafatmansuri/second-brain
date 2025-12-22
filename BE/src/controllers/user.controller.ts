@@ -4,10 +4,10 @@ import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import { z } from "zod";
+import { oAuth2Client } from "../config/OAuth2Client";
 import { OTP } from "../models/otp.model";
 import User from "../models/user.model";
 import { Handler, StatusCode } from "../types";
-import { oAuth2Client } from "../config/OAuth2Client";
 const userInputSchema = z.object({
   username: z
     .string()
@@ -503,6 +503,14 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
       res
         .status(StatusCode.DocumentExists)
         .json({ message: "User not found with this email" });
+      return;
+    }
+    if (user.method == "oauth") {
+      res
+        .status(StatusCode.DocumentExists)
+        .json({
+          message: "User registered with OAuth do not require password reset",
+        });
       return;
     }
     const isOTPExists = await OTP.findOne({ email, type: "forget" })

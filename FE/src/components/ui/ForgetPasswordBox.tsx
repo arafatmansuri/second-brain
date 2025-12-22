@@ -46,11 +46,11 @@ export function OTPPasswordBox() {
       authMutation.variables?.endpoint == "forgetverify"
     ) {
       setIsPopup({ popup: true, message: "Password changed successfully" });
-      setTimer(120);
-      localStorage.setItem("forgetTimer", "120");
-      setIsResendActive(false);
-      localStorage.setItem("forgetIsResendActive", "false");
       setTimeout(() => {
+        setTimer(120);
+        localStorage.setItem("forgetTimer", "120");
+        setIsResendActive(false);
+        localStorage.setItem("forgetIsResendActive", "false");
         setIsPopup({ popup: false, message: `` });
         navigate("/signin");
         // navigate("/dashboard?content=All+Notes");
@@ -61,10 +61,10 @@ export function OTPPasswordBox() {
       authMutation.isSuccess &&
       authMutation.variables?.endpoint === "resendotp"
     ) {
-      setIsResendActive(false);
-      localStorage.setItem("forgetIsResendActive", "false");
       setIsPopup({ popup: true, message: "OTP resent successfully" });
       setTimeout(() => {
+        setIsResendActive(false);
+        localStorage.setItem("forgetIsResendActive", "false");
         setIsPopup({ popup: false, message: `` });
       }, 1000);
     }
