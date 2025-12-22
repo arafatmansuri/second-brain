@@ -1,109 +1,116 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { icons, ui } from "../components";
-import { useMediaQuery } from "../hooks/useMediaQuery";
+import { useNavigate, useParams } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { ui } from "../components";
 import {
   useRefreshTokenMutation,
   useUserQuery,
 } from "../queries/AuthQueries/queries";
-import {
-  useGetPosts,
-  usePostMutation,
-} from "../queries/PostQueries/postQueries";
-import { addContentModalAtom } from "../store/AddContentModalState";
-import { popupAtom } from "../store/loadingState";
-import { postAtom, type PostData } from "../store/postState";
+import { usePostMutation } from "../queries/PostQueries/postQueries";
+import { type PostData } from "../store/postState";
 import { userAtom } from "../store/userState";
 interface SahredBrainData {
   username: string;
   content: PostData[] | ((currVal: PostData[]) => PostData[]);
 }
 function Profile() {
-  const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
-  const isDesktop: boolean = useMediaQuery("(min-width:768px)");
-  const user = useUserQuery({ credentials: true });
-  const setUser = useSetRecoilState(userAtom);
+  const userQuery = useUserQuery({ credentials: true });
+  const [user, setUser] = useRecoilState(userAtom);
   const refreshTokenMutation = useRefreshTokenMutation();
   const privateContentMutation = usePostMutation();
   const getBrainMutation = usePostMutation<SahredBrainData>();
-  const setIsPopup = useSetRecoilState(popupAtom);
   const { brain } = useParams();
-  function PrivateContent() {
-    privateContentMutation.mutate({
-      endpoint: "share?reqtype=private",
-      method: "PUT",
-    });
-    setIsPopup({ popup: true, message: "Your Brain set to Private" });
-    setTimeout(() => {
-      setIsPopup({ popup: false, message: "" });
-    }, 3000);
-  }
   const navigate = useNavigate();
   const hasTriedRefresh = useRef(false);
   useEffect(() => {
-    if (
-      (user.status == "error" ) &&
-      !hasTriedRefresh.current &&
-      !brain
-    ) {
+    if (userQuery.status == "error" && !hasTriedRefresh.current && !brain) {
       hasTriedRefresh.current = true;
       refreshTokenMutation.mutate(undefined, {
         onSuccess: () => {
-          user.refetch();
+          userQuery.refetch();
         },
         onError: () => navigate("/dashboard"),
       });
     }
-  }, [user.status]);
+  }, [userQuery.status]);
 
   useEffect(() => {
-    if (user.status == "success" && !brain) {
-      setUser(user.data);
+    if (userQuery.status == "success" && !brain) {
+      setUser(userQuery.data);
     }
-  }, [user.status, brain]);
+  }, [userQuery.status, brain]);
 
   useEffect(() => {
     if (privateContentMutation.status == "success" && !brain) {
-      user.refetch();
+      userQuery.refetch();
     }
   }, [privateContentMutation.status, brain]);
   return (
-    <div
-      className={`sm:w-[80%] lg:w-[82%] w-full bg-gray-100 `}
-    >
+    <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
       <div
-        className={`bg-gray-100 p-3 w-full ${brain && !getBrainMutation.data ? "hidden" : "block"}`}
-      >
-        <div
-          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-4 sticky top-0 p-3 bg-gray-100 ${
-            modalOpen.open && "bg-slate-500"
-          }`}
-        >
-          <h1 className="font-bold md:text-xl">
-            Profile
-          </h1>
-            <ui.MenuButton size="md" />
-        </div>
-      </div>
-      <div
-        className={`bg-gray-100 md:w-[80%] w-full p-3 flex-col md:items-start items-center gap-2 ${
-          brain && !getBrainMutation.data ? "flex" : "hidden"
+        className={`p-3 w-full mb-5 ${
+          brain && !getBrainMutation.data ? "hidden" : "block"
         }`}
       >
-        <h1 className="font-bold md:text-2xl text-md text-purple-500 mt-5 mb-5">
-          {"No Brain found"}
+        <div className="flex justify-between items-center">
+          <h1 className="font-bold md:text-3xl text-2xl text-purple-800">
+            {user.username}
+          </h1>
+          <ui.MenuButton size="md" />
+        </div>
+        <div className="flex flex-col gap-2 w-full pt-5">
+          <h1 className="font-semibold md:text-2xl text-xl">Update Profile</h1>
+          <hr className="text-gray-500 mb-1" />
+          <div className="flex flex-col gap-2 sm:w-[70%] lg:w-[50%] w-full">
+            <label className="font-semibold">Username</label>
+            <ui.Input
+              placeholder="Username"
+              // formHook={{ ...register("title", { minLength: 3 }) }}
+              isWidthFull={true}
+              defaultValue={user.username}
+            />
+            <label className="font-semibold">Email</label>
+            <ui.Input
+              placeholder="Email"
+              // formHook={{ ...register("title", { minLength: 3 }) }}
+              isWidthFull={true}
+              defaultValue={user.email}
+              isDisabled={true}
+            />
+            <ui.Button
+              varient="green"
+              text="Update Profile"
+              size="md"
+              textVisible={true}
+              classes="w-36"
+              // loading={addPostMutation.isPending}
+              type="submit"
+              isCenterText={true}
+              widthFull={false}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="p-3 w-full">
+        <h1 className="text-red-500 font-semibold md:text-2xl text-xl mb-1">
+          Delete Account
         </h1>
+        <hr className="text-gray-500 mb-1" />
+        <span className="mb-3 text-gray-700 text-sm block">
+          Once you delete your account, there is no going back. Please be
+          certain.
+        </span>
         <ui.Button
-          size="lg"
-          text="Go to your Dashboard"
-          varient="primary"
-          onClick={() => {
-            navigate("/");
-          }}
+          varient="danger"
+          text="Delete Account"
+          size="md"
+          textVisible={true}
+          classes="w-36"
+          // loading={addPostMutation.isPending}
+          type="submit"
+          isCenterText={true}
           widthFull={false}
-          classes={`font-semibold text-2xl`}
         />
       </div>
     </div>

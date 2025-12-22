@@ -143,7 +143,7 @@ function AddContent() {
     // }
   }, [addPostMutation.error?.message, addPostMutation.status]);
   return (
-    <div className={`flex sm:w-[75%] lg:w-[45%] w-full h-screen sm:pl-5`}>
+    <div className={`flex sm:w-[70%] lg:w-[45%] w-full h-screen sm:pl-5`}>
       <form
         onSubmit={handleSubmit(addContent)}
         className="p-4 flex flex-col items-center gap-3 w-[100%]"

@@ -13,6 +13,10 @@ export { TrashIcon } from "./TrashIcon";
 export { TwitterIcon } from "./Twitter";
 export { Unlock } from "./Unlock";
 export { YoutubeIcon } from "./YoutubeIcon";
+export { ProfileIcon } from "./ProfileIcon";
+export { Security } from "./Security";
+export { GoogleIcon2,GoogleIcon } from "./GoogleIcon";
+export { PasswordIcon } from "./PasswordIcon";
 
 export interface IconProps {
   size?: "sm" | "md" | "lg";

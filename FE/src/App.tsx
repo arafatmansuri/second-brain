@@ -14,6 +14,7 @@ import { EmailBox} from "./components/ui/ForgetBoxes";
 import { OTPPasswordBox } from "./components/ui/ForgetPasswordBox";
 import { SettingsLayout } from "./layout/SettingsLayout";
 import Profile from "./Pages/Profile";
+import SecurityPage from "./Pages/SecurityPage";
 function App() {
   return (
     <ThemeProvider>
@@ -37,8 +38,8 @@ function App() {
           </Route>
           <Route element={<SettingsLayout />}>
             <Route path="/settings" element={<Profile />} />
-            <Route path="/settings/profile" element={<Profile />} />
-            <Route path="/settings/security" element={<AddContent />} />
+            <Route path="/settings/account" element={<Profile />} />
+            <Route path="/settings/security" element={<SecurityPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -23,7 +23,7 @@ export function SidebarItem({
 
   return (
     <div
-      className={`flex w-full h-11 items-center gap-3 p-1 rounded-xs transition-all cursor-pointer ${
+      className={`flex w-full h-8 items-center gap-2.5 p-2 rounded-xs transition-all cursor-pointer ${
         searchParams.get("content") == text
           ? "bg-purple-300"
           : "hover:bg-purple-200"

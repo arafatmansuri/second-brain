@@ -8,6 +8,7 @@ export function Input({
   formHook,
   defaultValue,
   isWidthFull = true,
+  isDisabled = false,
 }: {
   placeholder?: string;
   type?: React.HTMLInputTypeAttribute;
@@ -15,6 +16,7 @@ export function Input({
   defaultValue?: string;
   reference?: any;
   isWidthFull?: boolean;
+  isDisabled?: boolean;
 }) {
   const [isVisible, setIsVisibile] = useState(false);
   return (
@@ -24,10 +26,11 @@ export function Input({
         type={type != "password" ? type : isVisible ? "text" : "password"}
         className={`px-4 py-2 border rounded block border-gray-300 focus:outline-purple-500 placeholder:select-none ${
           isWidthFull ? "w-full" : "w-auto"
-        }`}
+        } ${isDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
         placeholder={placeholder}
         {...formHook}
         defaultValue={defaultValue}
+        disabled={isDisabled}
       />
       {type === "password" && (
         <EyeIcon
