@@ -47,7 +47,6 @@ export function Auth({ authName }: authData) {
         setIsPopup({ popup: false, message: `` });
         localStorage.setItem("mail", authMutation.variables?.email || "");
         navigate(authName == "Sign in" ? "/dashboard" : "/signup/verify");
-        // navigate("/dashboard?content=All+Notes");
       }, 1000);
     }
   }, [authMutation.isSuccess, authMutation.isPending]);

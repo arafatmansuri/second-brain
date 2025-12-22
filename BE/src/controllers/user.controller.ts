@@ -7,7 +7,7 @@ import { z } from "zod";
 import { OTP } from "../models/otp.model";
 import User from "../models/user.model";
 import { Handler, StatusCode } from "../types";
-import { oAuth2Client } from "../utils/OAuth2Client";
+import { oAuth2Client } from "../config/OAuth2Client";
 const userInputSchema = z.object({
   username: z
     .string()

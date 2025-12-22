@@ -12,11 +12,11 @@ interface Inputs {
 
 export function OTPBox() {
   const [resnendActive, setIsResendActive] = useState(
-    localStorage.getItem("isResendActive") === "true" ? true : false
+    localStorage.getItem("signupisResendActive") === "true" ? true : false
   );
   const [timer, setTimer] = useState(
-    localStorage.getItem("timer")
-      ? parseInt(localStorage.getItem("timer") || "120")
+    localStorage.getItem("signuptimer")
+      ? parseInt(localStorage.getItem("signuptimer") || "120")
       : 120
   );
   const {
@@ -43,12 +43,12 @@ export function OTPBox() {
     });
   };
   useEffect(() => {
-    localStorage.setItem("isResendActive", "false");
-    localStorage.setItem("timer", "120");
+    localStorage.setItem("signupisResendActive", "false");
+    localStorage.setItem("signuptimer", "120");
   }, []);
   useEffect(() => {
-    localStorage.setItem("isResendActive", "" + resnendActive);
-    localStorage.setItem("timer", "" + timer);
+    localStorage.setItem("signupisResendActive", "" + resnendActive);
+    localStorage.setItem("signuptimer", "" + timer);
     let interval: NodeJS.Timeout;
     if (!resnendActive) {
       interval = setInterval(() => {
@@ -69,9 +69,9 @@ export function OTPBox() {
     ) {
       setIsPopup({ popup: true, message: "Signup successfull" });
       setIsResendActive(false);
-      localStorage.setItem("isResendActive", "false");
+      localStorage.setItem("signupisResendActive", "false");
       setTimer(120);
-      localStorage.setItem("timer", "120");
+      localStorage.setItem("signuptimer", "120");
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
         navigate("/dashboard");
@@ -84,7 +84,7 @@ export function OTPBox() {
       authMutation.variables?.endpoint === "resendotp"
     ) {
       setIsResendActive(false);
-      localStorage.setItem("isResendActive", "false");
+      localStorage.setItem("signupisResendActive", "false");
       setIsPopup({ popup: true, message: "OTP resent successfully" });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
@@ -105,9 +105,9 @@ export function OTPBox() {
             to={"/signup"}
             onClick={() => {
               setTimer(120);
-              localStorage.setItem("timer", "120");
+              localStorage.setItem("signuptimer", "120");
               setIsResendActive(false);
-              localStorage.setItem("isResendActive", "false");
+              localStorage.setItem("signupisResendActive", "false");
             }}
           >
             not you?
@@ -122,13 +122,13 @@ export function OTPBox() {
           <ui.Input
             placeholder="OTP"
             formHook={{
-              ...register("otp", { required: true, minLength: 3 }),
+              ...register("otp", { required: true }),
             }}
             defaultValue=""
             type="number"
           />
           {errors.otp?.type == "required" && (
-            <span className="text-red-500 text-sm -mt-3">OTP is required</span>
+            <span className="text-red-500 text-sm -mt-3 self-start">OTP is required</span>
           )}
           {authMutation.error ? (
             <ui.ErrorBox

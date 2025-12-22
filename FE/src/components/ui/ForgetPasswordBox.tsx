@@ -19,11 +19,11 @@ export function OTPPasswordBox() {
     formState: { errors },
   } = useForm<OTPBoxInputs>();
   const [resnendActive, setIsResendActive] = useState(
-    localStorage.getItem("isResendActive") === "true" ? true : false
+    localStorage.getItem("forgetIsResendActive") === "true" ? true : false
   );
   const [timer, setTimer] = useState(
-    localStorage.getItem("timer")
-      ? parseInt(localStorage.getItem("timer") || "120")
+    localStorage.getItem("forgetTimer")
+      ? parseInt(localStorage.getItem("forgetTimer") || "120")
       : 120
   );
   const navigate = useNavigate();
@@ -47,9 +47,9 @@ export function OTPPasswordBox() {
     ) {
       setIsPopup({ popup: true, message: "Password changed successfully" });
       setTimer(120);
-      localStorage.setItem("timer", "120");
+      localStorage.setItem("forgetTimer", "120");
       setIsResendActive(false);
-      localStorage.setItem("isResendActive", "false");
+      localStorage.setItem("forgetIsResendActive", "false");
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
         navigate("/signin");
@@ -62,7 +62,7 @@ export function OTPPasswordBox() {
       authMutation.variables?.endpoint === "resendotp"
     ) {
       setIsResendActive(false);
-      localStorage.setItem("isResendActive", "false");
+      localStorage.setItem("forgetIsResendActive", "false");
       setIsPopup({ popup: true, message: "OTP resent successfully" });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
@@ -76,12 +76,12 @@ export function OTPPasswordBox() {
     });
   };
   useEffect(() => {
-    localStorage.setItem("isResendActive", "false");
-    localStorage.setItem("timer", "120");
+    localStorage.setItem("forgetIsResendActive", "false");
+    localStorage.setItem("forgetTimer", "120");
   }, []);
   useEffect(() => {
-    localStorage.setItem("isResendActive", "" + resnendActive);
-    localStorage.setItem("timer", "" + timer);
+    localStorage.setItem("forgetIsResendActive", "" + resnendActive);
+    localStorage.setItem("forgetTimer", "" + timer);
     let interval: NodeJS.Timeout;
     if (!resnendActive) {
       interval = setInterval(() => {
@@ -105,9 +105,9 @@ export function OTPPasswordBox() {
             to={"/forgot-password"}
             onClick={() => {
               setTimer(120);
-              localStorage.setItem("timer", "120");
+              localStorage.setItem("forgetTimer", "120");
               setIsResendActive(false);
-              localStorage.setItem("isResendActive", "false");
+              localStorage.setItem("forgetIsResendActive", "false");
             }}
           >
             not you?
@@ -149,7 +149,7 @@ export function OTPPasswordBox() {
               Password must be at least 8 characters
             </span>
           )}
-          {authMutation.error && !errors.otp && !errors.password ? (
+          {authMutation.error ? (
             <ui.ErrorBox
               errorMessage={
                 authMutation.error.message
