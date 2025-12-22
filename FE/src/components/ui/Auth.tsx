@@ -120,7 +120,7 @@ export function Auth({ authName }: authData) {
             )}
             {authName == "Sign in" && (
               <Link
-                className="text-blue-500 self-end cursor-pointer hover:underline -mt-2"
+                className="text-blue-500 self-end cursor-pointer hover:underline -mt-2 select-none"
                 to={"/forgot-password"}
               >
                 Forgot password?
