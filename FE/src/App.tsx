@@ -12,6 +12,8 @@ import Signin from "./Pages/Signin";
 import Signup from "./Pages/Signup";
 import { EmailBox} from "./components/ui/ForgetBoxes";
 import { OTPPasswordBox } from "./components/ui/ForgetPasswordBox";
+import { SettingsLayout } from "./layout/SettingsLayout";
+import Profile from "./Pages/Profile";
 function App() {
   return (
     <ThemeProvider>
@@ -32,6 +34,11 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/:brain" element={<Dashboard />} />
             <Route path="/add-content" element={<AddContent />} />
+          </Route>
+          <Route element={<SettingsLayout />}>
+            <Route path="/settings" element={<Profile />} />
+            <Route path="/settings/profile" element={<Profile />} />
+            <Route path="/settings/security" element={<AddContent />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -1,15 +1,15 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { icons, ui } from "../components";
-import { userAtom } from "../store/userState";
-import { popupAtom } from "../store/loadingState";
-import { typeAtom } from "../store/typeState";
-import type { PostData } from "../store/postState";
-import { usePostMutation } from "../queries/PostQueries/postQueries";
 import { useRefreshTokenMutation } from "../queries/AuthQueries/queries";
-import { useNavigate } from "react-router-dom";
+import { usePostMutation } from "../queries/PostQueries/postQueries";
+import { popupAtom } from "../store/loadingState";
+import type { PostData } from "../store/postState";
+import { typeAtom } from "../store/typeState";
+import { userAtom } from "../store/userState";
 type createContentInputs = {
   title: string;
   link: string;
@@ -143,7 +143,7 @@ function AddContent() {
     // }
   }, [addPostMutation.error?.message, addPostMutation.status]);
   return (
-    <div className={`flex sm:w-[75%] lg:w-[82%] w-full h-screen sm:pl-5`}>
+    <div className={`flex sm:w-[75%] lg:w-[45%] w-full h-screen sm:pl-5`}>
       <form
         onSubmit={handleSubmit(addContent)}
         className="p-4 flex flex-col items-center gap-3 w-[100%]"
@@ -159,6 +159,7 @@ function AddContent() {
           <ui.Input
             placeholder="Title"
             formHook={{ ...register("title", { minLength: 3 }) }}
+            isWidthFull={true}
           />
           <ui.Select formHook={{ ...register("type") }} />
           {(contentType == "youtube" || contentType == "tweet") && (
@@ -181,16 +182,22 @@ function AddContent() {
             placeholder={contentType == "article" ? "Article" : "Description"}
             formHook={{ ...register("description") }}
           />
-          <div className="flex gap-2">
-            <ui.Input placeholder="Tags" formHook={{ ...register("tags") }} />
+          <div className="flex gap-2 relative">
+            <ui.Input
+              placeholder="Tags"
+              formHook={{ ...register("tags") }}
+              isWidthFull={true}
+            />
             <ui.Button
               size="md"
-              text="add"
+              text="Add"
               varient="secondary"
-              classes="py-4"
+              classes=""
               textVisible={true}
-              widthFull={false}
-              onClick={() => setTags((prev) => [...prev, getValues("tags")])}
+              onClick={() =>
+                getValues("tags") &&
+                setTags((prev) => [...prev, getValues("tags")])
+              }
             />
           </div>
           <div className="flex gap-2">
@@ -222,12 +229,13 @@ function AddContent() {
             <ui.ErrorBox errorMessage={getUploadUrlMutation?.error?.message} />
           ))}
 
-        <div className="grid sm:grid-cols-2 w-full gap-2 ">
+        <div className="flex sm:grid-cols-2 w-full gap-2">
           <ui.Button
             varient="primary"
             text="Submit"
             size="md"
             textVisible={true}
+            classes="flex-1"
             loading={addPostMutation.isPending}
             type="submit"
             isCenterText={true}
@@ -246,4 +254,4 @@ function AddContent() {
     </div>
   );
 }
-export default AddContent
+export default AddContent;

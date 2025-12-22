@@ -1,5 +1,6 @@
 import {
   BookText,
+  Home,
   ImageIcon,
   LogOut,
   Newspaper,
@@ -13,25 +14,44 @@ import { BsThreeDots } from "react-icons/bs";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 // import { useMediaQuery } from "../../hooks/useMediaQuery";
-import { useAuthMutation, useUserQuery } from "../../queries/AuthQueries/queries";
+import { MdSecurity, MdSecurityUpdate } from "react-icons/md";
+import {
+  useAuthMutation,
+  useUserQuery,
+} from "../../queries/AuthQueries/queries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { sidebarAtom } from "../../store/sideBarState";
 import { userAtom } from "../../store/userState";
 import { icons, ui } from "../index";
+import { GrDashboard, GrShieldSecurity } from "react-icons/gr";
 // import { TwitterIcon, YoutubeIcon } from "../icons";
-export function Sidebar() {
+const dashboardSidebarItems = [
+  { text: "Tweets", icon: <Twitter /> },
+  { text: "Videos", icon: <VideoIcon /> },
+  { text: "Youtube", icon: <SquarePlay /> },
+  { text: "Images", icon: <ImageIcon /> },
+  { text: "Documents", icon: <BookText /> },
+  { text: "Articles", icon: <Newspaper /> },
+  // { text: "Tags", icon: <icons.YoutubeIcon /> },
+];
+const settingsSidebarItems = [
+  { text: "Profile", icon: <Settings /> },
+  { text: "Security", icon: <MdSecurity className="w-6 h-6" /> },
+];
+export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
   const isModalOpen = useRecoilValue(addContentModalAtom);
   const [isSidebarOpen, setIsSideBarOpen] = useRecoilState(sidebarAtom);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
   // const isDesktop = useMediaQuery("(min-width:768px)");
-  const userQuery = useUserQuery({credentials:true});
-  const [user,setUser] = useRecoilState(userAtom);
+  const userQuery = useUserQuery({ credentials: true });
+  const [user, setUser] = useRecoilState(userAtom);
   useEffect(() => {
-    if (userQuery.status =="success") {
+    if (userQuery.status == "success") {
       setUser(userQuery.data);
     }
-  }, [userQuery.status])
-  
+  }, [userQuery.status]);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const logoutMutation = useAuthMutation();
   const { brain } = useParams();
@@ -82,13 +102,22 @@ export function Sidebar() {
           </div>
         </div>
         <div className="flex flex-col items-start gap-2 font-semibold text-gray-700">
-          <ui.SidebarItem text="Tweets" icon={<Twitter />} />
-          <ui.SidebarItem text="Videos" icon={<VideoIcon />} />
-          <ui.SidebarItem text="Youtube" icon={<SquarePlay />} />
-          <ui.SidebarItem text="Images" icon={<ImageIcon />} />
-          <ui.SidebarItem text="Documents" icon={<BookText />} />
-          <ui.SidebarItem text="Articles" icon={<Newspaper />} />
-          {/* <ui.SidebarItem text="Tags" icon={<icons.YoutubeIcon />} /> */}
+          {type == "dashboard"
+            ? dashboardSidebarItems.map((item) => (
+                <ui.SidebarItem
+                  icon={item.icon}
+                  text={item.text}
+                  key={item.text}
+                />
+              ))
+            : settingsSidebarItems.map((item) => (
+                <ui.SidebarItem
+                isSettingsTab={true}
+                  icon={item.icon}
+                  text={item.text}
+                  key={item.text}
+                />
+              ))}
         </div>
       </div>
       {/* {!brain && <Button
@@ -106,9 +135,10 @@ export function Sidebar() {
         >
           <div className="flex justify-center items-center gap-2">
             <div className="rounded-full bg-purple-600 w-8 h-8 font-medium flex items-center justify-center text-white">
-            {user?.username?.charAt(0).toUpperCase()}
+              {user?.username?.charAt(0).toUpperCase()}
+            </div>
+            <h3 className="font-medium">{user.username}</h3>
           </div>
-            <h3 className="font-medium">{user.username}</h3></div>
           <BsThreeDots
             className={`h-4 w-5 text-gray-500 transition-transform duration-200 
               rotate-90`}
@@ -129,7 +159,20 @@ export function Sidebar() {
             </div>
             <div className="pt-2">
               <button
-                onClick={() => setIsDropdownOpen(false)}
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  navigate("/dashboard");
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <Home className="h-4 w-4" />
+                Dashboard
+              </button>
+              <button
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  navigate("/settings/profile");
+                }}
                 className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
               >
                 <Settings className="h-4 w-4" />
