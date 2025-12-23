@@ -7,6 +7,7 @@ export interface userData {
   shared: boolean;
   _v: number;
   refreshToken: string;
+  method:"oauth" | "normal";
 }
 export const userAtom = atom<userData>({
   key: "userAtom",
@@ -18,5 +19,6 @@ export const userAtom = atom<userData>({
     shared: false,
     _v: 0,
     refreshToken: "",
+    method: "normal",
   },
 });

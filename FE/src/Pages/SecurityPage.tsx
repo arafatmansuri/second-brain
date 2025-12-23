@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { icons, ui } from "../components";
 import { Button } from "../components/ui";
@@ -8,7 +8,7 @@ import { userAtom } from "../store/userState";
 function SecurityPage() {
   const [isPasswordBoxOpen, setIsPasswordBoxOpen] = useState(false);
   const user = useRecoilValue(userAtom);
-
+  const navigate = useNavigate();
   return (
     <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
       <div className={`p-3 w-full mb-5`}>
@@ -24,16 +24,22 @@ function SecurityPage() {
                   <icons.PasswordIcon />
                   <div className="">
                     <h4 className="font-medium">Password</h4>
-                    <p className="text-gray-600 text-sm">Configured</p>
+                    <p className="text-gray-600 text-sm">
+                      {user.method === "oauth"
+                        ? "Connected with Google"
+                        : "Configured"}
+                    </p>
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  classes="font-medium"
-                  text={isPasswordBoxOpen ? "Hide" : "Change password"}
-                  varient="google"
-                  onClick={() => setIsPasswordBoxOpen((prev) => !prev)}
-                />
+                {user.method == "normal" && (
+                  <Button
+                    size="sm"
+                    classes="font-medium"
+                    text={isPasswordBoxOpen ? "Hide" : "Change password"}
+                    varient="google"
+                    onClick={() => setIsPasswordBoxOpen((prev) => !prev)}
+                  />
+                )}
               </div>
               {isPasswordBoxOpen && (
                 <div className="flex flex-col gap-2 mt-5 w-[80%] ml-11">
@@ -80,15 +86,18 @@ function SecurityPage() {
                 <div>
                   <h4 className="font-medium">Google</h4>
                   <p className="text-gray-600 text-sm">
-                    Sign in with your Google account
+                    {user.method === "oauth"
+                      ? `Connected as ${user.email}`
+                      : "Sign in with your Google account"}
                   </p>
                 </div>
               </div>
               <Button
                 size="sm"
                 classes="font-medium"
-                text="Connect"
+                text={user.method === "oauth" ? "Connected" : "Connect"}
                 varient="google"
+                onClick={() => user.method !== "oauth" && navigate("/signin")}
               />
             </div>
           </div>
