@@ -1,14 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { icons, ui } from "../components";
 import { Button } from "../components/ui";
+import { useAuthMutation } from "../queries/AuthQueries/queries";
+import { popupAtom } from "../store/loadingState";
 import { userAtom } from "../store/userState";
 
 function SecurityPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<{ oldPassword: string; newPassword: string }>();
   const [isPasswordBoxOpen, setIsPasswordBoxOpen] = useState(false);
   const user = useRecoilValue(userAtom);
   const navigate = useNavigate();
+  const setIsPopup = useSetRecoilState(popupAtom);
+  const changePasswordMutation = useAuthMutation();
+  const changePassword: SubmitHandler<{
+    oldPassword: string;
+    newPassword: string;
+  }> = (data) => {
+    changePasswordMutation.mutate({
+      endpoint: "changepassword",
+      method: "PUT",
+      oldPassword: data.oldPassword,
+      newPassword: data.newPassword,
+    });
+  };
+  useEffect(() => {
+    if (changePasswordMutation.isSuccess) {
+      setIsPopup({ popup: true, message: "Password changed successfully" });
+      setIsPasswordBoxOpen(false);
+      setTimeout(() => {
+        setIsPopup({ popup: false, message: "" });
+      }, 1000);
+    }
+  }, [changePasswordMutation.isSuccess]);
   return (
     <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
       <div className={`p-3 w-full mb-5`}>
@@ -42,25 +72,72 @@ function SecurityPage() {
                 )}
               </div>
               {isPasswordBoxOpen && (
-                <div className="flex flex-col gap-2 mt-5 w-[80%] ml-11">
+                <form
+                  onSubmit={handleSubmit(changePassword)}
+                  className="flex flex-col gap-2 mt-5 w-[80%] ml-11"
+                >
                   <div className="w-[70%]">
                     <label className="font-semibold">Old password</label>
                     <ui.Input
-                      // formHook={{ ...register("title", { minLength: 3 }) }}
+                      formHook={{
+                        ...register("oldPassword", { required: true }),
+                      }}
                       isWidthFull={true}
                     />
+                    {errors.oldPassword?.type == "required" && (
+                      <span className="text-red-500 text-sm -mt-2 self-start">
+                        Old password cannot be empty
+                      </span>
+                    )}
                   </div>
                   <div className="w-[70%]">
                     <label className="font-semibold">New password</label>
                     <ui.Input
-                      // formHook={{ ...register("title", { minLength: 3 }) }}
+                      formHook={{
+                        ...register("newPassword", {
+                          required: true,
+                          minLength: 8,
+                          pattern:
+                            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                        }),
+                      }}
                       isWidthFull={true}
                     />
+                    {errors.newPassword?.type == "required" && (
+                      <span className="text-red-500 text-sm -mt-2 self-start">
+                        New password cannot be empty
+                      </span>
+                    )}
+                    {errors.newPassword?.type == "minLength" && (
+                      <span className="text-red-500 text-sm -mt-2 self-start">
+                        New password must be atleast of 8 chars
+                      </span>
+                    )}
+                    {errors.newPassword?.type == "pattern" && (
+                      <span className="text-red-500 text-sm -mt-2 self-start">
+                        New password must include a number, an uppercase letter,
+                        a lowercase letter, and a special character.
+                      </span>
+                    )}
                   </div>
-                  <p className="text-gray-500 text-sm">
-                    Make sure it's at least 8 characters including a number and
-                    a lowercase letter.
-                  </p>
+                  {!errors.newPassword && (
+                    <p className="text-gray-500 text-sm">
+                      Make sure it's at least 8 characters including a number,an
+                      uppercase letter, a lowercase letter, and a special
+                      character.
+                    </p>
+                  )}
+                  {changePasswordMutation.error &&
+                    !errors.oldPassword &&
+                    !errors.newPassword && (
+                      <ui.ErrorBox
+                        errorMessage={
+                          changePasswordMutation.error.message
+                            ? changePasswordMutation.error.message
+                            : changePasswordMutation.error.message
+                        }
+                      />
+                    )}
                   <div className="flex gap-3 items-center">
                     <Button
                       size="sm"
@@ -68,6 +145,7 @@ function SecurityPage() {
                       varient="google"
                       isCenterText={true}
                       widthFull={false}
+                      type="submit"
                       classes="w-36 font-medium"
                     />
                     <Link
@@ -77,7 +155,7 @@ function SecurityPage() {
                       I forgot my password
                     </Link>
                   </div>
-                </div>
+                </form>
               )}
             </div>
             <div className="flex justify-between md:p-5 p-3 border-b border-gray-300 items-center">

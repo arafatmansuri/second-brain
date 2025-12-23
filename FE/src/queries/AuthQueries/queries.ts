@@ -15,6 +15,8 @@ export type UserFormData = {
   username?: string;
   password?: string;
   email?: string;
+  oldPassword?: string;
+  newPassword?: string;
   otp?: number;
   credentials?: boolean;
   endpoint?: string;

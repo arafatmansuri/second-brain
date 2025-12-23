@@ -1,11 +1,38 @@
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { ui } from "../components";
+import { useAuthMutation } from "../queries/AuthQueries/queries";
 import { addContentModalAtom } from "../store/AddContentModalState";
 import { userAtom } from "../store/userState";
+import { popupAtom } from "../store/loadingState";
+import { useEffect } from "react";
 
 function Profile() {
   const user = useRecoilValue(userAtom);
-  const [isModalOpen,setIsModalOpen] = useRecoilState(addContentModalAtom);
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<{ username: string }>();
+  const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
+  const updateProfileMuatation = useAuthMutation();
+  const setIsPopup = useSetRecoilState(popupAtom);
+  const updateProfile: SubmitHandler<{ username: string }> = (data) => {
+    if (data.username === user.username) {
+      return;
+    }
+    updateProfileMuatation.mutate({
+      endpoint: "updateprofile",
+      method: "PUT",
+      username: data.username,
+    });
+  };
+  useEffect(() => {
+    if (updateProfileMuatation.isSuccess) {
+      setIsPopup({ popup: true, message: "Profile updated successfully" });
+    }
+  }, [updateProfileMuatation.isSuccess]);
+  
   return (
     <div
       className={`sm:w-[80%] lg:w-[82%] w-full ${
@@ -22,14 +49,29 @@ function Profile() {
         <div className="flex flex-col gap-2 w-full pt-5">
           <h1 className="font-semibold md:text-2xl text-xl">Update Profile</h1>
           <hr className="text-gray-500 mb-1" />
-          <div className="flex flex-col gap-2 sm:w-[70%] lg:w-[50%] w-full">
+          <form
+            onSubmit={handleSubmit(updateProfile)}
+            className="flex flex-col gap-2 sm:w-[70%] lg:w-[50%] w-full"
+          >
             <label className="font-semibold">Username</label>
             <ui.Input
               placeholder="Username"
-              // formHook={{ ...register("title", { minLength: 3 }) }}
+              formHook={{
+                ...register("username", { minLength: 3, required: true }),
+              }}
               isWidthFull={true}
               defaultValue={user.username}
             />
+            {errors.username?.type == "required" && (
+              <span className="text-red-500 text-sm -mt-2 self-start">
+                Username cannot be empty
+              </span>
+            )}
+            {errors.username?.type == "minLength" && (
+              <span className="text-red-500 text-sm -mt-2 self-start">
+                Username must be atleast of 3 chars
+              </span>
+            )}
             <label className="font-semibold">Email</label>
             <ui.Input
               placeholder="Email"
@@ -38,18 +80,27 @@ function Profile() {
               defaultValue={user.email}
               isDisabled={true}
             />
+            {updateProfileMuatation.error && !errors.username && (
+              <ui.ErrorBox
+                errorMessage={
+                  updateProfileMuatation.error.message
+                    ? updateProfileMuatation.error.message
+                    : updateProfileMuatation.error.message
+                }
+              />
+            )}
             <ui.Button
               varient="green"
               text="Update Profile"
               size="md"
               textVisible={true}
               classes="w-36"
-              // loading={addPostMutation.isPending}
+              loading={updateProfileMuatation.isPending}
               type="submit"
               isCenterText={true}
               widthFull={false}
             />
-          </div>
+          </form>
         </div>
       </div>
       <div className="p-3 w-full">
