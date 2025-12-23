@@ -1,9 +1,11 @@
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { ui } from "../components";
+import { addContentModalAtom } from "../store/AddContentModalState";
 import { userAtom } from "../store/userState";
 
 function Profile() {
   const user = useRecoilValue(userAtom);
+  const setIsModalOpen = useSetRecoilState(addContentModalAtom);
   return (
     <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
       <div className={`p-3 w-full mb-5`}>
@@ -61,7 +63,7 @@ function Profile() {
           size="md"
           textVisible={true}
           classes="w-36"
-          // loading={addPostMutation.isPending}
+          onClick={() => setIsModalOpen({ open: true, modal: "deleteAccount" })}
           type="submit"
           isCenterText={true}
           widthFull={false}

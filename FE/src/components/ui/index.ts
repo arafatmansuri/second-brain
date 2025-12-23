@@ -7,6 +7,7 @@ export { MenuButton } from "./MenuButton";
 export { Popup } from "./Popup";
 export { Select } from "./Select";
 export { ShareContentMoal } from "./ShareContentMoal";
+export { DeleteAccountModal } from "./DeleteAccountModal";
 export { Sidebar } from "./Sidebar";
 export { SidebarItem } from "./SidebarItem";
 export { TextArea } from "./TextArea";

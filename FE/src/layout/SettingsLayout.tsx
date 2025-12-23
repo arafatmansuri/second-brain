@@ -6,9 +6,7 @@ export const SettingsLayout = () => {
     <div className="flex min-h-screen relative w-full">
       <ui.Sidebar type="settings" />
       <Outlet />
-      {/* <ui.CreateContentModal /> */}
-      <ui.ShareContentMoal />
-      <ui.SearchBox />
+      <ui.DeleteAccountModal />
       <ui.Popup />
     </div>
   );
