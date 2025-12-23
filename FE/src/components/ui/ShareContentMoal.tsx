@@ -1,16 +1,15 @@
+import { Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BsLinkedin, BsTwitterX } from "react-icons/bs";
-import { MdEmail, MdWhatsapp } from "react-icons/md";
+import { FaWhatsapp } from "react-icons/fa";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { icons, ui } from "..";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { isCopyAtom, popupAtom } from "../../store/loadingState";
 import { postAtom } from "../../store/postState";
 import { userAtom } from "../../store/userState";
-import { Mail } from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
 type shareTypes =
   | "whatsapp"
   | "copy"
