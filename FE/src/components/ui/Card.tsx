@@ -82,9 +82,9 @@ export function Card({
               "Content is still being processed. AI searches might not find this content yet. Refresh after sometime"
             } // shows tooltip on hover
           ></span>}
-          <a href={link} target="_blank">
+          {/* <a href={link} target="_blank">
             <icons.ShareIcon />
-          </a>
+          </a> */}
           <span
             id={id}
             onClick={deletePost}

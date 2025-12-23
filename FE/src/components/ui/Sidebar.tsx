@@ -42,14 +42,14 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
   const isModalOpen = useRecoilValue(addContentModalAtom);
   const [isSidebarOpen, setIsSideBarOpen] = useRecoilState(sidebarAtom);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  const { brain } = useParams();
   // const isDesktop = useMediaQuery("(min-width:768px)");
   const userQuery = useUserQuery({ credentials: true });
   const [user, setUser] = useRecoilState(userAtom);
   const refreshTokenMutation = useRefreshTokenMutation();
   const hasTriedRefresh = useRef(false);
   useEffect(() => {
-    if (userQuery.status == "error" && !hasTriedRefresh.current) {
+    if (!brain && userQuery.status == "error" && !hasTriedRefresh.current) {
       hasTriedRefresh.current = true;
       refreshTokenMutation.mutate(undefined, {
         onSuccess: () => {
@@ -58,7 +58,7 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
         onError: () => navigate("/dashboard"),
       });
     }
-  }, [userQuery.status]);
+  }, [userQuery.status,brain]);
   useEffect(() => {
     if (userQuery.status == "success") {
       setUser(userQuery.data);
@@ -67,7 +67,6 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const logoutMutation = useAuthMutation();
-  const { brain } = useParams();
   const navigate = useNavigate();
   function logout() {
     logoutMutation.mutate(

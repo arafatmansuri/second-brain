@@ -15,6 +15,7 @@ import { OTPPasswordBox } from "./components/ui/ForgetPasswordBox";
 import { SettingsLayout } from "./layout/SettingsLayout";
 import Profile from "./Pages/Profile";
 import SecurityPage from "./Pages/SecurityPage";
+import BrainDashboard from "./Pages/BrainDashboard";
 function App() {
   return (
     <ThemeProvider>
@@ -33,7 +34,7 @@ function App() {
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/:brain" element={<Dashboard />} />
+            <Route path="/dashboard/:brain" element={<BrainDashboard />} />
             <Route path="/add-content" element={<AddContent />} />
           </Route>
           <Route element={<SettingsLayout />}>

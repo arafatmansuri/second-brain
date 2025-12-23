@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { icons, ui } from "../components";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -13,10 +13,7 @@ import { addContentModalAtom } from "../store/AddContentModalState";
 import { popupAtom } from "../store/loadingState";
 import { postAtom, type PostData } from "../store/postState";
 import { userAtom } from "../store/userState";
-interface SahredBrainData {
-  username: string;
-  content: PostData[] | ((currVal: PostData[]) => PostData[]);
-}
+
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
   const isDesktop: boolean = useMediaQuery("(min-width:768px)");
@@ -25,9 +22,7 @@ function Dashboard() {
   const [postsData, setPostsData] = useRecoilState(postAtom);
   const refreshTokenMutation = useRefreshTokenMutation();
   const privateContentMutation = usePostMutation();
-  const getBrainMutation = usePostMutation<SahredBrainData>();
   const setIsPopup = useSetRecoilState(popupAtom);
-  const { brain } = useParams();
   function PrivateContent() {
     privateContentMutation.mutate({
       endpoint: "share?reqtype=private",
@@ -43,20 +38,9 @@ function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     setSearchParams({ content: "All Notes" });
-    if (brain) {
-      getBrainMutation.mutate({
-        method: "GET",
-        endpoint: `display?share=${brain}`,
-      });
-    }
   }, []);
   useEffect(() => {
-    if (brain && getBrainMutation.status == "success") {
-      setPostsData(getBrainMutation.data.content);
-    }
-  }, [getBrainMutation.status]);
-  useEffect(() => {
-    if (posts?.error?.status == 401 && !hasTriedRefresh.current && !brain) {
+    if (posts?.error?.status == 401 && !hasTriedRefresh.current) {
       hasTriedRefresh.current = true;
       refreshTokenMutation.mutate(undefined, {
         onSuccess: () => {
@@ -69,16 +53,16 @@ function Dashboard() {
   }, [posts?.error?.status]);
 
   useEffect(() => {
-    if (posts.status == "success" && !brain) {
+    if (posts.status == "success") {
       setPostsData(posts.data);
     }
-  }, [posts.data, posts.status, setPostsData, brain]);
+  }, [posts.data, posts.status, setPostsData]);
 
   useEffect(() => {
-    if (privateContentMutation.status == "success" && !brain) {
+    if (privateContentMutation.status == "success") {
       setUser((prev) => ({ ...prev, shared: !prev.shared }));
     }
-  }, [privateContentMutation.status, brain]);
+  }, [privateContentMutation.status]);
   return (
     <div
       className={`sm:w-[80%] lg:w-[82%] w-full bg-gray-100 ${
@@ -88,30 +72,8 @@ function Dashboard() {
       <div
         className={`bg-gray-100 p-3 w-full ${
           modalOpen.open && "bg-slate-500 opacity-70"
-        } ${brain && !getBrainMutation.data ? "hidden" : "block"}`}
+        }`}
       >
-        <div className="flex w-full justify-between">
-          <h1
-            className={`${
-              brain ? "block" : "hidden"
-            } font-bold md:text-2xl text-md md:mr-5 md:ml-6 text-purple-500`}
-          >
-            {`${
-              brain && `${getBrainMutation.data?.username}'s Brain`
-              // : `Welcome, ${user.data?.username}`
-            }`}
-          </h1>
-          {brain && (
-            <ui.Button
-              size="md"
-              text="Go to your Dashboard"
-              varient="primary"
-              onClick={() => {
-                navigate("/");
-              }}
-            />
-          )}
-        </div>
         <div
           className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-4 sticky top-0 p-3 bg-gray-100 ${
             modalOpen.open && "bg-slate-500"
@@ -120,7 +82,7 @@ function Dashboard() {
           <h1 className="font-bold md:text-xl">
             {searchParams.get("content")}
           </h1>
-          <div className={`${brain ? "hidden" : "flex"} gap-2`}>
+          <div className={`flex gap-2`}>
             <ui.Button
               size="md"
               text="Private Brain"
@@ -202,25 +164,6 @@ function Dashboard() {
             <p>No contents</p>
           )}
         </section>
-      </div>
-      <div
-        className={`bg-gray-100 md:w-[80%] w-full p-3 flex-col md:items-start items-center gap-2 ${
-          brain && !getBrainMutation.data ? "flex" : "hidden"
-        }`}
-      >
-        <h1 className="font-bold md:text-2xl text-md text-purple-500 mt-5 mb-5">
-          {"No Brain found"}
-        </h1>
-        <ui.Button
-          size="lg"
-          text="Go to your Dashboard"
-          varient="primary"
-          onClick={() => {
-            navigate("/");
-          }}
-          widthFull={false}
-          classes={`font-semibold text-2xl`}
-        />
       </div>
     </div>
   );

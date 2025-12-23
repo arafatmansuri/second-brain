@@ -68,6 +68,7 @@ export const useGetPosts = (): UseQueryResult<PostData[], {message:string,status
         endpoint: "displayall",
       });
     },
+    retry: false,
   });
   return posts;
 };
