@@ -43,17 +43,18 @@ export function ShareContentMoal() {
       className={`${
         isModalOpen.open && isModalOpen.modal == "share" ? "flex" : "hidden"
       } w-screen h-screen
-         fixed top-0 left-0 justify-center items-center`}
+         fixed top-0 left-0 justify-center items-center p-5 z-10`}
     >
       <div className="bg-white p-4 shadow-md rounded-xl flex flex-col items-center gap-5 w-96">
-        <div
-          className="flex self-end cursor-pointer w-full justify-between font-bold text-purple-800 text-lg"
-          onClick={() => {
-            setIsModalOpen({ open: false, modal: "share" });
-          }}
-        >
+        <div className="flex self-end w-full justify-between font-bold text-purple-800 text-lg">
           <h1>Share Your Second Brain</h1>
-          <icons.CrossIcon size="sm" />
+          <icons.CrossIcon
+            size="sm"
+            onClick={() => {
+              setIsModalOpen({ open: false, modal: "share" });
+            }}
+            className="cursor-pointer"
+          />
         </div>
         <p className="text-sm text-gray-500 w-[89%] self-start">
           Share your entire collection of notes, documents, tweets, and videos

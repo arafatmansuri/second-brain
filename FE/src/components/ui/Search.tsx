@@ -30,7 +30,7 @@ export function SearchBox() {
       className={`${
         isModalOpen.open && isModalOpen.modal == "search" ? "flex" : "hidden"
       } w-screen h-screen
-         fixed top-0 left-0 justify-center items-center z-10`}
+         fixed top-0 left-0 justify-center items-center z-10 p-5`}
     >
       <div
         className={`bg-white p-4 shadow-md rounded-xl flex flex-col items-center gap-5 w-[40rem]`}
@@ -61,6 +61,7 @@ export function SearchBox() {
             varient="primary"
             text={""}
             size="md"
+            classes="px-5 py-5"
             textVisible={false}
             startIcon={<SendHorizonal className="size-5" />}
             //   loading={shareContentMutation.isPending}

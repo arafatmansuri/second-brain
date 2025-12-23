@@ -1,6 +1,6 @@
 import { iconSizeVariants, type IconProps } from ".";
 
-export function CrossIcon({ size,onClick }: IconProps) {
+export function CrossIcon({ size,onClick,className }: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -8,7 +8,7 @@ export function CrossIcon({ size,onClick }: IconProps) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={iconSizeVariants[size || "md"]}
+      className={`${iconSizeVariants[size || "md"]} ${className || ""}`}
       onClick={onClick}
     >
       <path

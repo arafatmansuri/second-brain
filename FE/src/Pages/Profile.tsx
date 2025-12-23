@@ -1,13 +1,17 @@
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { ui } from "../components";
 import { addContentModalAtom } from "../store/AddContentModalState";
 import { userAtom } from "../store/userState";
 
 function Profile() {
   const user = useRecoilValue(userAtom);
-  const setIsModalOpen = useSetRecoilState(addContentModalAtom);
+  const [isModalOpen,setIsModalOpen] = useRecoilState(addContentModalAtom);
   return (
-    <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
+    <div
+      className={`sm:w-[80%] lg:w-[82%] w-full ${
+        isModalOpen.open ? "bg-slate-500 opacity-70 border-none" : "bg-white"
+      }`}
+    >
       <div className={`p-3 w-full mb-5`}>
         <div className="flex justify-between items-center">
           <h1 className="font-bold md:text-3xl text-2xl text-purple-800">

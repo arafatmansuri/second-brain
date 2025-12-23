@@ -21,6 +21,7 @@ export { PasswordIcon } from "./PasswordIcon";
 export interface IconProps {
   size?: "sm" | "md" | "lg";
   onClick?: ()=>void;
+  className?:string;
 }
 
 export const iconSizeVariants = {
