@@ -17,6 +17,7 @@ function Profile() {
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const updateProfileMuatation = useAuthMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
+  const setUser = useSetRecoilState(userAtom);
   const updateProfile: SubmitHandler<{ username: string }> = (data) => {
     if (data.username === user.username) {
       return;
@@ -25,12 +26,17 @@ function Profile() {
       endpoint: "updateprofile",
       method: "PUT",
       username: data.username,
+      credentials:true
     });
   };
   useEffect(() => {
     if (updateProfileMuatation.isSuccess) {
+      setUser(updateProfileMuatation.data)
       setIsPopup({ popup: true, message: "Profile updated successfully" });
     }
+    setTimeout(() => {
+      setIsPopup({ popup: false, message: "" });
+    }, 1000);
   }, [updateProfileMuatation.isSuccess]);
   
   return (

@@ -756,7 +756,7 @@ export const updateProfile: Handler = async (req, res): Promise<void> => {
   }
 };
 const changePasswordInputSchema = z.object({
-  oldPassword: z.string().min(8, { message: "Old password is required" }),
+  oldPassword: z.string({ required_error: "Old password is required" }),
   newPassword: z
     .string()
     .min(8, { message: "New Password length shouldn't be less than 8" })

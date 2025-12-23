@@ -28,6 +28,7 @@ function SecurityPage() {
       method: "PUT",
       oldPassword: data.oldPassword,
       newPassword: data.newPassword,
+      credentials: true,
     });
   };
   useEffect(() => {
@@ -83,6 +84,7 @@ function SecurityPage() {
                         ...register("oldPassword", { required: true }),
                       }}
                       isWidthFull={true}
+                      type="password"
                     />
                     {errors.oldPassword?.type == "required" && (
                       <span className="text-red-500 text-sm -mt-2 self-start">
@@ -102,6 +104,7 @@ function SecurityPage() {
                         }),
                       }}
                       isWidthFull={true}
+                      type="password"
                     />
                     {errors.newPassword?.type == "required" && (
                       <span className="text-red-500 text-sm -mt-2 self-start">

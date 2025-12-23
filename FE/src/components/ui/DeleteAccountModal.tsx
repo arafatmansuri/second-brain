@@ -32,7 +32,7 @@ export function DeleteAccountModal() {
       setTimeout(() => {
         navigate("/");
         setIsPopup({ message: "", popup: false });
-      }, 3000);
+      }, 1000);
     }
   }, [deleteAccountMutation.status]);
   return (
