@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { icons, ui } from "../components";
 import { Button } from "../components/ui";
@@ -13,6 +13,7 @@ import { userAtom } from "../store/userState";
 
 function SecurityPage() {
   const userQuery = useUserQuery({ credentials: true });
+  const [isPasswordBoxOpen, setIsPasswordBoxOpen] = useState(false);
   const [user, setUser] = useRecoilState(userAtom);
   const refreshTokenMutation = useRefreshTokenMutation();
   const privateContentMutation = usePostMutation();
@@ -50,24 +51,65 @@ function SecurityPage() {
         </div>
         <div className="flex flex-col gap-2 w-full pt-5">
           <h1 className="font-medium md:text-2xl text-xl">Sign in methods</h1>
-          <div className="flex flex-col gap-2 sm:w-[70%] lg:w-[80%] w-full border rounded-md border-gray-300 border-b-0 mt-1">
-            <div className="flex justify-between p-5 border-b border-gray-300 items-center">
-              <div className="flex justify-center items-center gap-2">
-                <icons.PasswordIcon />
-                <div>
-                  <h4 className="font-medium">Password</h4>
-                  <p className="text-gray-600 text-sm">Configured</p>
+          <div className="flex flex-col gap-2 sm:w-[90%] lg:w-[80%] w-full border rounded-md border-gray-300 border-b-0 mt-1">
+            <div className="flex flex-col md:p-5 p-3 border-b border-gray-300">
+              <div className="flex justify-between items-center">
+                <div className="flex justify-center items-center md:gap-2">
+                  <icons.PasswordIcon />
+                  <div className="">
+                    <h4 className="font-medium">Password</h4>
+                    <p className="text-gray-600 text-sm">Configured</p>
+                  </div>
                 </div>
+                <Button
+                  size="sm"
+                  classes="font-medium"
+                  text={isPasswordBoxOpen ? "Hide" : "Change password"}
+                  varient="google"
+                  onClick={() => setIsPasswordBoxOpen((prev) => !prev)}
+                />
               </div>
-              <Button
-                size="sm"
-                classes="font-medium"
-                text="Change password"
-                varient="secondary"
-              />
+              {isPasswordBoxOpen && (
+                <div className="flex flex-col gap-2 mt-5 w-[80%] ml-11">
+                  <div className="w-[70%]">
+                    <label className="font-semibold">Old password</label>
+                    <ui.Input
+                      // formHook={{ ...register("title", { minLength: 3 }) }}
+                      isWidthFull={true}
+                    />
+                  </div>
+                  <div className="w-[70%]">
+                    <label className="font-semibold">New password</label>
+                    <ui.Input
+                      // formHook={{ ...register("title", { minLength: 3 }) }}
+                      isWidthFull={true}
+                    />
+                  </div>
+                  <p className="text-gray-500 text-sm">
+                    Make sure it's at least 8 characters including a number and
+                    a lowercase letter.
+                  </p>
+                  <div className="flex gap-3 items-center">
+                    <Button
+                      size="sm"
+                      text="Update password"
+                      varient="google"
+                      isCenterText={true}
+                      widthFull={false}
+                      classes="w-36 font-medium"
+                    />
+                    <Link
+                      to={"/forgot-password"}
+                      className="text-blue-800 hover:underline"
+                    >
+                      I forgot my password
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex justify-between p-5 border-b border-gray-300 items-center">
-              <div className="flex justify-center items-center gap-2">
+            <div className="flex justify-between md:p-5 p-3 border-b border-gray-300 items-center">
+              <div className="flex justify-center items-center md:gap-2">
                 <icons.GoogleIcon2 />
                 <div>
                   <h4 className="font-medium">Google</h4>
@@ -80,7 +122,7 @@ function SecurityPage() {
                 size="sm"
                 classes="font-medium"
                 text="Connect"
-                varient="secondary"
+                varient="google"
               />
             </div>
           </div>
