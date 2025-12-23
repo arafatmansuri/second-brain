@@ -506,11 +506,9 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
       return;
     }
     if (user.method == "oauth") {
-      res
-        .status(StatusCode.DocumentExists)
-        .json({
-          message: "User registered with OAuth do not require password reset",
-        });
+      res.status(StatusCode.DocumentExists).json({
+        message: "User registered with OAuth do not require password reset",
+      });
       return;
     }
     const isOTPExists = await OTP.findOne({ email, type: "forget" })
@@ -719,7 +717,10 @@ export const signout: Handler = async (req, res): Promise<void> => {
 export const updateProfile: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
-    const username = z.string().min(3, { message: "Username must be atleast 3 characters" }).safeParse(req.body.username);
+    const username = z
+      .string()
+      .min(3, { message: "Username must be atleast 3 characters" })
+      .safeParse(req.body.username);
     if (!username.success) {
       res.status(StatusCode.InputError).json({
         message: username.error.errors[0].message || "Username is required",
@@ -729,7 +730,7 @@ export const updateProfile: Handler = async (req, res): Promise<void> => {
     try {
       await User.updateOne(
         { _id: userId },
-        { $set: { username: username.data } },
+        { $set: { username: username.data } }
       );
       const updatedUser = await User.findById(userId).select(
         "-password -refreshToken"
@@ -741,12 +742,73 @@ export const updateProfile: Handler = async (req, res): Promise<void> => {
     } catch (error) {
       res
         .status(StatusCode.DocumentExists)
-        .json({ message: "Username already taken"});
+        .json({ message: "Username already taken" });
       return;
     }
   } catch (err) {
     res
       .status(StatusCode.ServerError)
-      .json({ message:"Something went wrong from ourside",error:err });
+      .json({ message: "Something went wrong from ourside", error: err });
+    return;
   }
-}
+};
+const changePasswordInputSchema = z.object({
+  oldPassword: z.string().min(8, { message: "Old password is required" }),
+  newPassword: z
+    .string()
+    .min(8, { message: "New Password length shouldn't be less than 8" })
+    .regex(/[A-Z]/, {
+      message: "New Pasword should include atlist 1 uppercasecharacter",
+    })
+    .regex(/[a-z]/, {
+      message: "New Pasword should include atlist 1 lowercasecharacter",
+    })
+    .regex(/[0-9]/, {
+      message: "New Pasword should include atlist 1 number character",
+    })
+    .regex(/[^A-Za-z0-9]/, {
+      message: "New Pasword should include atlist 1 special character",
+    }),
+});
+export const changePassword: Handler = async (req, res): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const parsedPasswords = changePasswordInputSchema.safeParse(req.body);
+    if (!parsedPasswords.success) {
+      res.status(StatusCode.InputError).json({
+        message:
+          parsedPasswords.error.errors[0].message || "Username is required",
+      });
+      return;
+    }
+    const { oldPassword, newPassword } = parsedPasswords.data;
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(StatusCode.NotFound).json({ message: "User not found" });
+      return;
+    }
+    const isOldPasswordCorrect = user.comparePassword(oldPassword);
+    if (!isOldPasswordCorrect) {
+      res
+        .status(StatusCode.InputError)
+        .json({ message: "Old password is incorrect" });
+      return;
+    }
+    await User.updateOne(
+      { _id: userId },
+      { $set: { password: bcrypt.hashSync(newPassword, 10) } }
+    );
+    const updatedUser = await User.findById(userId).select(
+      "-password -refreshToken"
+    );
+    res
+      .status(StatusCode.Success)
+      .json({ message: "Profile updated successfully", user: updatedUser });
+    return;
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from ourside", error: err });
+    return;
+  }
+};
