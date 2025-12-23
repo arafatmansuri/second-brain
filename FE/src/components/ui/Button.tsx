@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import { icons } from "../index";
 
 export interface ButtonProps {
-  varient: "primary" | "secondary" | "google" | "danger" | "green";
+  varient: "primary" | "secondary" | "google" | "danger" | "green" | "black" | "blue";
   size: "sm" | "md" | "lg";
   text: string;
   textVisible?: boolean;
@@ -13,8 +13,8 @@ export interface ButtonProps {
   loading?: boolean;
   classes?: string;
   type?: "submit" | "reset" | "button" | undefined;
-  isCenterText?:boolean;
-  isDisabled?:boolean;
+  isCenterText?: boolean;
+  isDisabled?: boolean;
 }
 const variantStyles = {
   primary: "bg-purple-600 text-white hover:bg-purple-700",
@@ -22,6 +22,8 @@ const variantStyles = {
   google: "bg-gray-200 text-black hover:bg-gray-300 gap-3",
   danger: "bg-red-600 text-white hover:bg-red-700",
   green: "bg-green-600 text-white hover:bg-green-700",
+  blue: "bg-blue-600 text-white hover:bg-blue-700",
+  black: "bg-black text-white hover:bg-gray-800",
 };
 const sizeStyles = {
   lg: "py-2 px-5 gap-1 text-lg",
@@ -40,9 +42,9 @@ export function Button({
   textVisible = true,
   widthFull,
   classes,
-  type="button",
+  type = "button",
   isCenterText,
-  isDisabled
+  isDisabled,
 }: ButtonProps) {
   return (
     <button
