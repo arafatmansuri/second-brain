@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   changePassword,
+  deleteAccount,
   forgetOTPVerification,
   forgetWithOTP,
   getUser,
@@ -53,6 +54,7 @@ userRouter.use(verifyJWT);
 userRouter.route("/getuser").get(getUser);
 userRouter.route("/updateprofile").put(updateProfile);
 userRouter.route("/changepassword").put(changePassword);
+userRouter.route("/deleteAccount").delete(deleteAccount);
 userRouter.route("/signout").post(signout);
 
 export default userRouter;
