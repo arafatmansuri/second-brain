@@ -716,3 +716,37 @@ export const signout: Handler = async (req, res): Promise<void> => {
       .json({ message: err.message || "Something went wrong from ourside" });
   }
 };
+export const updateProfile: Handler = async (req, res): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const username = z.string().min(3, { message: "Username must be atleast 3 characters" }).safeParse(req.body.username);
+    if (!username.success) {
+      res.status(StatusCode.InputError).json({
+        message: username.error.errors[0].message || "Username is required",
+      });
+      return;
+    }
+    try {
+      await User.updateOne(
+        { _id: userId },
+        { $set: { username: username.data } },
+      );
+      const updatedUser = await User.findById(userId).select(
+        "-password -refreshToken"
+      );
+      res
+        .status(StatusCode.Success)
+        .json({ message: "Profile updated successfully", user: updatedUser });
+      return;
+    } catch (error) {
+      res
+        .status(StatusCode.DocumentExists)
+        .json({ message: "Username already taken"});
+      return;
+    }
+  } catch (err) {
+    res
+      .status(StatusCode.ServerError)
+      .json({ message:"Something went wrong from ourside",error:err });
+  }
+}

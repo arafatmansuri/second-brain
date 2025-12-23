@@ -11,6 +11,7 @@ import {
   signup,
   signupOTPVerification,
   signupWithOTP,
+  updateProfile,
 } from "../controllers/user.controller";
 import {
   forgetLimiter,
@@ -49,6 +50,8 @@ userRouter
 //Secured Routes
 userRouter.use(verifyJWT);
 userRouter.route("/getuser").get(getUser);
+userRouter.route("/updateprofile").put(updateProfile);
+userRouter.route("/changepassword").put(updateProfile);
 userRouter.route("/signout").post(signout);
 
 export default userRouter;
