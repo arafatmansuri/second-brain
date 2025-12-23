@@ -1,48 +1,14 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
 import { icons, ui } from "../components";
 import { Button } from "../components/ui";
-import {
-  useRefreshTokenMutation,
-  useUserQuery,
-} from "../queries/AuthQueries/queries";
-import { usePostMutation } from "../queries/PostQueries/postQueries";
 import { userAtom } from "../store/userState";
 
 function SecurityPage() {
-  const userQuery = useUserQuery({ credentials: true });
   const [isPasswordBoxOpen, setIsPasswordBoxOpen] = useState(false);
-  const [user, setUser] = useRecoilState(userAtom);
-  const refreshTokenMutation = useRefreshTokenMutation();
-  const privateContentMutation = usePostMutation();
-  const { brain } = useParams();
-  const navigate = useNavigate();
-  const hasTriedRefresh = useRef(false);
-  useEffect(() => {
-    if (userQuery.status == "error" && !hasTriedRefresh.current && !brain) {
-      hasTriedRefresh.current = true;
-      refreshTokenMutation.mutate(undefined, {
-        onSuccess: () => {
-          userQuery.refetch();
-        },
-        onError: () => navigate("/dashboard"),
-      });
-    }
-  }, [userQuery.status]);
+  const user = useRecoilValue(userAtom);
 
-  useEffect(() => {
-    if (userQuery.status == "success" && !brain) {
-      setUser(userQuery.data);
-    }
-  }, [userQuery.status, brain]);
-
-  useEffect(() => {
-    if (privateContentMutation.status == "success" && !brain) {
-      userQuery.refetch();
-    }
-  }, [privateContentMutation.status, brain]);
   return (
     <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
       <div className={`p-3 w-full mb-5`}>

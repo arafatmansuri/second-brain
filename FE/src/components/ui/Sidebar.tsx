@@ -9,21 +9,20 @@ import {
   Twitter,
   VideoIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 // import { useMediaQuery } from "../../hooks/useMediaQuery";
-import { MdSecurity } from "react-icons/md";
 import {
   useAuthMutation,
+  useRefreshTokenMutation,
   useUserQuery,
 } from "../../queries/AuthQueries/queries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { sidebarAtom } from "../../store/sideBarState";
 import { userAtom } from "../../store/userState";
 import { icons, ui } from "../index";
-import { Security } from "../icons/Security";
 // import { TwitterIcon, YoutubeIcon } from "../icons";
 const dashboardSidebarItems = [
   { text: "Tweets", icon: <Twitter className="w-5 h-5" /> },
@@ -47,6 +46,19 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
   // const isDesktop = useMediaQuery("(min-width:768px)");
   const userQuery = useUserQuery({ credentials: true });
   const [user, setUser] = useRecoilState(userAtom);
+  const refreshTokenMutation = useRefreshTokenMutation();
+  const hasTriedRefresh = useRef(false);
+  useEffect(() => {
+    if (userQuery.status == "error" && !hasTriedRefresh.current) {
+      hasTriedRefresh.current = true;
+      refreshTokenMutation.mutate(undefined, {
+        onSuccess: () => {
+          userQuery.refetch();
+        },
+        onError: () => navigate("/dashboard"),
+      });
+    }
+  }, [userQuery.status]);
   useEffect(() => {
     if (userQuery.status == "success") {
       setUser(userQuery.data);
@@ -99,7 +111,9 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
             }}
           >
             <icons.Brain size={"md"} />{" "}
-            <h1 className="font-bold md:text-xl text-purple-900">Second Brain</h1>
+            <h1 className="font-bold md:text-xl text-purple-900">
+              Second Brain
+            </h1>
           </div>
         </div>
         <div className="flex flex-col items-start gap-2 font-semibold text-gray-700">

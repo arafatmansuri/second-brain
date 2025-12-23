@@ -7,7 +7,6 @@ import { addContentModalAtom } from "../../store/AddContentModalState";
 import { postAtom } from "../../store/postState";
 
 export function SearchBox() {
-  //   const user = useUserQuery();
   const [answer, setAnswer] = useState<string>("");
   const questionRef = useRef<HTMLInputElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);

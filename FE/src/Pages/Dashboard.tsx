@@ -4,10 +4,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { icons, ui } from "../components";
 import { useMediaQuery } from "../hooks/useMediaQuery";
-import {
-  useRefreshTokenMutation,
-  useUserQuery,
-} from "../queries/AuthQueries/queries";
+import { useRefreshTokenMutation } from "../queries/AuthQueries/queries";
 import {
   useGetPosts,
   usePostMutation,
@@ -23,10 +20,9 @@ interface SahredBrainData {
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
   const isDesktop: boolean = useMediaQuery("(min-width:768px)");
-  const user = useUserQuery({ credentials: true });
+  const [user, setUser] = useRecoilState(userAtom);
   const posts = useGetPosts();
   const [postsData, setPostsData] = useRecoilState(postAtom);
-  const setUser = useSetRecoilState(userAtom);
   const refreshTokenMutation = useRefreshTokenMutation();
   const privateContentMutation = usePostMutation();
   const getBrainMutation = usePostMutation<SahredBrainData>();
@@ -46,11 +42,7 @@ function Dashboard() {
   const hasTriedRefresh = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
-    // searchParams.set("content", "All Notes");
-    // searchParams.append("content","All Notes")
-    // navigate("/dashboard?content=All+Notes");
-    setSearchParams({content:"All Notes"});
-    // setSearchParams(searchParams);
+    setSearchParams({ content: "All Notes" });
     if (brain) {
       getBrainMutation.mutate({
         method: "GET",
@@ -61,31 +53,20 @@ function Dashboard() {
   useEffect(() => {
     if (brain && getBrainMutation.status == "success") {
       setPostsData(getBrainMutation.data.content);
-      console.log(getBrainMutation.data.content);
     }
   }, [getBrainMutation.status]);
   useEffect(() => {
-    if (
-      (user.status == "error" || posts?.error?.status == 401) &&
-      !hasTriedRefresh.current &&
-      !brain
-    ) {
+    if (posts?.error?.status == 401 && !hasTriedRefresh.current && !brain) {
       hasTriedRefresh.current = true;
       refreshTokenMutation.mutate(undefined, {
         onSuccess: () => {
-          user.refetch();
+          // user.refetch();
           posts.refetch();
         },
         onError: () => navigate("/signin"),
       });
     }
-  }, [posts?.error?.status, user.status]);
-
-  useEffect(() => {
-    if (user.status == "success" && !brain) {
-      setUser(user.data);
-    }
-  }, [user.status, brain]);
+  }, [posts?.error?.status]);
 
   useEffect(() => {
     if (posts.status == "success" && !brain) {
@@ -95,7 +76,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (privateContentMutation.status == "success" && !brain) {
-      user.refetch();
+      setUser((prev) => ({ ...prev, shared: !prev.shared }));
     }
   }, [privateContentMutation.status, brain]);
   return (
@@ -145,9 +126,7 @@ function Dashboard() {
               text="Private Brain"
               varient="secondary"
               textVisible={isDesktop}
-              classes={`hover:text-blue-800 ${
-                user.data?.shared ? "flex" : "hidden"
-              }`}
+              classes={`hover:text-blue-800 ${user.shared ? "flex" : "hidden"}`}
               onClick={PrivateContent}
               startIcon={<icons.Lock />}
             />

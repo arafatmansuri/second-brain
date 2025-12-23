@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { icons, ui } from "..";
-import { useUserQuery } from "../../queries/AuthQueries/queries";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { isCopyAtom, popupAtom } from "../../store/loadingState";
 import { postAtom } from "../../store/postState";
+import { userAtom } from "../../store/userState";
 
 export function ShareContentMoal() {
-  const user = useUserQuery({ credentials: true });
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const setIsPopup = useSetRecoilState(popupAtom);
   const [isCopy, setIsCopy] = useRecoilState(isCopyAtom);
+  const setUser = useSetRecoilState(userAtom);
   const posts = useRecoilValue(postAtom);
   const shareContentMutation = usePostMutation<{
     link: string;
@@ -25,7 +25,7 @@ export function ShareContentMoal() {
   }
   useEffect(() => {
     if (shareContentMutation.status == "success") {
-      user.refetch();
+      setUser((prev) => ({ ...prev, shared: !prev.shared }));
       if (shareContentMutation.data?.link !== "" && !isCopy) {
         setIsPopup({ message: "Your Brain set to Public", popup: true });
         setIsCopy(true);
@@ -37,7 +37,6 @@ export function ShareContentMoal() {
         setIsPopup({ message: "", popup: false });
       }, 3000);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareContentMutation.status]);
   return (
     <div

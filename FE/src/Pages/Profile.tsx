@@ -1,58 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { ui } from "../components";
-import {
-  useRefreshTokenMutation,
-  useUserQuery,
-} from "../queries/AuthQueries/queries";
-import { usePostMutation } from "../queries/PostQueries/postQueries";
-import { type PostData } from "../store/postState";
 import { userAtom } from "../store/userState";
-interface SahredBrainData {
-  username: string;
-  content: PostData[] | ((currVal: PostData[]) => PostData[]);
-}
+
 function Profile() {
-  const userQuery = useUserQuery({ credentials: true });
-  const [user, setUser] = useRecoilState(userAtom);
-  const refreshTokenMutation = useRefreshTokenMutation();
-  const privateContentMutation = usePostMutation();
-  const getBrainMutation = usePostMutation<SahredBrainData>();
-  const { brain } = useParams();
-  const navigate = useNavigate();
-  const hasTriedRefresh = useRef(false);
-  useEffect(() => {
-    if (userQuery.status == "error" && !hasTriedRefresh.current && !brain) {
-      hasTriedRefresh.current = true;
-      refreshTokenMutation.mutate(undefined, {
-        onSuccess: () => {
-          userQuery.refetch();
-        },
-        onError: () => navigate("/dashboard"),
-      });
-    }
-  }, [userQuery.status]);
-
-  useEffect(() => {
-    if (userQuery.status == "success" && !brain) {
-      setUser(userQuery.data);
-    }
-  }, [userQuery.status, brain]);
-
-  useEffect(() => {
-    if (privateContentMutation.status == "success" && !brain) {
-      userQuery.refetch();
-    }
-  }, [privateContentMutation.status, brain]);
+  const user = useRecoilValue(userAtom);
   return (
     <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
-      <div
-        className={`p-3 w-full mb-5 ${
-          brain && !getBrainMutation.data ? "hidden" : "block"
-        }`}
-      >
+      <div className={`p-3 w-full mb-5`}>
         <div className="flex justify-between items-center">
           <h1 className="font-bold md:text-3xl text-2xl text-purple-800">
             {user.username}
