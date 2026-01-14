@@ -4,6 +4,7 @@ import Tags from "../models/tags.model";
 import { StatusCode } from "../types";
 import { generateContentLink } from "../utils/generateContentLink";
 import { generateSignedUrl } from "../utils/getSignedUrl";
+import { isCorrectMediaType, isCorrectMediaTypeByFile } from "../utils/detectMediaType";
 export const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })
@@ -42,7 +43,13 @@ export const contentData = async (
         contentInput.data.type == "image") &&
       contentInput.data.uploadType == "local file"
     ) {
-      if (!contentInput.data.fileKey || !contentInput.data.fileSize) {
+      if(isCorrectMediaTypeByFile(contentInput.data.fileType || "", contentInput.data.type) === false){
+        res
+          .status(StatusCode.InputError)
+          .json({ message: "File is not of correct media type" });
+        return;
+      }
+      else if (!contentInput.data.fileKey || !contentInput.data.fileSize) {
         res.status(StatusCode.InputError).json({ message: "File is required" });
         return;
       } else if (contentInput.data.fileSize > 10 * 1024 * 1024) {
@@ -72,6 +79,16 @@ export const contentData = async (
         contentInput.data.type == "raw") &&
       contentInput.data.uploadType == "file URL"
     ) {
+      const isCorrectType = await isCorrectMediaType(
+        contentInput.data.link || "",
+        contentInput.data.type
+      );
+      if (!isCorrectType) {
+        res
+          .status(StatusCode.InputError)
+          .json({ message: "Link is not of correct media type" });
+        return;
+      }
       link = contentInput.data.link;
     }
     const inputTags =

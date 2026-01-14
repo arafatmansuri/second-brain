@@ -10,6 +10,7 @@ export function Input({
   isWidthFull = true,
   isDisabled = false,
   label,
+  acceptedFileTypes,
   onChange,
   onclick,
 }: {
@@ -21,6 +22,7 @@ export function Input({
   isWidthFull?: boolean;
   isDisabled?: boolean;
   label?: string;
+  acceptedFileTypes?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onclick?: () => void;
 }) {
@@ -45,6 +47,7 @@ export function Input({
         onChange={onChange}
         id={label ? label.toLowerCase().replace(/\s+/g, '-') : undefined}
         onClick={onclick}
+        accept={acceptedFileTypes}
       />
       {type === "password" && (
         <EyeIcon

@@ -206,7 +206,7 @@ function AddContent() {
             (contentType == "document" ||
               contentType == "video" ||
               contentType == "image") && (
-              <ui.Input type="file" formHook={{ ...register("file") }} />
+              <ui.Input type="file" formHook={{ ...register("file") }} acceptedFileTypes={contentType === "document" ? ".pdf" : contentType === "video" ? "video/*" : "image/*"} />
             )}
           <ui.TextArea
             placeholder={contentType == "article" ? "Article" : "Description"}

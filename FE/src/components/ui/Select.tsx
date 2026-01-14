@@ -34,7 +34,8 @@ export function Select({
           key={type}
           disabled={type == "select"}
           value={type}
-          className=""
+          label={type == "document" ? "pdf" : type}
+          className=""          
         >
           {type}
         </option>
