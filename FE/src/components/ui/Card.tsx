@@ -23,7 +23,7 @@ interface CardProps {
   createdAt?: string;
   isLoading?: boolean;
   description?: string;
-  isProcessing?:boolean;
+  isProcessing?: boolean;
   isCardInModal?: boolean;
 }
 export function Card({
@@ -36,7 +36,7 @@ export function Card({
   // isLoading,
   description,
   isProcessing,
-  isCardInModal=false
+  isCardInModal = false,
 }: CardProps) {
   const { brain } = useParams();
   const deletePostMutation = usePostMutation();
@@ -61,7 +61,9 @@ export function Card({
   return (
     <div
       className={`${
-        isModalOpen.open && isCardInModal ? "bg-slate-500 opacity-50 border-0" : "bg-white"
+        isModalOpen.open && isCardInModal
+          ? "bg-slate-500 opacity-50 border-0"
+          : "bg-white"
       } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:min-w-72 md:min-w-64 sm:min-w-60 w-[80%]`}
     >
       <div className="flex justify-between items-center">
@@ -78,22 +80,26 @@ export function Card({
           </h3>
         </div>
         <div className="flex items-center gap-2 text-gray-500">
-          {isProcessing && <span
-            className={`h-3 mr-1 w-3 rounded-full bg-yellow-500`}
-            title={
-              "Content is still being processed. AI searches might not find this content yet. Refresh after sometime"
-            } // shows tooltip on hover
-          ></span>}
+          {isProcessing && (
+            <span
+              className={`h-3 mr-1 w-3 rounded-full bg-yellow-500`}
+              title={
+                "Content is still being processed. AI searches might not find this content yet. Refresh after sometime"
+              } // shows tooltip on hover
+            ></span>
+          )}
           {/* <a href={link} target="_blank">
             <icons.ShareIcon />
           </a> */}
-          <span
-            id={id}
-            onClick={deletePost}
-            className={`${brain ? "hidden" : "block"}`}
-          >
-            <icons.TrashIcon />
-          </span>
+          {!isCardInModal && (
+            <span
+              id={id}
+              onClick={deletePost}
+              className={`${brain ? "hidden" : "block"}`}
+            >
+              <icons.TrashIcon />
+            </span>
+          )}
         </div>
       </div>
       {type === "youtube" && (

@@ -33,7 +33,7 @@ export function SearchBox() {
   return (
     <div
       className={`${
-        isModalOpen.open && isModalOpen.modal == "search" ? "flex" : "hidden"
+        isModalOpen.open ? "flex" : "hidden"
       } w-screen h-screen
          fixed top-0 left-0 justify-center items-center z-10 p-5`}
     >
@@ -44,7 +44,8 @@ export function SearchBox() {
           <h1>Ask anything from your brain</h1>
           <button
             onClick={() => {
-              setIsModalOpen({ open: false, modal: "search" });
+              setIsModalOpen({ open: false , modal: "" });
+              // setIsModalOpen({ open: false, modal: "search" });
               setAnswer("");
             }}
             className="cursor-pointer"

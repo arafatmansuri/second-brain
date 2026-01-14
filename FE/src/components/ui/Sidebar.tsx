@@ -58,7 +58,7 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
         onError: () => navigate("/dashboard"),
       });
     }
-  }, [userQuery.status,brain]);
+  }, [userQuery.status, brain]);
   useEffect(() => {
     if (userQuery.status == "success") {
       setUser(userQuery.data);
@@ -105,8 +105,13 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
           <div
             className="flex items-center gap-1 w-fit mb-1"
             onClick={() => {
+              const url = new URL(window.location.href);
+              if (url.pathname != "/dashboard" ) {
+                navigate("/dashboard");
+              }else{
               searchParams.set("content", "All Notes");
               setSearchParams(searchParams);
+              }
             }}
           >
             <icons.Brain size={"md"} />{" "}

@@ -99,7 +99,7 @@ function Dashboard() {
               varient="primary"
               textVisible={isDesktop}
               onClick={() => {
-                setModalOpen({ open: true, modal: "search" });
+                navigate("/askai");
               }}
             />
             <ui.Button

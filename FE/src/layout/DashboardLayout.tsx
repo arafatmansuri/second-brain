@@ -8,7 +8,7 @@ export const DashboardLayout = () => {
       <Outlet />
       {/* <ui.CreateContentModal /> */}
       <ui.ShareContentMoal />
-      <ui.SearchBox />
+      {/* <ui.SearchBox /> */}
       <ui.Popup />
     </div>
   );

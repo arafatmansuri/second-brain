@@ -16,6 +16,7 @@ import { SettingsLayout } from "./layout/SettingsLayout";
 import Profile from "./Pages/Profile";
 import SecurityPage from "./Pages/SecurityPage";
 import BrainDashboard from "./Pages/BrainDashboard";
+import { AskAI } from "./Pages/AskAI";
 function App() {
   return (
     <ThemeProvider>
@@ -36,6 +37,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/:brain" element={<BrainDashboard />} />
             <Route path="/add-content" element={<AddContent />} />
+            <Route path="/askai" element={<AskAI />} />
           </Route>
           <Route element={<SettingsLayout />}>
             <Route path="/settings" element={<Profile />} />

@@ -12,8 +12,13 @@ export function SidebarItem({
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   function setParams() {
+    const url = new URL(window.location.href);
+    if (url.pathname != "/dashboard") {
+      navigate(`/dashboard?content=${text}`);
+    }else{
     searchParams.set("content", text);
     setSearchParams(searchParams);
+    }
   }
   const navigate = useNavigate();
   const location = useLocation();
