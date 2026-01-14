@@ -62,7 +62,7 @@ function SecurityPage() {
                     </p>
                   </div>
                 </div>
-                {user.method == "normal" && (
+                {user.method == "normal" || !user.method && (
                   <Button
                     size="sm"
                     classes="font-medium"

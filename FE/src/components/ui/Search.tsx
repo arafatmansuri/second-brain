@@ -4,18 +4,23 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { icons, ui } from "..";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
-import { postAtom } from "../../store/postState";
+import { postAtom, type PostData } from "../../store/postState";
 
 export function SearchBox() {
   const [answer, setAnswer] = useState<string>("");
   const questionRef = useRef<HTMLInputElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
+  const [relevantPosts, setRelevantPosts] = useState<PostData[]>([]);
   const posts = useRecoilValue(postAtom);
-  const askAIMutation = usePostMutation<string>();
+  const askAIMutation = usePostMutation<{
+    answer: string;
+    content: PostData[];
+  }>();
   useEffect(() => {
     if (askAIMutation.status == "success") {
       console.log(askAIMutation.data);
-      setAnswer(askAIMutation.data);
+      setAnswer(askAIMutation.data.answer);
+      setRelevantPosts(askAIMutation.data.content);
     }
   }, [askAIMutation?.data, askAIMutation.status]);
   async function askAi() {
@@ -76,6 +81,27 @@ export function SearchBox() {
           )}
           {askAIMutation.status == "error" && askAIMutation.error.message}
         </p>
+        {relevantPosts.length > 0 && (
+          <h2 className="self-start font-bold text-lg mt-2">
+            Relevant Contents:
+          </h2>
+        )}
+        {relevantPosts.length > 0 && (
+          <div className="grid grid-cols-2 gap-4 w-full overflow-y-auto max-h-56">
+            {relevantPosts.map((post) => (
+              <ui.Card
+                key={post._id}
+                link={post.link}
+                id={post._id}
+                title={post.title}
+                type={post.type}
+                description={post.description}
+                createdAt={post.createdAt}
+                tags={post.tags}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

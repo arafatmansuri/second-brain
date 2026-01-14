@@ -39,6 +39,6 @@ export async function generateAnswer(
     return { result: answer, contentIds: contentId };
   } catch (err) {
     console.log(err);
-    return {result:"",contentIds:[]}
+    return { result: "", contentIds: [] };
   }
 }

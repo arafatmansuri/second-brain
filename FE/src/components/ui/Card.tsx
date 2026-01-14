@@ -23,7 +23,8 @@ interface CardProps {
   createdAt?: string;
   isLoading?: boolean;
   description?: string;
-  isProcessing?:boolean
+  isProcessing?:boolean;
+  isCardInModal?: boolean;
 }
 export function Card({
   title,
@@ -34,7 +35,8 @@ export function Card({
   createdAt,
   // isLoading,
   description,
-  isProcessing
+  isProcessing,
+  isCardInModal=false
 }: CardProps) {
   const { brain } = useParams();
   const deletePostMutation = usePostMutation();
@@ -59,7 +61,7 @@ export function Card({
   return (
     <div
       className={`${
-        isModalOpen.open ? "bg-slate-500 opacity-50 border-0" : "bg-white"
+        isModalOpen.open && isCardInModal ? "bg-slate-500 opacity-50 border-0" : "bg-white"
       } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:min-w-72 md:min-w-64 sm:min-w-60 w-[80%]`}
     >
       <div className="flex justify-between items-center">

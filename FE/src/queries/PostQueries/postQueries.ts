@@ -45,7 +45,7 @@ const fetchPosts = async <T>({
       return posts.data;
     }
     if (endpoint.includes("askai")) {
-      return posts.data.answer;
+      return posts.data;
     }
     if (endpoint.includes("uploadUrl")) {
       return posts.data;

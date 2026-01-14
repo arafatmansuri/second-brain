@@ -122,6 +122,7 @@ export async function embedData({
         contentId,
         userId,
         ...fullTweetData,
+        data: tweetData,
       });
     } else if (type == "image") {
       const imageData = await getImageSummary(link || "", fileType);
