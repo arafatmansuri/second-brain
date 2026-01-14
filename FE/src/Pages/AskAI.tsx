@@ -4,9 +4,11 @@ import { useRecoilValue } from "recoil";
 import { icons, ui } from "../components";
 import { usePostMutation } from "../queries/PostQueries/postQueries";
 import { postAtom, type PostData } from "../store/postState";
+import { TypingText } from "../components/ui/TypingText";
 
 export function AskAI() {
   const [answer, setAnswer] = useState<string>("");
+  const [resultCompleted, setResultCompleted] = useState<boolean>(false);
   const questionRef = useRef<HTMLInputElement | null>(null);
   const [relevantPosts, setRelevantPosts] = useState<PostData[]>([]);
   const posts = useRecoilValue(postAtom);
@@ -49,7 +51,6 @@ export function AskAI() {
           type="text"
           placeholder="Write your query"
           reference={questionRef}
-
         />
         <ui.Button
           //   onClick={askAi}
@@ -64,19 +65,19 @@ export function AskAI() {
         />
       </form>
       <p className="w-full max-h-64 p-2">
-        {askAIMutation.status != "idle" && askAIMutation.status == "loading" ? (
-          <icons.Loader />
-        ) : (
-          answer
-        )}
         {askAIMutation.status == "error" && askAIMutation.error.message}
       </p>
-      {relevantPosts.length > 0 && (
+      {askAIMutation.status != "idle" && askAIMutation.status == "loading" ? (
+        <icons.Loader />
+      ) : (
+        <TypingText text={answer} speed={10} onComplete={()=>setResultCompleted(true)}  />
+      )}
+      {relevantPosts.length > 0 && resultCompleted && (
         <h2 className="self-start font-bold text-lg mt-2">
           Relevant Contents:
         </h2>
       )}
-      {relevantPosts.length > 0 && (
+      {relevantPosts.length > 0 && resultCompleted && (
         <div className="flex lg:grid-cols-3 flex-col w-full flex-wrap items-center lg:pl-1 md:pl-4 sm:grid sm:grid-cols-2 gap-5">
           {relevantPosts.map((post) => (
             <ui.Card
