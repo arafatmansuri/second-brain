@@ -17,12 +17,16 @@ type createContentInputs = {
   tags: string;
   description: string;
   file: FileList | null;
+  uploadtype?: string;
 };
 //controlled component
 function AddContent() {
   const user = useRecoilValue(userAtom);
   const [isFileError, setIsFileError] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+  const [uploadType, setUploadType] = useState<"file URL" | "local file">(
+    "file URL"
+  );
   const setIsPopup = useSetRecoilState(popupAtom);
   const { register, handleSubmit, setValue, getValues } =
     useForm<createContentInputs>();
@@ -51,6 +55,7 @@ function AddContent() {
       (data.type == "image" ||
         data.type == "video" ||
         data.type == "document") &&
+      uploadType == "local file" &&
       file
     ) {
       let uploadUrl = "";
@@ -80,6 +85,7 @@ function AddContent() {
                 fileKey: file.name,
                 fileSize: file.size,
                 fileType: file.type,
+                uploadType: uploadType,
               },
             });
             await axios.put(uploadUrl, file, {
@@ -108,11 +114,15 @@ function AddContent() {
           description: data.description,
           link: data.link,
           type: data.type == "document" ? "raw" : data.type,
+          uploadType: uploadType,
           // file: file,
         },
         // contentType: "multipart/form-data",
       });
   };
+  useEffect(() => {
+    setValue("uploadtype","file URL");
+  }, []);
   useEffect(() => {
     if (addPostMutation.status == "success") {
       navigate("/dashboard");
@@ -162,22 +172,42 @@ function AddContent() {
             isWidthFull={true}
           />
           <ui.Select formHook={{ ...register("type") }} />
-          {(contentType == "youtube" || contentType == "tweet") && (
+          {(contentType == "document" ||
+            contentType == "video" ||
+            contentType == "image") && (
+            <div className="flex gap-4">
+              <label>Upload via</label>
+              <ui.Input
+                type="radio"
+                formHook={{ ...register("uploadtype") }}
+                label="Url"
+                defaultValue="file URL"
+                onclick={() => setUploadType("file URL")}
+              />
+              <ui.Input
+                type="radio"
+                formHook={{ ...register("uploadtype") }}
+                label="Device"
+                defaultValue="local file"
+                onclick={() => setUploadType("local file")}
+              />
+            </div>
+          )}
+          {(contentType == "youtube" ||
+            contentType == "tweet" ||
+            uploadType == "file URL") && (
             <ui.Input
               type="text"
               placeholder="Link"
               formHook={{ ...register("link") }}
             />
           )}
-          {contentType == "document" ||
-            (contentType == "image" && (
-              <input type="radio" value={"link"} name="link" />
-            ))}
-          {(contentType == "document" ||
-            contentType == "video" ||
-            contentType == "image") && (
-            <ui.Input type="file" formHook={{ ...register("file") }} />
-          )}
+          {uploadType == "local file" &&
+            (contentType == "document" ||
+              contentType == "video" ||
+              contentType == "image") && (
+              <ui.Input type="file" formHook={{ ...register("file") }} />
+            )}
           <ui.TextArea
             placeholder={contentType == "article" ? "Article" : "Description"}
             formHook={{ ...register("description") }}

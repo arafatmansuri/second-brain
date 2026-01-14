@@ -9,6 +9,9 @@ export function Input({
   defaultValue,
   isWidthFull = true,
   isDisabled = false,
+  label,
+  onChange,
+  onclick,
 }: {
   placeholder?: string;
   type?: React.HTMLInputTypeAttribute;
@@ -17,20 +20,31 @@ export function Input({
   reference?: any;
   isWidthFull?: boolean;
   isDisabled?: boolean;
+  label?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onclick?: () => void;
 }) {
   const [isVisible, setIsVisibile] = useState(false);
   return (
-    <div className="w-full relative">
+    <div
+      className={`${type != "radio" && "w-full"} relative ${
+        type == "radio" ? "flex flex-row-reverse gap-2 justify-end" : ""
+      }`}
+    >
+      {label && <label htmlFor={label.toLowerCase().replace(/\s+/g, '-')} className="block mb-1 font-semibold">{label}</label>}
       <input
         ref={reference}
         type={type != "password" ? type : isVisible ? "text" : "password"}
         className={`px-4 py-2 border rounded block border-gray-300 focus:outline-purple-500 placeholder:select-none ${
-          isWidthFull ? "w-full" : "w-auto"
+          isWidthFull && !(type == "radio") ? "w-full" : "w-auto"
         } ${isDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
         placeholder={placeholder}
         {...formHook}
         defaultValue={defaultValue}
         disabled={isDisabled}
+        onChange={onChange}
+        id={label ? label.toLowerCase().replace(/\s+/g, '-') : undefined}
+        onClick={onclick}
       />
       {type === "password" && (
         <EyeIcon

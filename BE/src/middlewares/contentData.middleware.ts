@@ -19,6 +19,7 @@ export const contentSchema = z.object({
   fileKey: z.string().optional(),
   fileSize: z.number().optional(),
   fileType: z.string().optional(),
+  uploadType: z.enum(["file URL", "local file"]).optional(),
 });
 export const contentData = async (
   req: Request,
@@ -36,9 +37,10 @@ export const contentData = async (
     }
     let link;
     if (
-      contentInput.data.type == "raw" ||
-      contentInput.data.type == "video" ||
-      contentInput.data.type == "image"
+      (contentInput.data.type == "raw" ||
+        contentInput.data.type == "video" ||
+        contentInput.data.type == "image") &&
+      contentInput.data.uploadType == "local file"
     ) {
       if (!contentInput.data.fileKey || !contentInput.data.fileSize) {
         res.status(StatusCode.InputError).json({ message: "File is required" });
@@ -64,6 +66,13 @@ export const contentData = async (
         res.status(StatusCode.InputError).json({ message: "Invalid link" });
         return;
       }
+    } else if (
+      (contentInput.data.type == "image" ||
+        contentInput.data.type == "video" ||
+        contentInput.data.type == "raw") &&
+      contentInput.data.uploadType == "file URL"
+    ) {
+      link = contentInput.data.link;
     }
     const inputTags =
       contentInput.data.tags &&

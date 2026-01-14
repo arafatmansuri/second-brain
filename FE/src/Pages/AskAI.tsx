@@ -18,7 +18,6 @@ export function AskAI() {
   }>();
   useEffect(() => {
     if (askAIMutation.status == "success") {
-      console.log(askAIMutation.data);
       setAnswer(askAIMutation.data.answer);
       setRelevantPosts(askAIMutation.data.content);
     }
@@ -36,6 +35,7 @@ export function AskAI() {
     >
       <div className="flex self-end w-full justify-between font-bold text-purple-800 text-lg">
         <h1>Ask anything from your brain</h1>
+        <ui.MenuButton size="sm" />
       </div>
       <span className="text-sm w-full text-gray-400">
         {posts.length} items will be used to search
@@ -64,16 +64,21 @@ export function AskAI() {
           //   loading={shareContentMutation.isPending}
         />
       </form>
-      <p className="w-full max-h-64 p-2">
+      <div className="w-full flex-col overflow-y-auto p-2">
+        <p className="w-full max-h-64 p-2">
         {askAIMutation.status == "error" && askAIMutation.error.message}
       </p>
       {askAIMutation.status != "idle" && askAIMutation.status == "loading" ? (
         <icons.Loader />
       ) : (
-        <TypingText text={answer} speed={10} onComplete={()=>setResultCompleted(true)}  />
+        <TypingText
+          text={answer}
+          speed={10}
+          onComplete={() => setResultCompleted(true)}
+        />
       )}
       {relevantPosts.length > 0 && resultCompleted && (
-        <h2 className="self-start font-bold text-lg mt-2">
+        <h2 className="self-start font-bold text-lg mt-2 mb-2">
           Relevant Contents:
         </h2>
       )}
@@ -89,10 +94,11 @@ export function AskAI() {
               description={post.description}
               createdAt={post.createdAt}
               tags={post.tags}
+              isCardInModal={true}
             />
           ))}
         </div>
-      )}
+      )}</div>
     </div>
   );
 }

@@ -41,6 +41,7 @@ export const addContent: Handler = async (req, res): Promise<void> => {
       fileType: contentInput.data.fileType,
       fileSize: contentInput.data.fileSize,
       isProcessing: true,
+      uploadType: contentInput.data.uploadType,
     });
     res
       .status(StatusCode.Success)
@@ -69,6 +70,7 @@ export const updateContent: Handler = async (req, res): Promise<void> => {
         title: contentInput?.data.title,
         tags: tags?.map((tag) => tag._id),
         userId: userId,
+        uploadType: contentInput?.data.uploadType,
       },
     },
     { new: true }
@@ -95,9 +97,11 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
     }
     await Embedding.deleteMany({ contentId });
     if (
-      content.type == "image" ||
-      content.type == "video" ||
-      content.type == "document"
+      (content.type == "image" ||
+        content.type == "video" ||
+        content.type == "document") &&
+      content.uploadType == "local file" &&
+      content.fileKey
     ) {
       const deleteCommand = new DeleteObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,

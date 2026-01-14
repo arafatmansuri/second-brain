@@ -18,7 +18,8 @@ const contentSchema = new Schema(
     contentLinkId: { type: String },
     fileType:{type:String},
     fileSize:{type:Number},
-    isProcessing:{type:Boolean}
+    isProcessing:{type:Boolean},
+    uploadType:{type:String, enum:["file URL","local file"]},
   },
   { timestamps: true }
 );

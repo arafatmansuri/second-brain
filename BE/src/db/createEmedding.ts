@@ -38,6 +38,7 @@ type IEmbedData = {
   fileType?: string;
   title?: string;
   description?: string;
+  uploadType?:"file URL" | "local file";
 };
 export async function embedData({
   key,
@@ -50,6 +51,7 @@ export async function embedData({
   fileType,
   title,
   description,
+  uploadType
 }: IEmbedData) {
   try {
     //console.log("🔹 Loading Xenova embedding model...");
@@ -65,7 +67,8 @@ export async function embedData({
 
     //console.log("⏳ Extracting PDF from key...");
     if (type == "document") {
-      const docs = await getPDFTranscriptPy(key || "");
+      console.log("Extracting PDF from key...",key,uploadType,link);
+      const docs = await getPDFTranscriptPy(key || "",uploadType || "file URL",link);
       for (const doc of docs) {
         const textChunks = chunkText(doc.text);
         for (const chunk of textChunks) {

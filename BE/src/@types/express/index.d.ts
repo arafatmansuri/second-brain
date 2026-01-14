@@ -16,6 +16,7 @@ declare global {
         fileKey?: string;
         fileType?: string;
         fileSize?: number;
+        uploadType?: string;
       }>;
       contentLink?: string;
       fileKey?: string;

@@ -5,15 +5,15 @@ import { spawn } from "child_process";
 import fetch from "node-fetch";
 import path from "path";
 import { createWorker } from "tesseract.js";
-// import { fileURLToPath } from "url";
+import { fileURLToPath } from "url";
 import { YoutubeTranscript } from "youtube-transcript";
 const pythonPath =
   process.env.NODE_ENV == "development" ? "python" : "./venv/bin/python";
 // const __filename = __filename || path.resolve();
 // const __dirname = dirname(__filename);
 //@ts-ignore
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 export const getVideoTransript = async (link: string) => {
   try {
     const client = new AssemblyAI({
@@ -115,13 +115,15 @@ export const getPDFTranscript = async (url: string) => {
     return "";
   }
 };
-export const getPDFTranscriptPy = async (key: string): Promise<any[]> => {
+export const getPDFTranscriptPy = async (key: string,uploadType:"file URL" | "local file",link?: string): Promise<any[]> => {
   try {
     return new Promise((resolve, reject) => {
       const py = spawn(pythonPath || "python", [
         path.join(__dirname, "extractData.py"),
         "pdf",
         key,
+        uploadType,
+        link || "",
       ]);
       let data = "";
       py.stdout.on("data", (chunk) => {
@@ -272,7 +274,7 @@ export const getImageSummary = async (link: string, fileType?: string) => {
     contents: [
       {
         inlineData: {
-          mimeType: fileType,
+          mimeType: fileType || "image/jpeg",
           data: base64ImageData,
         },
       },

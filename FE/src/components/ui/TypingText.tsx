@@ -36,8 +36,8 @@ export const TypingText = ({
   }, [text, speed]);
 
   return (
-    <div className="text-md font-sans whitespace-pre-wrap w-full max-h-64 p-2">
+    <p className="text-md font-sans w-full whitespace-pre-wrap">
       {displayed}
-    </div>
+    </p>
   );
 };

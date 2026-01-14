@@ -157,6 +157,7 @@ function Dashboard() {
                   id={post._id}
                   isLoading={posts.isFetching}
                   description={post.description}
+                  isCardInModal={false}
                   isProcessing={post.isProcessing}
                 />
               ))

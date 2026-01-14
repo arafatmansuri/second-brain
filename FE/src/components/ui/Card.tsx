@@ -91,15 +91,13 @@ export function Card({
           {/* <a href={link} target="_blank">
             <icons.ShareIcon />
           </a> */}
-          {!isCardInModal && (
             <span
               id={id}
               onClick={deletePost}
-              className={`${brain ? "hidden" : "block"}`}
+              className={`${brain || isCardInModal ? "hidden" : "block"}`}
             >
               <icons.TrashIcon />
             </span>
-          )}
         </div>
       </div>
       {type === "youtube" && (

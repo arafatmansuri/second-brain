@@ -17,7 +17,8 @@ export const generateDataAndEmbeddings = async (
     type: content.type,
     data: content.description!,
     fileType: content.fileType!,
-    title:content.title
+    title:content.title,
+    uploadType:content.uploadType || undefined,
   });
 
   content.isProcessing = false;

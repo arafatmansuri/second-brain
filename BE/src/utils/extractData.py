@@ -7,18 +7,22 @@ import sys
 from dotenv import load_dotenv
 
 load_dotenv()
-def extract_pdf_form_key(key:str):
-    bucket_name = os.getenv("AWS_BUCKET_NAME")
+def extract_pdf_form_key(key:str,uploadType:str,link:str="")->list:
+    if uploadType == "local file":
+        bucket_name = os.getenv("AWS_BUCKET_NAME")
 
-    s3 = boto3.client(
+        s3 = boto3.client(
         "s3",
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
         region_name=os.getenv("AWS_REGION"))
 
-    pdf_stream = BytesIO()
-    s3.download_fileobj(bucket_name, key, pdf_stream)
-
+        pdf_stream = BytesIO()
+        s3.download_fileobj(bucket_name, key, pdf_stream)
+    else:
+        import requests
+        response = requests.get(link)
+        pdf_stream = BytesIO(response.content)
     docs = []
     pdf_stream.seek(0)
     with fitz.open(stream=pdf_stream, filetype="pdf") as pdf:
@@ -124,11 +128,13 @@ def fetch_transcript(video_id:str,metadata):
 if __name__ == "__main__":
     contentType = sys.argv[1]
     key = sys.argv[2]
+    uploadType = sys.argv[3] if len(sys.argv) > 3 else "local file"
+    link = sys.argv[4] if len(sys.argv) > 4 else ""
     match contentType:
         case "youtube":
             metadata = json.loads(sys.argv[3])
             transcript = fetch_transcript(video_id=key,metadata=metadata)
             print(json.dumps(transcript))
         case "pdf":
-            docs = extract_pdf_form_key(key)
+            docs = extract_pdf_form_key(key,uploadType,link)
             print(json.dumps(docs))
