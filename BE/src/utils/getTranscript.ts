@@ -5,15 +5,15 @@ import { spawn } from "child_process";
 import fetch from "node-fetch";
 import path from "path";
 import { createWorker } from "tesseract.js";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 import { YoutubeTranscript } from "youtube-transcript";
 const pythonPath =
   process.env.NODE_ENV == "development" ? "python" : "./venv/bin/python";
 // const __filename = __filename || path.resolve();
 // const __dirname = dirname(__filename);
 //@ts-ignore
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 export const getVideoTransript = async (link: string) => {
   try {
     const client = new AssemblyAI({
