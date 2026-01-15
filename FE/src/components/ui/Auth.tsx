@@ -162,7 +162,7 @@ export function Auth({ authName }: authData) {
             </p>
           )}
         </form>
-        <GoogleOAuthProvider clientId="671836512515-qml9ur04oo8rfu9rvs257i4uf2bka2eb.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId="671836512515-f9dk3uooao7ecn30f6bkovs196jsvj4h.apps.googleusercontent.com">
           <GoogleLoginButton text={"Continue"} />
         </GoogleOAuthProvider>
       </div>
