@@ -6,6 +6,7 @@ import {
   getImageSummary,
   getPDFTranscriptPy,
   getTweetDescription2,
+  getVideoSummary,
   getVideoTransript,
   getYoutubeTranscriptPy,
 } from "../utils/getTranscript";
@@ -147,7 +148,10 @@ export async function embedData({
         ...parsedImageData,
       });
     } else if (type == "video") {
-      const videoData = await getVideoTransript(link || "");
+      let videoData = await getVideoTransript(link || "");
+      if (videoData == "") {
+        videoData = await getVideoSummary(link || "", fileType);
+      }
       const embedding = await embedder(videoData, {
         pooling: "mean",
         normalize: true,
