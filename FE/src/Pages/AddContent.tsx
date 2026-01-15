@@ -48,7 +48,6 @@ function AddContent() {
     const MAX_PDF_SIZE_MB = 10;
     if (file && file.size > MAX_PDF_SIZE_MB * 1024 * 1024) {
       setIsFileError(true);
-      console.log(file.type);
       return;
     }
     if (

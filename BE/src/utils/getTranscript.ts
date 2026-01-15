@@ -5,15 +5,15 @@ import { spawn } from "child_process";
 import fetch from "node-fetch";
 import path from "path";
 import { createWorker } from "tesseract.js";
-// import { fileURLToPath } from "url";
+import { fileURLToPath } from "url";
 import { YoutubeTranscript } from "youtube-transcript";
 const pythonPath =
   process.env.NODE_ENV == "development" ? "python" : "./venv/bin/python";
 // const __filename = __filename || path.resolve();
 // const __dirname = dirname(__filename);
 //@ts-ignore
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 export const getVideoTransript = async (link: string) => {
   try {
     const client = new AssemblyAI({
@@ -27,7 +27,7 @@ export const getVideoTransript = async (link: string) => {
       speech_model: "universal",
     };
     const transcript = await client.transcripts.transcribe(params);
-    console.log("Transcript:", transcript);
+    // console.log("Transcript:", transcript);
     // console.log(transcript.text);
     return transcript.text || "";
   } catch (err) {
@@ -303,6 +303,35 @@ export const getVideoSummary = async (link: string, fileType?: string) => {
         inlineData: {
           mimeType: fileType || "video/mp4",
           data: base64VideoData,
+        },
+      },
+      {
+        text: `You are an expert video analyst. Your task is to extract, understand, and clean the spoken and visual content from the given video. The goal is to produce text that captures all the *meaningful information* for semantic embedding, removing visual clutter or irrelevant details.Follow these rules carefully:
+        1. Transcribe **all spoken dialogue** in the video, including conversations, narrations, and on-screen text.
+        2. If the video contains structured data (charts, graphs, tables), **convert it to plain text format** with clear labels.
+        3. **Preserve key context**, logical relationships, and meanings — not formatting or coordinates.
+        4. **Ignore** decorative elements, watermarks, or repeated intros/outros.5. If the video contains multiple sections or scenes, summarize each one clearly under a heading.
+        6. For unclear audio or visuals, make your **best guess** but note uncertainty in brackets '[unclear: word]'.
+        7. Return the final output strictly as a JSON object.
+        8.Output only the JSON object — no text, no explanation, no code block formatting.
+        9.Do not include triple backticks (\`\`\`) or any labels like 'json'. 10. Ensure the JSON is properly formatted and parsable. 
+        the fields: title, content, summary, and keywords.Output format: ---Title: [If the video has a clear title or heading]
+        Main Content:[Cleaned, structured text here] 
+        Summary (optional):[A 2-3 line summary capturing main topic or insight] Keywords:[List of 5-10 relevant keywords]---`,
+      },
+    ],
+  });
+  return result?.text || "";
+};
+export const getYoutubeSummary = async (link: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY });
+
+  const result = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        fileData: {
+          fileUri: link,
         },
       },
       {

@@ -114,6 +114,7 @@ def chunk_by_duration(transcript,metadata):
         return chunks
 
 def fetch_transcript(video_id:str,metadata):
+    transcript=None
     try:
         transcript = YouTubeTranscriptApi(proxy_config=WebshareProxyConfig(
             proxy_username=os.getenv("PROXY_USERNAME"),
@@ -122,6 +123,8 @@ def fetch_transcript(video_id:str,metadata):
     except(Exception):
         pass
     finally:
+        if transcript is None:
+            return []
         chunks = chunk_by_duration(transcript.to_raw_data(),metadata)
         return chunks
 

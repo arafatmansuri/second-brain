@@ -8,6 +8,7 @@ import {
   getTweetDescription2,
   getVideoSummary,
   getVideoTransript,
+  getYoutubeSummary,
   getYoutubeTranscriptPy,
 } from "../utils/getTranscript";
 dotenv.config();
@@ -68,7 +69,7 @@ export async function embedData({
 
     //console.log("⏳ Extracting PDF from key...");
     if (type == "document") {
-      console.log("Extracting PDF from key...",key,uploadType,link);
+      // console.log("Extracting PDF from key...",key,uploadType,link);
       const docs = await getPDFTranscriptPy(key || "",uploadType || "file URL",link);
       for (const doc of docs) {
         const textChunks = chunkText(doc.text);
@@ -100,6 +101,21 @@ export async function embedData({
       }
     } else if (type == "youtube") {
       const transcript = await getYoutubeTranscriptPy(linkId || "");
+      if (!transcript || transcript.length === 0) {
+        const videoSummary = await getYoutubeSummary(link || "");
+        const embedding = await embedder(videoSummary, {
+          pooling: "mean",
+          normalize: true,
+        });
+        await collection.insertOne({
+          embedding: Array.from(embedding.data),
+          contentId,
+          userId,
+          data: videoSummary,
+        });
+        await client.close();
+        return;
+      }
       for (const chunk of transcript) {
         let transcriptData = chunk?.data || JSON.stringify({ ...chunk });
         const embedding = await embedder(transcriptData, {
