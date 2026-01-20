@@ -2,13 +2,11 @@ import axios from "axios";
 import bcrypt from "bcrypt";
 import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import otpGenerator from "otp-generator";
 import { z } from "zod";
 import { oAuth2Client } from "../config/OAuth2Client";
 import Content from "../models/content.model";
 import Embedding from "../models/embedding.model";
 import Link from "../models/link.model";
-import { OTP } from "../models/otp.model";
 import User from "../models/user.model";
 import { emailQueue } from "../queue/emailQueue";
 import { Handler, StatusCode } from "../types";
@@ -22,6 +20,7 @@ import {
 import {
   changePasswordInputSchema,
   forgetInputSchema,
+  OTPVerificationInputSchema,
   signupInputSchema,
 } from "../validations/user.validation";
 
@@ -50,7 +49,7 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       data: {
         password: await bcrypt.hash(password, 10),
         username: username,
-        otpType: "registration",
+        otpType: "signup",
         subject: "OTP for user signup",
       },
     });
@@ -92,9 +91,9 @@ export const signupOTPVerification: Handler = async (req, res) => {
         .json({ message: "Invalid Request" });
     }
 
-    const otpData = await verifyOTP(email, otp, "registration");
+    const otpData = await verifyOTP(email, otp, "signup");
 
-    if (!otpData || otpData.otpType !== "registration") {
+    if (!otpData || otpData.otpType !== "signup") {
       return res
         .status(StatusCode.NotFound)
         .json({ message: "Invalid or Expired OTP" });
@@ -168,7 +167,7 @@ export const resendOTP: Handler = async (req, res): Promise<void> => {
         "otp_data",
         {
           email: email,
-          type: otpData.otpType === "registration" ? "signup" : "forget",
+          type: otpData.otpType,
         },
         cookieOptions,
       )
@@ -349,13 +348,18 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
       email,
       otp,
       data: {
-        otpType: "forget",
+        otpType: "forgot",
         subject: "OTP for password reset",
         username: user.username,
       },
     });
 
-    await emailQueue.add("send-otp", { email, otp,username: user.username, subject: "OTP for password reset" });
+    await emailQueue.add("send-otp", {
+      email,
+      otp,
+      username: user.username,
+      subject: "OTP for password reset",
+    });
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: true,
@@ -390,9 +394,9 @@ export const forgetOTPVerification: Handler = async (
     }
     const { otp, password } = parsedInput.data;
     const { email } = req.cookies.otp_data;
-    const otpData = await verifyOTP(email, otp.toString(), "forget");
+    const otpData = await verifyOTP(email, otp.toString(), "forgot");
 
-    if (!otpData || otpData.otpType !== "forget") {
+    if (!otpData || otpData.otpType !== "forgot") {
       res.status(StatusCode.NotFound).json({ message: "Invalid OTP" });
       return;
     }
@@ -432,69 +436,69 @@ export const forgetOTPVerification: Handler = async (
 export const OTPVerification = async (
   req: Request,
   res: Response,
-  type: "signup" | "forget",
 ): Promise<void> => {
   try {
-    const parsedOTP = Number(req.body.otp);
-    if (!parsedOTP) {
-      res.status(StatusCode.NotFound).json({ message: "OTP not found" });
-      return;
-    }
-    const { email } = req.cookies.otp_data;
-    const IsOtpExists = await OTP.find({ email: email })
-      .sort({ createdAt: -1 })
-      .limit(1);
-    if (IsOtpExists.length === 0 || parsedOTP !== IsOtpExists[0]?.otp) {
+    const parsedInput = OTPVerificationInputSchema.safeParse(req.body);
+    if (!parsedInput.success) {
       res.status(StatusCode.NotFound).json({
-        message: "Invalid OTP",
+        message:
+          parsedInput.error?.issues[0]?.message || "OTP/Password is required",
       });
       return;
     }
-    let user;
+    const { otp, password } = parsedInput.data;
+    const { email, type } = req.cookies.otp_data;
+
+    if (!email) {
+      res.status(StatusCode.InputError).json({ message: "Invalid Request" });
+      return;
+    }
+
+    const otpData = await verifyOTP(email, otp.toString(), type);
+
+    if (!otpData || otpData.otpType !== type) {
+      res
+        .status(StatusCode.NotFound)
+        .json({ message: "Invalid or Expired OTP" });
+      return;
+    }
     if (type == "signup") {
-      const newUser = await User.create({
-        username: IsOtpExists[0].username,
+     let user = await User.create({
         email,
-        password: IsOtpExists[0].password,
-        method: "normal",
+        password: otpData.password as string,
+        username: otpData.username as string,
       });
-      user = await User.findById(newUser._id).select("-password -refreshToken");
-      if (!user) {
+
+      const { accessToken, refreshToken } =
+        user.generateAccessAndRefreshToken();
+      await user.updateOne({ refreshToken });
+      res
+        .cookie("accessToken", accessToken, { httpOnly: true })
+        .cookie("refreshToken", refreshToken, { httpOnly: true })
+        .json({ message: "Signup successful", user });
+      return;
+    } else if (type == "forgot") {
+      if (!password) {
         res
-          .status(StatusCode.ServerError)
-          .json({ message: "Something went wrong from our side." });
+          .status(StatusCode.InputError)
+          .json({ message: "Password is required" });
         return;
       }
-    }
-    const { accessToken, refreshToken } = user
-      ? user.generateAccessAndRefreshToken()
-      : { accessToken: "", refreshToken: "" };
-
-    await OTP.deleteMany({ email });
-    await User.updateOne(
-      { email },
-      {
-        $set: {
-          refreshToken,
+      await User.updateOne(
+        { email },
+        {
+          $set: {
+            password: bcrypt.hashSync(password, 10),
+          },
         },
-      },
-    );
-    const cookieOptions: CookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    };
-    res
-      .status(StatusCode.Success)
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
-      .json({
-        message: "User signup successfull",
-        user: user,
-      });
-    return;
+      );
+      res
+        .status(StatusCode.Success)
+        .json({
+          message: "password changed successfully",
+        });
+      return;
+    }
   } catch (err: any) {
     res.status(StatusCode.ServerError).json({
       message: err.message || "Something went wrong from our side",
