@@ -20,6 +20,7 @@ import {
   verifyOTP,
 } from "../utils/otp.service";
 import {
+  changePasswordInputSchema,
   forgetInputSchema,
   signupInputSchema,
 } from "../validations/user.validation";
@@ -331,7 +332,7 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
     const userInput = userEmail.safeParse(req.body.email);
     if (!userInput.success) {
       res.status(StatusCode.InputError).json({
-        message: userInput.error.errors[0].message || "Invalid email address",
+        message: userInput.error?.issues[0]?.message || "Invalid email address",
       });
       return;
     }
@@ -343,40 +344,18 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
         .json({ message: "User not found with this email" });
       return;
     }
-    if (user.method == "oauth") {
-      res.status(StatusCode.DocumentExists).json({
-        message: "User registered with OAuth do not require password reset",
-      });
-      return;
-    }
-    const isOTPExists = await OTP.findOne({ email, type: "forget" })
-      .sort({ createdAt: -1 })
-      .limit(1);
-    if (isOTPExists) {
-      const otpCreatedTime = new Date(isOTPExists.createdAt);
-      if (new Date().getTime() - otpCreatedTime.getTime() <= 120000) {
-        res
-          .status(StatusCode.DocumentExists)
-          .json({ message: "Wait for 2 minutes before sending new OTP" });
-        return;
-      }
-    }
-    const otp = otpGenerator.generate(6, {
-      lowerCaseAlphabets: false,
-      upperCaseAlphabets: false,
-      specialChars: false,
-    });
-    const newOtp = await OTP.create({
+    const otp = generateOTP();
+    await saveOTP({
       email,
       otp,
-      subject: "OTP for forget password",
-      username: user.username,
-      type: "forget",
+      data: {
+        otpType: "forget",
+        subject: "OTP for password reset",
+        username: user.username,
+      },
     });
-    if (!newOtp) {
-      res.status(500).json({ message: "OTP not generated" });
-      return;
-    }
+
+    await emailQueue.add("send-otp", { email, otp,username: user.username, subject: "OTP for password reset" });
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: true,
@@ -385,11 +364,7 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
       maxAge: 10 * 60000, // 10 minutes
     };
     res
-      .cookie(
-        "otp_data",
-        { email: newOtp.email, type: "forget" },
-        cookieOptions,
-      )
+      .cookie("otp_data", { email: email, type: "forget" }, cookieOptions)
       .status(200)
       .json({ message: "OTP sent successfully" });
     return;
@@ -409,22 +384,19 @@ export const forgetOTPVerification: Handler = async (
     if (!parsedInput.success) {
       res.status(StatusCode.NotFound).json({
         message:
-          parsedInput.error.issues[0].message || "OTP/Password is required",
+          parsedInput.error?.issues[0]?.message || "OTP/Password is required",
       });
       return;
     }
     const { otp, password } = parsedInput.data;
     const { email } = req.cookies.otp_data;
-    const IsOtpExists = await OTP.find({ email: email, type: "forget" })
-      .sort({ createdAt: -1 })
-      .limit(1);
-    if (IsOtpExists.length === 0 || otp !== IsOtpExists[0]?.otp) {
-      res.status(StatusCode.NotFound).json({
-        message: "Invalid OTP",
-      });
+    const otpData = await verifyOTP(email, otp.toString(), "forget");
+
+    if (!otpData || otpData.otpType !== "forget") {
+      res.status(StatusCode.NotFound).json({ message: "Invalid OTP" });
       return;
     }
-    await OTP.deleteMany({ email, type: "forget" });
+
     await User.updateOne(
       { email },
       {
@@ -590,24 +562,6 @@ export const updateProfile: Handler = async (req, res): Promise<void> => {
     return;
   }
 };
-const changePasswordInputSchema = z.object({
-  oldPassword: z.string({ required_error: "Old password is required" }),
-  newPassword: z
-    .string()
-    .min(8, { message: "New Password length shouldn't be less than 8" })
-    .regex(/[A-Z]/, {
-      message: "New Pasword should include atlist 1 uppercasecharacter",
-    })
-    .regex(/[a-z]/, {
-      message: "New Pasword should include atlist 1 lowercasecharacter",
-    })
-    .regex(/[0-9]/, {
-      message: "New Pasword should include atlist 1 number character",
-    })
-    .regex(/[^A-Za-z0-9]/, {
-      message: "New Pasword should include atlist 1 special character",
-    }),
-});
 export const changePassword: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
