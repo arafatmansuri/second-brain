@@ -352,3 +352,38 @@ export const getYoutubeSummary = async (link: string) => {
   });
   return result?.text || "";
 };
+export const getTextFromArticleURL = async (url: string) => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY2 });
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        {
+          fileData: {
+            fileUri: url,
+          },
+        },
+        {
+          text: `You are an expert article analyst. Your task is to extract, understand, and clean the textual content from the given article URL. The goal is to produce text that captures all the *meaningful information* for semantic embedding, removing visual clutter or irrelevant details.Follow these rules carefully:
+          1. Extract **all main textual content** in the article, including headings, subheadings, and body text.
+          2. **Preserve key context**, logical relationships, and meanings — not formatting or advertisements.
+          3. **Ignore** decorative elements, sidebars, footers, or repeated headers.
+          4. Return the final output strictly as a JSON object.
+          5.Output only the JSON object — no text, no explanation, no code block formatting.
+          6.Do not include triple backticks (\`\`\`) or any labels like 'json'.
+          7. Ensure the JSON is properly formatted and parsable. 
+          the fields: title, content, summary, and keywords.Output format: ---Title: [If the article has a clear title or heading]
+          Main Content:[Cleaned, structured text here]
+          Summary (optional):[A 2-3 line summary capturing main topic or insight] Keywords:[List of 5-10 relevant keywords]---`,
+        },
+      ],
+      config:{
+        tools:[{urlContext:{}}]
+      }
+    });
+    return result?.text || "";
+  } catch (err) {
+    console.log("Error in getTextFromArticleURL:", err);
+    return "";
+  }
+};

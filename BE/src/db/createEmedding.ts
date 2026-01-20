@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import {
   getImageSummary,
   getPDFTranscriptPy,
+  getTextFromArticleURL,
   getTweetDescription2,
   getVideoSummary,
   getVideoTransript,
@@ -179,7 +180,14 @@ export async function embedData({
         data: videoData,
       });
     } else if (type == "article") {
-      const embedding = await embedder(data || "", {
+      let articleData = "";
+      if(uploadType == "file URL"){
+        articleData = await getTextFromArticleURL(link || "");
+        console.log(articleData);
+      }else{
+        articleData = data || "";
+      }
+      const embedding = await embedder(articleData, {
         pooling: "mean",
         normalize: true,
       });
@@ -187,7 +195,7 @@ export async function embedData({
         embedding: Array.from(embedding.data),
         contentId,
         userId,
-        data,
+        data: articleData,
         title,
       });
     }

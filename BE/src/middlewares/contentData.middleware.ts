@@ -91,6 +91,9 @@ export const contentData = async (
       }
       link = contentInput.data.link;
     }
+    else if(contentInput.data.type == "article" && contentInput.data.link && contentInput.data.uploadType == "file URL"){
+      link = contentInput.data.link;
+    }
     const inputTags =
       contentInput.data.tags &&
       contentInput.data.tags.map((tag) => ({ tagName: tag }));
