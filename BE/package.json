@@ -51,6 +51,7 @@
     "aws-sdk": "^2.1692.0",
     "axios": "^1.12.1",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.66.5",
     "cloudinary": "^2.6.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

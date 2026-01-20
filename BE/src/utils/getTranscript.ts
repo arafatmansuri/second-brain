@@ -267,7 +267,7 @@ export const getDocumentText = async (link: string) => {
   // return "ret.data.text";
 };
 export const getImageSummary = async (link: string, fileType?: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY2 });
 
   const response = await fetch(link);
   const imageArrayBuffer = await response.arrayBuffer();
@@ -290,7 +290,7 @@ export const getImageSummary = async (link: string, fileType?: string) => {
   return result?.text || "";
 };
 export const getVideoSummary = async (link: string, fileType?: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY2 });
 
   const response = await fetch(link);
   const videoArrayBuffer = await response.arrayBuffer();
@@ -324,7 +324,7 @@ export const getVideoSummary = async (link: string, fileType?: string) => {
   return result?.text || "";
 };
 export const getYoutubeSummary = async (link: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY2 });
 
   const result = await ai.models.generateContent({
     model: "gemini-2.5-flash",

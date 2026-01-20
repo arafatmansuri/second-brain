@@ -7,10 +7,9 @@ import {
   getUser,
   googleSignin,
   refreshTokens,
-  resenedOTP,
+  resendOTP,
   signin,
   signout,
-  signup,
   signupOTPVerification,
   signupWithOTP,
   updateProfile,
@@ -27,7 +26,6 @@ import {
 import { verifyJWT } from "../middlewares/user.middleware";
 const userRouter: Router = Router();
 
-userRouter.route("/signup").post(rateLimiterMiddleware(signupLimiter), signup);
 // userRouter.route("/signupotp").post(signupWithOTP);
 // userRouter.route("/signupverify").post(signupOTPVerification);
 userRouter
@@ -47,7 +45,7 @@ userRouter
   .post(rateLimiterMiddleware(forgetOTPLimiter), forgetOTPVerification);
 userRouter
   .route("/resendotp")
-  .post(rateLimiterMiddleware(resendOTPLimiter), resenedOTP);
+  .post(rateLimiterMiddleware(resendOTPLimiter), resendOTP);
 
 //Secured Routes
 userRouter.use(verifyJWT);
