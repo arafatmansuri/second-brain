@@ -21,7 +21,7 @@ export const siginInputSchema = z.object({
     .min(8, { message: "Password length shouldn't be less than 8" }),
 });
 export const forgetInputSchema = z.object({
-  otp: z.number(),
+  otp: z.string(),
   password: z
     .string()
     .regex(/[A-Z]/, {

@@ -173,7 +173,7 @@ function AddContent() {
           <ui.Select formHook={{ ...register("type") }} />
           {(contentType == "document" ||
             contentType == "video" ||
-            contentType == "image") && (
+            contentType == "image" || contentType == "article") && (
             <div className="flex gap-4">
               <label>Upload via</label>
               <ui.Input
@@ -186,7 +186,7 @@ function AddContent() {
               <ui.Input
                 type="radio"
                 formHook={{ ...register("uploadtype") }}
-                label="Device"
+                label={getValues("type") == "article" ? "Manual" :"Device"}
                 defaultValue="local file"
                 onclick={() => setUploadType("local file")}
               />

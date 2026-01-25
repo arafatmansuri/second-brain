@@ -1,12 +1,12 @@
 import { Queue, Worker } from "bullmq";
 import redis from "../config/redisClient";
-import { sendMail } from "../utils/mailer.js";
+import { sendMail } from "../utils/mailer";
 
 export const emailQueue = new Queue("email-queue", {
   connection: redis,
   defaultJobOptions: {
-    attempts: 3,
-    backoff: { type: "exponential", delay: 5000 },
+    // attempts: 3,
+    backoff: { type: "exponential", delay: 5000},
     removeOnComplete: true,
     removeOnFail: false,
   },
@@ -17,7 +17,7 @@ new Worker(
   async (job) => {
     const { email, otp, username, subject } = job.data;
     await sendMail(email, subject, username, otp);
-    console.log(`OTP email sent to ${email}`);
+    // console.log(`OTP email sent to ${email}`);
   },
   {
     connection: redis,

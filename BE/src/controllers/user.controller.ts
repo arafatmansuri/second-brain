@@ -34,7 +34,7 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       return;
     }
     const { email, password, username } = userInput.data;
-    const userExists = await User.findOne({ email, username });
+    const userExists = await User.findOne({ $or: [{ username }, { email }] });
     if (userExists) {
       res
         .status(StatusCode.DocumentExists)
@@ -147,7 +147,7 @@ export const resendOTP: Handler = async (req, res): Promise<void> => {
       email,
       otp,
       data: {
-        password: await bcrypt.hash(otpData.password || "", 10),
+        password: otpData.password || "",
         username: username,
         otpType: otpType,
         subject: subject,
@@ -172,7 +172,7 @@ export const resendOTP: Handler = async (req, res): Promise<void> => {
         cookieOptions,
       )
       .status(StatusCode.Success)
-      .json({ message: "OTP Reset Successfully" });
+      .json({ message: "OTP resent successfully" });
   } catch (err: any) {
     res
       .status(StatusCode.ServerError)
@@ -394,18 +394,18 @@ export const forgetOTPVerification: Handler = async (
     }
     const { otp, password } = parsedInput.data;
     const { email } = req.cookies.otp_data;
-    const otpData = await verifyOTP(email, otp.toString(), "forgot");
+    const otpData = await verifyOTP(email, otp, "forgot");
 
     if (!otpData || otpData.otpType !== "forgot") {
       res.status(StatusCode.NotFound).json({ message: "Invalid OTP" });
       return;
     }
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     await User.updateOne(
       { email },
       {
         $set: {
-          password: bcrypt.hashSync(password, 10),
+          password: hashedPassword,
         },
       },
     );
@@ -422,7 +422,6 @@ export const forgetOTPVerification: Handler = async (
       // .cookie("refreshToken", refreshToken, cookieOptions)
       .json({
         message: "password changed successfully",
-        // user,
       });
     return;
   } catch (err: any) {
@@ -463,7 +462,7 @@ export const OTPVerification = async (
       return;
     }
     if (type == "signup") {
-     let user = await User.create({
+      let user = await User.create({
         email,
         password: otpData.password as string,
         username: otpData.username as string,
@@ -492,11 +491,9 @@ export const OTPVerification = async (
           },
         },
       );
-      res
-        .status(StatusCode.Success)
-        .json({
-          message: "password changed successfully",
-        });
+      res.status(StatusCode.Success).json({
+        message: "password changed successfully",
+      });
       return;
     }
   } catch (err: any) {

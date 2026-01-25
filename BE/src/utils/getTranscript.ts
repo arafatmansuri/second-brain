@@ -6,7 +6,9 @@ import fetch from "node-fetch";
 import path from "path";
 import { createWorker } from "tesseract.js";
 // import { fileURLToPath } from "url";
+// import dotenv from "dotenv";
 import { YoutubeTranscript } from "youtube-transcript";
+// dotenv.config();
 const pythonPath =
   process.env.NODE_ENV == "development" ? "python" : "./venv/bin/python";
 // const __filename = __filename || path.resolve();
@@ -54,7 +56,7 @@ interface YoutubeData {
   channelName: string;
 }
 export const getYoutubeTranscriptPy = async (
-  id: string
+  id: string,
 ): Promise<
   {
     data?: string;
@@ -68,7 +70,7 @@ export const getYoutubeTranscriptPy = async (
   }[]
 > => {
   const resposne = await axios.get(
-    `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${process.env.YOUTUBE_DATA_KEY}`
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${process.env.YOUTUBE_DATA_KEY}`,
   );
   const ytData: YoutubeData = {
     title: resposne.data["items"][0]["snippet"]["title"],
@@ -118,7 +120,7 @@ export const getPDFTranscript = async (url: string) => {
 export const getPDFTranscriptPy = async (
   key: string,
   uploadType: "file URL" | "local file",
-  link?: string
+  link?: string,
 ): Promise<any[]> => {
   try {
     return new Promise((resolve, reject) => {
@@ -156,7 +158,7 @@ export const getTweetDescription = async (id: string): Promise<string> => {
         headers: {
           Authorization: process.env.X_BEARER_TOKEN,
         },
-      }
+      },
     );
     return response.data.data.text;
   } catch (err) {
@@ -176,7 +178,7 @@ interface TweetResponse {
   media?: { type: string; media_url_https: string }[] | boolean;
 }
 export const getTweetDescription2 = async (
-  id: string
+  id: string,
 ): Promise<TweetResponse> => {
   try {
     const response = await axios.get(
@@ -187,7 +189,7 @@ export const getTweetDescription2 = async (
           "x-rapidapi-key": process.env.X_RAPIDAPI_KEY,
           "x-rapidapi-host": process.env.X_RAPIDAPI_HOST,
         },
-      }
+      },
     );
     const res = response.data;
     const isNoteTweet = res.data.threaded_conversation_with_injections_v2
@@ -236,7 +238,7 @@ export const getTweetDescription2 = async (
       media:
         res.data.threaded_conversation_with_injections_v2.instructions[1].entries[0].content.itemContent.tweet_results.result.legacy.extended_entities.media.map(
           (m: { type: string; media_url_https: string }) =>
-            m.type == "photo" && m.media_url_https
+            m.type == "photo" && m.media_url_https,
         ) || [],
     };
     return data;
@@ -359,12 +361,7 @@ export const getTextFromArticleURL = async (url: string) => {
       model: "gemini-2.5-flash",
       contents: [
         {
-          fileData: {
-            fileUri: url,
-          },
-        },
-        {
-          text: `You are an expert article analyst. Your task is to extract, understand, and clean the textual content from the given article URL. The goal is to produce text that captures all the *meaningful information* for semantic embedding, removing visual clutter or irrelevant details.Follow these rules carefully:
+          text: `You are an expert article analyst. Your task is to extract, understand, and clean the textual content from this url: ${url}. The goal is to produce text that captures all the *meaningful information* for semantic embedding, removing visual clutter or irrelevant details.Follow these rules carefully:
           1. Extract **all main textual content** in the article, including headings, subheadings, and body text.
           2. **Preserve key context**, logical relationships, and meanings — not formatting or advertisements.
           3. **Ignore** decorative elements, sidebars, footers, or repeated headers.
@@ -377,9 +374,9 @@ export const getTextFromArticleURL = async (url: string) => {
           Summary (optional):[A 2-3 line summary capturing main topic or insight] Keywords:[List of 5-10 relevant keywords]---`,
         },
       ],
-      config:{
-        tools:[{urlContext:{}}]
-      }
+      config: {
+        tools: [{ urlContext: {} }],
+      },
     });
     return result?.text || "";
   } catch (err) {

@@ -7,7 +7,7 @@ import { countMinutesSeconds } from "../../services/countMinutes";
 import { popupAtom } from "../../store/loadingState";
 import { ui } from "../index";
 interface Inputs {
-  otp: number;
+  otp: string;
 }
 
 export function OTPBox() {
@@ -30,7 +30,7 @@ export function OTPBox() {
   const onClick: SubmitHandler<Inputs> = async (data) => {
     if (!errors.otp) {
       authMutation.mutate({
-        otp: Number(data.otp),
+        otp: data.otp,
         endpoint: "signupverify",
         credentials: true,
       });
@@ -124,10 +124,10 @@ export function OTPBox() {
             formHook={{
               ...register("otp", { required: true }),
             }}
-            defaultValue=""
-            type="number"
+            // defaultValue=""
+            type="text"
           />
-          {errors.otp?.type == "required" && (
+          {errors.otp && errors.otp.type == "required" && (
             <span className="text-red-500 text-sm -mt-3 self-start">OTP is required</span>
           )}
           {authMutation.error ? (

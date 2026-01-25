@@ -6,7 +6,7 @@ const userSchema = new Schema(
   {
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String },
-    email: { type: String },
+    email: { type: String,unique: true, required: true, trim: true },
     shared: { type: Boolean, default: false },
     refreshToken: { type: String },
     method: { type: String, enum: ["oauth", "normal"] },

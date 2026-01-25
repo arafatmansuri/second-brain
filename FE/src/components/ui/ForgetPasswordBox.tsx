@@ -8,7 +8,7 @@ import { popupAtom } from "../../store/loadingState";
 import { ui } from "../index";
 
 interface OTPBoxInputs {
-  otp: number;
+  otp: string;
   password: string;
 }
 
@@ -32,7 +32,7 @@ export function OTPPasswordBox() {
   const onClick: SubmitHandler<OTPBoxInputs> = async (data) => {
     if (!errors.otp && !errors.password) {
       authMutation.mutate({
-        otp: Number(data.otp),
+        otp: data.otp,
         password: data.password,
         endpoint: "forgetverify",
         credentials: true,
@@ -124,7 +124,7 @@ export function OTPPasswordBox() {
               ...register("otp", { required: true }),
             }}
             defaultValue=""
-            type="number"
+            type="text"
           />
           {errors.otp?.type == "required" && (
             <span className="text-red-500 text-sm -mt-3 self-start">
