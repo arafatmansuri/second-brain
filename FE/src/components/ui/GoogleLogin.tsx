@@ -5,8 +5,9 @@ import { googleAuth } from "../../queries/AuthQueries/queries";
 import { userAtom } from "../../store/userState";
 import { GoogleIcon } from "../icons/GoogleIcon";
 import { Button } from "./Button";
+import { memo } from "react";
 
-const GoogleLoginButton = ({ text }: { text: string }) => {
+const GoogleLoginButton = memo<{ text: string }>(({ text }) => {
   const navigate = useNavigate();
   const setUser = useSetRecoilState(userAtom);
   const responseGoogle = async (authResult: any) => {
@@ -41,5 +42,5 @@ const GoogleLoginButton = ({ text }: { text: string }) => {
       startIcon={<GoogleIcon />}
     />
   );
-};
+});
 export default GoogleLoginButton;

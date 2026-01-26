@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
@@ -10,7 +10,7 @@ interface Inputs {
   otp: string;
 }
 
-export function OTPBox() {
+export const  OTPBox = memo(() => {
   const [resnendActive, setIsResendActive] = useState(
     localStorage.getItem("signupisResendActive") === "true" ? true : false
   );
@@ -172,4 +172,4 @@ export function OTPBox() {
       <ui.Popup />
     </div>
   );
-}
+});

@@ -1,12 +1,12 @@
 import { SendHorizonal } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { icons, ui } from "..";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { postAtom, type PostData } from "../../store/postState";
 
-export function SearchBox() {
+export const SearchBox = memo(() => {
   const [answer, setAnswer] = useState<string>("");
   const questionRef = useRef<HTMLInputElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
@@ -32,9 +32,7 @@ export function SearchBox() {
   }
   return (
     <div
-      className={`${
-        isModalOpen.open ? "flex" : "hidden"
-      } w-screen h-screen
+      className={`${isModalOpen.open ? "flex" : "hidden"} w-screen h-screen
          fixed top-0 left-0 justify-center items-center z-10 p-5`}
     >
       <div
@@ -44,7 +42,7 @@ export function SearchBox() {
           <h1>Ask anything from your brain</h1>
           <button
             onClick={() => {
-              setIsModalOpen({ open: false , modal: "" });
+              setIsModalOpen({ open: false, modal: "" });
               // setIsModalOpen({ open: false, modal: "search" });
               setAnswer("");
             }}
@@ -106,4 +104,4 @@ export function SearchBox() {
       </div>
     </div>
   );
-}
+});

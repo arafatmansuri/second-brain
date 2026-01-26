@@ -1,8 +1,17 @@
-import type { ReactElement } from "react";
+import { memo, type ReactElement } from "react";
 import { icons } from "../index";
 
+export type ButtonVarient =
+  | "primary"
+  | "secondary"
+  | "google"
+  | "danger"
+  | "green"
+  | "black"
+  | "blue";
+
 export interface ButtonProps {
-  varient: "primary" | "secondary" | "google" | "danger" | "green" | "black" | "blue";
+  varient: ButtonVarient;
   size: "sm" | "md" | "lg";
   text: string;
   textVisible?: boolean;
@@ -31,7 +40,7 @@ const sizeStyles = {
   md: "md:h-10 md:px-4 h-8 px-1 gap-2 md:text-md text-sm font-medium",
 };
 const defaultStyles = `rounded-md flex items-center cursor-pointer`;
-export function Button({
+export const Button = memo<ButtonProps>(({
   size,
   text,
   varient,
@@ -45,7 +54,7 @@ export function Button({
   type = "button",
   isCenterText,
   isDisabled,
-}: ButtonProps) {
+}: ButtonProps) => {
   return (
     <button
       className={`${defaultStyles} ${variantStyles[varient]} 
@@ -65,4 +74,4 @@ export function Button({
       {endIcon}
     </button>
   );
-}
+});

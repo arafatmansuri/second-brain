@@ -9,7 +9,7 @@ import {
   Twitter,
   VideoIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -38,7 +38,7 @@ const settingsSidebarItems = [
   { text: "Security", icon: <icons.Security /> },
   // { text: "Security", icon: <MdSecurity className="w-5 h-5" /> },
 ];
-export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
+export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
   const isModalOpen = useRecoilValue(addContentModalAtom);
   const [isSidebarOpen, setIsSideBarOpen] = useRecoilState(sidebarAtom);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -213,4 +213,4 @@ export function Sidebar({ type }: { type?: "dashboard" | "settings" }) {
       )}
     </div>
   );
-}
+});

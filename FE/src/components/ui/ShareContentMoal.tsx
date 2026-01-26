@@ -1,5 +1,5 @@
 import { Mail } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState, type JSX } from "react";
 import { BsLinkedin, BsTwitterX } from "react-icons/bs";
 import { FaWhatsapp } from "react-icons/fa";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -10,6 +10,7 @@ import { addContentModalAtom } from "../../store/AddContentModalState";
 import { isCopyAtom, popupAtom } from "../../store/loadingState";
 import { postAtom } from "../../store/postState";
 import { userAtom } from "../../store/userState";
+import type { ButtonVarient } from "./Button";
 type shareTypes =
   | "whatsapp"
   | "copy"
@@ -17,7 +18,7 @@ type shareTypes =
   | "facebook"
   | "email"
   | "linkedin";
-export function ShareContentMoal() {
+export const ShareContentMoal = memo(() => {
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const [shareType, setShareType] = useState<shareTypes>("copy");
   const setIsPopup = useSetRecoilState(popupAtom);
@@ -62,6 +63,49 @@ export function ShareContentMoal() {
     });
     setShareType(type || "copy");
   }
+  const shareButtonContent: {
+    type: shareTypes;
+    icon: JSX.Element;
+    text: string;
+    classes: string;
+    varient: ButtonVarient;
+  }[] = [
+    {
+      type: "copy",
+      icon: isCopy ? <icons.Copied /> : <icons.CopyIcon />,
+      text: isCopy ? "Copied" : "Copy",
+      classes: "",
+      varient: "primary",
+    },
+    {
+      type: "whatsapp",
+      icon: <FaWhatsapp className="size-4" />,
+      text: "Whatsapp",
+      classes: "",
+      varient: "green",
+    },
+    {
+      type: "email",
+      icon: <Mail className="size-5" />,
+      text: "Email",
+      classes: "",
+      varient: "google",
+    },
+    {
+      type: "linkedin",
+      icon: <BsLinkedin className="size-4" />,
+      text: "LinkedIn",
+      classes: "px-4",
+      varient: "blue",
+    },
+    {
+      type: "tweeter",
+      icon: <BsTwitterX className="size-4" />,
+      text: "Tweeter",
+      classes: "px-4",
+      varient: "black",
+    },
+  ];
   useEffect(() => {
     if (shareContentMutation.status == "success") {
       setUser((prev) => ({ ...prev, shared: !prev.shared }));
@@ -147,65 +191,23 @@ export function ShareContentMoal() {
           Brain.
         </p>
         <div className="md:grid flex md:grid-cols-3 gap-2 self-start flex-wrap">
-          <ui.Button
-            onClick={() => ShareContent({ type: "copy" })}
-            varient="primary"
-            text={isCopy ? "Copied" : "Copy"}
-            size="sm"
-            // classes="px-4"
-            isCenterText={true}
-            textVisible={isDesktop && true}
-            widthFull={false}
-            startIcon={isCopy ? <icons.Copied /> : <icons.CopyIcon />}
-            loading={shareContentMutation.isPending && shareType == "copy"}
-          />
-          <ui.Button
-            onClick={() => ShareContent({ type: "whatsapp" })}
-            varient="green"
-            text={"Whatsapp"}
-            size="sm"
-            isCenterText={true}
-            // classes="px-4"
-            textVisible={isDesktop && true}
-            widthFull={false}
-            startIcon={<FaWhatsapp className="size-4" />}
-            loading={shareContentMutation.isPending && shareType == "whatsapp"}
-          />
-          <ui.Button
-            onClick={() => ShareContent({ type: "email" })}
-            varient="google"
-            text={"Email"}
-            size="sm"
-            // classes="px-4 py-4"
-            textVisible={isDesktop && true}
-            widthFull={false}
-            isCenterText={true}
-            startIcon={<Mail className="size-5" />}
-            loading={shareContentMutation.isPending && shareType == "email"}
-          />
-          <ui.Button
-            onClick={() => ShareContent({ type: "linkedin" })}
-            varient="blue"
-            text={"LinkedIn"}
-            size="sm"
-            classes="px-4"
-            textVisible={isDesktop && true}
-            widthFull={false}
-            startIcon={<BsLinkedin className="size-4" />}
-            loading={shareContentMutation.isPending && shareType == "linkedin"}
-          />
-          <ui.Button
-            onClick={() => ShareContent({ type: "tweeter" })}
-            varient="black"
-            text={"Tweeter"}
-            size="sm"
-            classes="px-4"
-            textVisible={isDesktop && true}
-            widthFull={false}
-            isCenterText={true}
-            startIcon={<BsTwitterX className="size-4" />}
-            loading={shareContentMutation.isPending && shareType == "tweeter"}
-          />
+          {shareButtonContent.map((button) => (
+            <ui.Button
+              key={button.type}
+              onClick={() => ShareContent({ type: button.type })}
+              varient={button.varient}
+              text={button.text}
+              size="sm"
+              classes={button.classes}
+              isCenterText={true}
+              textVisible={isDesktop && true}
+              widthFull={false}
+              startIcon={button.icon}
+              loading={
+                shareContentMutation.isPending && shareType == button.type
+              }
+            />
+          ))}
         </div>
         <span className="text-sm text-center w-full text-gray-400">
           {posts.length} items will be shared
@@ -213,4 +215,4 @@ export function ShareContentMoal() {
       </div>
     </div>
   );
-}
+});

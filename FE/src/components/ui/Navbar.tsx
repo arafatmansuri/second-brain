@@ -26,11 +26,11 @@
 // }
 
 //-----------------------------------------------------------------------------------
-
 import { useNavigate } from "react-router-dom";
 import { Brain } from "../icons";
+import { memo } from "react";
 
-export const Navbar = () => {
+export const Navbar = memo(() => {
   const navigate = useNavigate();
 
   return (
@@ -81,4 +81,4 @@ export const Navbar = () => {
       </header>
     </div>
   );
-};
+});

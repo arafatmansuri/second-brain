@@ -1,23 +1,19 @@
-import { type ReactElement } from "react";
+import { memo, type ReactElement } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export function SidebarItem({
-  text,
-  icon,
-  isSettingsTab=false,
-}: {
+export const SidebarItem = memo<{
   text: string;
   icon: ReactElement;
   isSettingsTab?: boolean;
-}) {
+}>(({ text, icon, isSettingsTab = false }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   function setParams() {
     const url = new URL(window.location.href);
     if (url.pathname != "/dashboard") {
       navigate(`/dashboard?content=${text}`);
-    }else{
-    searchParams.set("content", text);
-    setSearchParams(searchParams);
+    } else {
+      searchParams.set("content", text);
+      setSearchParams(searchParams);
     }
   }
   const navigate = useNavigate();
@@ -33,7 +29,8 @@ export function SidebarItem({
           ? "bg-purple-300"
           : "hover:bg-purple-200"
       } ${
-        location.pathname.includes(`/settings/${text.toLowerCase()}`) && isSettingsTab
+        location.pathname.includes(`/settings/${text.toLowerCase()}`) &&
+        isSettingsTab
           ? "bg-purple-300"
           : "hover:bg-purple-200"
       }`}
@@ -42,4 +39,4 @@ export function SidebarItem({
       {icon} <span>{text}</span>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
@@ -12,7 +12,7 @@ interface OTPBoxInputs {
   password: string;
 }
 
-export function OTPPasswordBox() {
+export const OTPPasswordBox = memo(() => {
   const {
     register,
     handleSubmit,
@@ -191,4 +191,4 @@ export function OTPPasswordBox() {
       <ui.Popup />
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
@@ -9,7 +9,7 @@ interface EmailBoxInputs {
   email: string;
 }
 
-export function EmailBox() {
+export const EmailBox = memo(() => {
   const {
     register,
     handleSubmit,
@@ -91,4 +91,4 @@ export function EmailBox() {
       <ui.Popup />
     </div>
   );
-}
+});

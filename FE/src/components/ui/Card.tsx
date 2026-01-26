@@ -7,7 +7,7 @@ import {
   VideoIcon,
 } from "lucide-react";
 import type React from "react";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { usePostMutation } from "../../queries/PostQueries/postQueries";
@@ -26,7 +26,7 @@ interface CardProps {
   isProcessing?: boolean;
   isCardInModal?: boolean;
 }
-export function Card({
+export const Card = memo<CardProps>(({
   title,
   link,
   type,
@@ -37,7 +37,7 @@ export function Card({
   description,
   isProcessing,
   isCardInModal = false,
-}: CardProps) {
+}: CardProps)=> {
   const { brain } = useParams();
   const deletePostMutation = usePostMutation();
   const setIsPopup = useSetRecoilState(popupAtom);
@@ -169,4 +169,4 @@ export function Card({
       </div>
     </div>
   );
-}
+});

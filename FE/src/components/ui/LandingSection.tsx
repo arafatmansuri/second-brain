@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
+import { memo } from "react";
 import { FaFolder, FaLink, FaSearch, FaThumbtack } from "react-icons/fa";
 
-export function LandingSection() {
+export const LandingSection = memo(() => {
   const features = [
     {
       icon: <FaThumbtack size={28} className="text-purple-600" />,
@@ -136,4 +137,4 @@ export function LandingSection() {
       </div>
     </div>
   );
-}
+});

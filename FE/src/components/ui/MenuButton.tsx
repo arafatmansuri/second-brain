@@ -1,8 +1,9 @@
 import { useSetRecoilState } from "recoil";
 import { sidebarAtom } from "../../store/sideBarState";
 import { Menu, type IconProps } from "../icons";
+import { memo } from "react";
 
-export function MenuButton({size}:IconProps) {
+export const MenuButton = memo<IconProps>(({size}) => {
   const setIsModalOpen = useSetRecoilState(sidebarAtom);
   return (
     <button
@@ -13,4 +14,4 @@ export function MenuButton({size}:IconProps) {
       <Menu size={size} />
     </button>
   );
-}
+});

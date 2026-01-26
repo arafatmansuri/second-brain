@@ -1,7 +1,8 @@
 import { useRecoilValue } from "recoil";
 import { popupAtom } from "../../store/loadingState";
 import { icons } from "../index";
-export function Popup() {
+import { memo } from "react";
+export const Popup = memo(()=> {
   const isPopup = useRecoilValue(popupAtom);
   return (
     <div
@@ -23,4 +24,4 @@ export function Popup() {
       ></span>
     </div>
   );
-}
+});

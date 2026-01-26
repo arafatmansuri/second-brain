@@ -1,5 +1,5 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
@@ -18,7 +18,7 @@ interface Signup extends Inputs {
 interface authData {
   authName: "Sign in" | "Sign up";
 }
-export function Auth({ authName }: authData) {
+export const Auth = memo(({ authName }: authData) => {
   const {
     register,
     handleSubmit,
@@ -169,4 +169,4 @@ export function Auth({ authName }: authData) {
       <ui.Popup />
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { icons, ui } from "..";
@@ -6,7 +6,7 @@ import { useAuthMutation } from "../../queries/AuthQueries/queries";
 import { addContentModalAtom } from "../../store/AddContentModalState";
 import { popupAtom } from "../../store/loadingState";
 
-export function DeleteAccountModal() {
+export const DeleteAccountModal = memo(() => {
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const setIsPopup = useSetRecoilState(popupAtom);
   const navigate = useNavigate();
@@ -85,4 +85,4 @@ export function DeleteAccountModal() {
       </div>
     </div>
   );
-}
+});
