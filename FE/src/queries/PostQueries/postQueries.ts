@@ -61,16 +61,20 @@ const fetchPosts = async <T>({
 };
 
 export const useGetPosts = (): UseQueryResult<PostData[], {message:string,status:number}> => {
-  const posts: UseQueryResult<PostData[], {message:string,status:number}> = useQuery({
-    queryKey: ["posts"],
-    queryFn: async (): Promise<PostData[]> => {
-      return await fetchPosts<PostData[]>({
-        method: "GET",
-        endpoint: "displayall",
-      });
-    },
-    retry: false,
-  });
+  const posts: UseQueryResult<PostData[], { message: string; status: number }> =
+    useQuery({
+      queryKey: ["posts"],
+      queryFn: async (): Promise<PostData[]> => {
+        return await fetchPosts<PostData[]>({
+          method: "GET",
+          endpoint: "displayall",
+        });
+      },
+      retry: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      staleTime: Infinity,
+    });
   return posts;
 };
 

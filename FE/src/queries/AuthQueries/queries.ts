@@ -66,6 +66,9 @@ export const useUserQuery = ({ credentials }: UserFormData) => {
       });
     },
     retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
   });
 };
 
