@@ -1,5 +1,5 @@
 import { Mail } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsLinkedin, BsTwitterX } from "react-icons/bs";
 import { FaWhatsapp } from "react-icons/fa";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -29,6 +29,32 @@ export function ShareContentMoal() {
     link: string;
     contentCount: number;
   }>();
+  const modalRef = useRef<HTMLDivElement>(null);
+  // Close modal on outside click
+  const handleClickOutside = (e: MouseEvent) => {
+    if (modalRef.current && modalRef.current == e.target) {
+      setIsModalOpen({ open: false, modal: "share" });
+    }
+  };
+  // Close modal on Escape key press
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setIsModalOpen({ open: false, modal: "share" });
+    }
+  };
+  useEffect(() => {
+    if (isModalOpen && isModalOpen.open && isModalOpen.modal == "share") {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    //Removing Event Listeners to Prevent Memory Leaks
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isModalOpen]);
+
   function ShareContent({ type }: { type?: shareTypes }) {
     shareContentMutation.mutate({
       endpoint: "share?reqtype=copy",
@@ -45,35 +71,35 @@ export function ShareContentMoal() {
         switch (shareType) {
           case "tweeter": {
             const twitterUrl = `https://twitter.com/intent/tweet?text=Check out my Second Brain: ${encodeURIComponent(
-              link
+              link,
             )}`;
             window.open(twitterUrl, "_blank");
             break;
           }
           case "facebook": {
             const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-              link
+              link,
             )}`;
             window.open(facebookUrl, "_blank");
             break;
           }
           case "email": {
             const emailUrl = `mailto:?subject=Check out my Second Brain&body=Check out my Second Brain: ${encodeURIComponent(
-              link
+              link,
             )}`;
             window.open(emailUrl, "_blank");
             break;
           }
           case "linkedin": {
             const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-              link
+              link,
             )}`;
             window.open(linkedinUrl, "_blank");
             break;
           }
           case "whatsapp": {
             const whatsappUrl = `https://api.whatsapp.com/send?text=Check out my Second Brain: ${encodeURIComponent(
-              link
+              link,
             )}`;
             window.open(whatsappUrl, "_blank");
             break;
@@ -98,6 +124,7 @@ export function ShareContentMoal() {
   }, [shareContentMutation.status]);
   return (
     <div
+      ref={modalRef}
       className={`${
         isModalOpen.open && isModalOpen.modal == "share" ? "flex" : "hidden"
       } w-screen h-screen
