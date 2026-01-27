@@ -1,4 +1,4 @@
-import { memo, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { icons, ui } from "..";
@@ -11,13 +11,13 @@ export const DeleteAccountModal = memo(() => {
   const setIsPopup = useSetRecoilState(popupAtom);
   const navigate = useNavigate();
   const deleteAccountMutation = useAuthMutation();
-  function deleteAccount() {
+  const deleteAccount = useCallback(() => {
     deleteAccountMutation.mutate({
       endpoint: "deleteAccount",
       method: "DELETE",
       credentials: true,
     });
-  }
+  },[]);
   useEffect(() => {
     if (
       deleteAccountMutation.status == "success" &&

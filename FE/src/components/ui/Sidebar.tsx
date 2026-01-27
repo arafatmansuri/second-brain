@@ -9,7 +9,7 @@ import {
   Twitter,
   VideoIcon,
 } from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -68,7 +68,7 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const logoutMutation = useAuthMutation();
   const navigate = useNavigate();
-  function logout() {
+  const logout = useCallback(() => {
     logoutMutation.mutate(
       {
         method: "POST",
@@ -81,7 +81,7 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
         },
       }
     );
-  }
+  },[]);
   return (
     <div
       className={`lg:w-[20%] md:w-[25%] sm:w-[30%] h-screen shadow border-r border-gray-200 p-2 sm:flex flex-col justify-between ${

@@ -1,4 +1,4 @@
-import { memo, type ReactElement } from "react";
+import { memo, useCallback, type ReactElement } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 export const SidebarItem = memo<{
@@ -18,9 +18,9 @@ export const SidebarItem = memo<{
   }
   const navigate = useNavigate();
   const location = useLocation();
-  function setLocation() {
+  const setLocation = useCallback(() => {
     navigate(`/settings/${text.toLowerCase()}`);
-  }
+  }, [navigate, text]);
 
   return (
     <div

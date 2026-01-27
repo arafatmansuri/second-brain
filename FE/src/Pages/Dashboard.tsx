@@ -36,6 +36,21 @@ function Dashboard() {
   const navigate = useNavigate();
   const hasTriedRefresh = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  async function deletePost(postId: string) {
+      privateContentMutation.mutate({
+        method: "DELETE",
+        endpoint: `delete/${postId}`,
+      });
+      return;
+    }
+    useEffect(() => {
+      if (privateContentMutation.status == "success") {
+        setIsPopup({ popup: true, message: "Content Deleted Successfully" });
+        setTimeout(() => {
+          setIsPopup({ popup: false, message: "" });
+        }, 3000);
+      }
+    }, [privateContentMutation.status, setIsPopup]);
   useEffect(() => {
     setSearchParams({ content: "All Notes" });
   }, []);
@@ -159,6 +174,7 @@ function Dashboard() {
                   description={post.description}
                   isCardInModal={false}
                   isProcessing={post.isProcessing}
+                  onDelete={deletePost}
                 />
               ))
           ) : (

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useRefreshTokenMutation } from "../../queries/AuthQueries/queries";
@@ -31,7 +31,7 @@ export function CreateContentModal() {
   const addPostMutation = usePostMutation<PostData>();
   const getUploadUrlMutation = usePostMutation<{ uploadUrl: string }>();
   const refreshTokenMutation = useRefreshTokenMutation();
-  function onClose() {
+  const onClose = useCallback(() => {
     // setIsModalOpen({ open: false, modal: "create" });
     setValue("title", "");
     setValue("link", "");
@@ -39,7 +39,7 @@ export function CreateContentModal() {
     setValue("tags", "");
     setValue("type", "select");
     setValue("file", null);
-  }
+  },[]);
   const addContent: SubmitHandler<createContentInputs> = async (data) => {
     const file: File | null = data.file ? data.file[0] : null;
     const MAX_PDF_SIZE_MB = 10;
