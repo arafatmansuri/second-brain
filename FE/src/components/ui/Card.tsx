@@ -125,6 +125,19 @@ export const Card = memo<CardProps>(
             className="w-full max-h-72 rounded-md mt-3"
           ></iframe>
         )}
+        {type == "article" && link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            // className="block rounded-md border transition overflow-hidden"
+          >
+            <img
+              src={`https://api.microlink.io?url=${encodeURIComponent(link)}&screenshot=true&embed=screenshot.url`}
+              className="w-full max-h-72 rounded-md mt-3"
+            ></img>
+          </a>
+        )}
         {description && type !== "tweet" && (
           <div
             className={`text-wrap w-full ${

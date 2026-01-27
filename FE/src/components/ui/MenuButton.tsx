@@ -10,6 +10,7 @@ export const MenuButton = memo<IconProps>(({size}) => {
       className="sm:hidden flex items-center cursor-pointer"
       onClick={() => setIsModalOpen((p) => !p)}
       title="menu"
+      type="button"
     >
       <Menu size={size} />
     </button>

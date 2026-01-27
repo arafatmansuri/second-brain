@@ -208,7 +208,7 @@ function AddContent() {
               <ui.Input type="file" formHook={{ ...register("file") }} acceptedFileTypes={contentType === "document" ? ".pdf" : contentType === "video" ? "video/*" : "image/*"} />
             )}
           <ui.TextArea
-            placeholder={contentType == "article" ? "Article" : "Description"}
+            placeholder={contentType == "article" && uploadType == "local file" ? "Article" : "Description"}
             formHook={{ ...register("description") }}
           />
           <div className="flex gap-2 relative">
