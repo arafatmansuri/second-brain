@@ -48,6 +48,39 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
   const [user, setUser] = useRecoilState(userAtom);
   const refreshTokenMutation = useRefreshTokenMutation();
   const hasTriedRefresh = useRef(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  // Close modal on outside click
+  const handleClickOutside = (e: MouseEvent) => {
+    if (sidebarRef.current && sidebarRef.current !== e.target) {
+      setIsSideBarOpen(false);
+    }
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(e.target as Node)
+    ) {
+      setIsDropdownOpen(false);
+    }
+  };
+  // Close modal on Escape key press
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setIsSideBarOpen(false);
+      setIsDropdownOpen(false);
+    }
+  };
+  useEffect(() => {
+    if (isSidebarOpen || isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    //Removing Event Listeners to Prevent Memory Leaks
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSidebarOpen, isDropdownOpen]);
   useEffect(() => {
     if (!brain && userQuery.status == "error" && !hasTriedRefresh.current) {
       hasTriedRefresh.current = true;
@@ -79,9 +112,9 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
         onSuccess: async () => {
           navigate("/signin", { replace: true });
         },
-      }
+      },
     );
-  },[]);
+  }, []);
   return (
     <div
       className={`lg:w-[20%] md:w-[25%] sm:w-[30%] h-screen shadow border-r border-gray-200 p-2 sm:flex flex-col justify-between ${
@@ -89,6 +122,7 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
       } sm:sticky top-0 sm:left-0 fixed z-10 right-0 ${
         isSidebarOpen ? "flex" : "hidden"
       } `}
+      ref={sidebarRef}
     >
       <div>
         <div className="flex items-center gap-2 md:mb-5 mb-3 cursor-pointer">
@@ -106,11 +140,11 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
             className="flex items-center gap-1 w-fit mb-1"
             onClick={() => {
               const url = new URL(window.location.href);
-              if (url.pathname != "/dashboard" ) {
+              if (url.pathname != "/dashboard") {
                 navigate("/dashboard");
-              }else{
-              searchParams.set("content", "All Notes");
-              setSearchParams(searchParams);
+              } else {
+                searchParams.set("content", "All Notes");
+                setSearchParams(searchParams);
               }
             }}
           >
@@ -170,7 +204,7 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
             className="fixed z-10 cursor-pointer"
             onClick={() => setIsDropdownOpen(false)}
           />
-          <div className="absolute sm:left-45 sm:bottom-14 bottom-14 right-20 bg-white border border-gray-200 rounded-xl shadow-xl z-20 w-54 py-2">
+          <div className="absolute sm:left-45 sm:bottom-14 bottom-14 right-20 bg-white border border-gray-200 rounded-xl shadow-xl z-20 w-54 py-2" ref={dropdownRef}>
             <div className="px-4 py-3 border-b border-gray-200">
               <p className="text-sm font-semibold text-gray-900">
                 {user?.username}

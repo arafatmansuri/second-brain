@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { icons, ui } from "..";
@@ -11,6 +11,31 @@ export const DeleteAccountModal = memo(() => {
   const setIsPopup = useSetRecoilState(popupAtom);
   const navigate = useNavigate();
   const deleteAccountMutation = useAuthMutation();
+  const modalRef = useRef<HTMLDivElement>(null);
+    // Close modal on outside click
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && modalRef.current === e.target) {
+        setIsModalOpen({ open: false, modal: "deleteAccount" });
+      }
+    };
+    // Close modal on Escape key press
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsModalOpen({ open: false, modal: "deleteAccount" });
+      }
+    };
+    useEffect(() => {
+      if (isModalOpen && isModalOpen.open && isModalOpen.modal == "deleteAccount") {
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleKeyDown);
+      }
+  
+      //Removing Event Listeners to Prevent Memory Leaks
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [isModalOpen]);
   const deleteAccount = useCallback(() => {
     deleteAccountMutation.mutate({
       endpoint: "deleteAccount",
@@ -43,6 +68,7 @@ export const DeleteAccountModal = memo(() => {
           : "hidden"
       } w-screen h-screen
          fixed top-0 left-0 justify-center items-center p-5`}
+      ref={modalRef}
     >
       <div className="bg-white p-4 shadow-md rounded-xl flex flex-col items-center gap-5 md:w-[45%]">
         <div className="flex w-full justify-between font-bold text-red-600 text-lg items-center">
@@ -56,7 +82,7 @@ export const DeleteAccountModal = memo(() => {
           />
         </div>
         <p className="text-sm text-gray-500 w-[89%] self-start">
-          Deleting your account will remove all your notes, documents, tweets,
+          Deleting your account will remove all your notes, documents, tweets
           and videos permanently. This action cannot be undone.
         </p>
         <div className="flex gap-2 self-start w-full">
