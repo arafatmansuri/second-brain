@@ -57,7 +57,7 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
     }
     if (
       dropdownRef.current &&
-      !dropdownRef.current.contains(e.target as Node)
+      dropdownRef.current !== e.target
     ) {
       setIsDropdownOpen(false);
     }
@@ -203,6 +203,7 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
           <div
             className="fixed z-10 cursor-pointer"
             onClick={() => setIsDropdownOpen(false)}
+
           />
           <div className="absolute sm:left-45 sm:bottom-14 bottom-14 right-20 bg-white border border-gray-200 rounded-xl shadow-xl z-20 w-54 py-2" ref={dropdownRef}>
             <div className="px-4 py-3 border-b border-gray-200">

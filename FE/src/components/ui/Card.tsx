@@ -93,6 +93,7 @@ export const Card = memo<CardProps>(
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
+            loading="lazy"
           ></iframe>
         )}
         {type === "tweet" && (
@@ -109,6 +110,7 @@ export const Card = memo<CardProps>(
             src={link}
             alt={title}
             className="w-full max-h-52 rounded-md mt-3"
+            loading="lazy"
           />
         )}
         {type == "video" && (
@@ -123,6 +125,7 @@ export const Card = memo<CardProps>(
             src={link}
             frameBorder="0"
             className="w-full max-h-72 rounded-md mt-3"
+            loading="lazy"
           ></iframe>
         )}
         {type == "article" && link && (
@@ -135,6 +138,7 @@ export const Card = memo<CardProps>(
             <img
               src={`https://api.microlink.io?url=${encodeURIComponent(link)}&screenshot=true&embed=screenshot.url`}
               className="w-full max-h-72 rounded-md mt-3"
+              loading="lazy"
             ></img>
           </a>
         )}
