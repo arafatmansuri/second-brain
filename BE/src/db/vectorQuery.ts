@@ -62,6 +62,7 @@ export const searchFromEmbeddings = async (query:string, userId?:mongoose.Types.
             totalFollowings: 1,
             title: 1,
             main_content: 1,
+            content:1,
             summary: 1,
             keywords: 1,
             contentId: 1,
@@ -77,6 +78,7 @@ export const searchFromEmbeddings = async (query:string, userId?:mongoose.Types.
         },
       ])
       .toArray();
+    console.log("Vector search result: ",relevantResult);
     // resultArray.sort((a, b) => b.score - a.score);
     // console.log("After Sorting",JSON.stringify(resultArray));
     // let relevantResult = resultArray.filter((r) => r.score >= 0.8);
@@ -101,6 +103,8 @@ export const searchFromEmbeddings = async (query:string, userId?:mongoose.Types.
                     "username",
                     "main_content",
                     "summary",
+                    "content",
+                    "keywords",
                   ],
                   fuzzy: {
                     maxEdits: 2,
@@ -125,6 +129,7 @@ export const searchFromEmbeddings = async (query:string, userId?:mongoose.Types.
             },
           ])
           .toArray();
+        console.log("Fallback search result: ",relevantResult);
       } catch (err) {
         console.log(err);
       }

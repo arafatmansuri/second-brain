@@ -41,7 +41,7 @@ type IEmbedData = {
   fileType?: string;
   title?: string;
   description?: string;
-  uploadType?:"file URL" | "local file";
+  uploadType?: "file URL" | "local file";
 };
 export async function embedData({
   key,
@@ -54,14 +54,14 @@ export async function embedData({
   fileType,
   title,
   description,
-  uploadType
+  uploadType,
 }: IEmbedData) {
   try {
     //console.log("🔹 Loading Xenova embedding model...");
     const embedder = await pipeline(
       "feature-extraction",
       // "Xenova/all-MiniLM-L6-v2"
-      "Xenova/nomic-embed-text-v1"
+      "Xenova/nomic-embed-text-v1",
     );
     //console.log("⚙️ Embedding pages...");
     const client = new MongoClient(MONGODB_URI);
@@ -71,7 +71,11 @@ export async function embedData({
     //console.log("⏳ Extracting PDF from key...");
     if (type == "document") {
       // console.log("Extracting PDF from key...",key,uploadType,link);
-      const docs = await getPDFTranscriptPy(key || "",uploadType || "file URL",link);
+      const docs = await getPDFTranscriptPy(
+        key || "",
+        uploadType || "file URL",
+        link,
+      );
       for (const doc of docs) {
         const textChunks = chunkText(doc.text);
         for (const chunk of textChunks) {
@@ -104,7 +108,17 @@ export async function embedData({
       const transcript = await getYoutubeTranscriptPy(linkId || "");
       if (!transcript || transcript.length === 0) {
         const videoSummary = await getYoutubeSummary(link || "");
-        const embedding = await embedder(videoSummary, {
+        let parsedSummary = {
+          content:""
+        }
+        try {
+            parsedSummary = JSON.parse(videoSummary);
+        } catch (error) {
+          console.log("Invalid JSON");
+        }
+        const parsedContent =
+          parsedSummary.content.length > 0 ? parsedSummary.content : videoSummary;
+        const embedding = await embedder(parsedContent, {
           pooling: "mean",
           normalize: true,
         });
@@ -112,7 +126,8 @@ export async function embedData({
           embedding: Array.from(embedding.data),
           contentId,
           userId,
-          data: videoSummary,
+          data: parsedSummary.content.length <= 0 && videoSummary,
+          ...parsedSummary
         });
         await client.close();
         return;
@@ -145,31 +160,29 @@ export async function embedData({
         ...fullTweetData,
         data: tweetData,
       });
-    } else if (type == "image") {
-      const imageData = await getImageSummary(link || "", fileType);
-      const embedding = await embedder(imageData, {
-        pooling: "mean",
-        normalize: true,
-      });
-      let parsedImageData = {};
+    } else if (type == "image" || type == "video" || (type=="article" && uploadType == "file URL")) {
+      let data = type == "image" ? await getImageSummary(link!,fileType) : type == "video" ? await getVideoTransript(link!) : await getTextFromArticleURL(link!);
+      console.log("Image data: ", data);
+      let isVideoSummary = false;
+      if (type == "video" && !data) {
+        isVideoSummary = true;
+        data = await getVideoSummary(link!,fileType);
+      }
+      let parsedData = {
+        content: "",
+      };
       try {
-        parsedImageData = JSON.parse(imageData);
+        if(type !== "video" && !isVideoSummary)
+        parsedData = JSON.parse(data);
       } catch (error) {
         console.log("Invalid JSON");
       }
-      await collection.insertOne({
-        embedding: Array.from(embedding.data),
-        contentId,
-        userId,
-        data: imageData,
-        ...parsedImageData,
-      });
-    } else if (type == "video") {
-      let videoData = await getVideoTransript(link || "");
-      if (videoData == "") {
-        videoData = await getVideoSummary(link || "", fileType);
-      }
-      const embedding = await embedder(videoData, {
+      const parsedContent =
+        parsedData.content.length > 0
+          ? parsedData.content
+          : data;
+      // console.log("parsed Content: ", parsedContent);
+      const embedding = await embedder(parsedContent, {
         pooling: "mean",
         normalize: true,
       });
@@ -177,17 +190,11 @@ export async function embedData({
         embedding: Array.from(embedding.data),
         contentId,
         userId,
-        data: videoData,
+        ...parsedData,
+        data: (!isVideoSummary || parsedData.content.length <= 0) && data
       });
-    } else if (type == "article") {
-      let articleData = "";
-      if(uploadType == "file URL"){
-        articleData = await getTextFromArticleURL(link || "");
-        console.log(articleData);
-      }else{
-        articleData = data || "";
-      }
-      const embedding = await embedder(articleData, {
+    } else if (type == "article" && uploadType == "local file") {
+      const embedding = await embedder(data!, {
         pooling: "mean",
         normalize: true,
       });
@@ -195,8 +202,7 @@ export async function embedData({
         embedding: Array.from(embedding.data),
         contentId,
         userId,
-        data: articleData,
-        title,
+        data
       });
     }
 

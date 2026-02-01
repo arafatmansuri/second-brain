@@ -10,6 +10,7 @@ export async function generateAnswer(
 ) {
   try {
     const context = await searchFromEmbeddings(query, userId);
+    console.log("Final Context",context);
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `Context:${JSON.stringify(context)}

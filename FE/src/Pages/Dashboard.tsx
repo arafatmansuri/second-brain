@@ -44,7 +44,7 @@ function Dashboard() {
       return;
     }
     useEffect(() => {
-      if (privateContentMutation.status == "success") {
+      if (privateContentMutation.status == "success" && privateContentMutation.variables?.method == "DELETE") {
         setIsPopup({ popup: true, message: "Content Deleted Successfully" });
         setTimeout(() => {
           setIsPopup({ popup: false, message: "" });
@@ -74,7 +74,7 @@ function Dashboard() {
   }, [posts.data, posts.status, setPostsData]);
 
   useEffect(() => {
-    if (privateContentMutation.status == "success") {
+    if (privateContentMutation.status == "success" && privateContentMutation.variables?.method != "DELETE") {
       setUser((prev) => ({ ...prev, shared: !prev.shared }));
     }
   }, [privateContentMutation.status]);
