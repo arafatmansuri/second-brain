@@ -90,7 +90,7 @@ function Dashboard() {
         }`}
       >
         <div
-          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-4 sticky top-0 p-3 bg-gray-100 ${
+          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-4 sticky top-0 p-3 bg-gray-100 z-20 ${
             modalOpen.open && "bg-slate-500"
           }`}
         >
@@ -140,7 +140,7 @@ function Dashboard() {
           </div>
         </div>
         <section
-          className={`flex lg:grid-cols-3 flex-col w-full flex-wrap items-center lg:pl-1 md:pl-4 sm:grid sm:grid-cols-2 gap-5`}
+          className={`w-full lg:pl-1 md:pl-4 sm:columns-2 lg:columns-3 gap-5 flex flex-col items-center sm:block`}
         >
           {postsData.filter((post) => {
             if (searchParams.get("content") == "All Notes") {

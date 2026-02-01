@@ -17,6 +17,7 @@ import Profile from "./Pages/Profile";
 import SecurityPage from "./Pages/SecurityPage";
 import BrainDashboard from "./Pages/BrainDashboard";
 import { AskAI } from "./Pages/AskAI";
+import NotFound from "./Pages/NotFound";
 function App() {
   return (
     <ThemeProvider>
@@ -32,6 +33,7 @@ function App() {
             <Route path="/signin" element={<Signin />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />

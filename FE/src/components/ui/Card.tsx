@@ -47,7 +47,7 @@ export const Card = memo<CardProps>(
           isModalOpen.open && isCardInModal
             ? "bg-slate-500 opacity-50 border-0"
             : "bg-white"
-        } rounded-xl p-5 border border-gray-200 max-h-96 min-h-96 flex flex-col gap-2 lg:min-w-72 md:min-w-64 sm:min-w-60 w-[80%]`}
+        } rounded-xl p-5 border border-gray-200 flex flex-col gap-2 lg:min-w-70 md:min-w-64 sm:min-w-60 w-[89%] break-inside-avoid mb-4`}
       >
         <div className="flex justify-between items-center">
           <div className="flex justify-between items-center gap-2 text-gray-500">
@@ -142,7 +142,7 @@ export const Card = memo<CardProps>(
             ></img>
           </a>
         )}
-        {description && type !== "tweet" && (
+        {type == "article" && !link && (
           <div
             className={`text-wrap w-full ${
               type == "article"

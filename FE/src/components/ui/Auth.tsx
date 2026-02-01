@@ -85,7 +85,7 @@ export const Auth = memo(({ authName }: authData) => {
                 formHook={{
                   ...register("email", { required: true, minLength: 3 }),
                 }}
-                defaultValue=""
+                // defaultValue=""
                 type="email"
               />
               {errors.email?.type == "required" && (
@@ -101,7 +101,7 @@ export const Auth = memo(({ authName }: authData) => {
             formHook={{
               ...register("password", { required: true, minLength: 8 }),
             }}
-            defaultValue=""
+            // defaultValue=""
           />
           <div
             className={`flex ${
