@@ -52,12 +52,12 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   // Close modal on outside click
   const handleClickOutside = (e: MouseEvent) => {
-    if (sidebarRef.current && sidebarRef.current !== e.target) {
+    if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
       setIsSideBarOpen(false);
     }
     if (
       dropdownRef.current &&
-      dropdownRef.current !== e.target
+      !dropdownRef.current.contains(e.target as Node)
     ) {
       setIsDropdownOpen(false);
     }
