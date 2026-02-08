@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import "newrelic";
 import cluster from "node:cluster";
 import { availableParallelism } from "node:os";
 import process from "node:process";

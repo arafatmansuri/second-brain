@@ -6,3 +6,4 @@ dist
 eng.traineddata
 nginx-conf
 deprecated
+newrelic_agent.log
