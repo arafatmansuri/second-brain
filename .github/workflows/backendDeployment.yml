@@ -27,7 +27,7 @@ jobs:
       - name: 📦 Prepare deployment package
         run: |
           mkdir deploy
-          cp -r dist package.json package-lock.json deploy/
+          cp -r dist package.json package-lock.json newrelic.js deploy/
           cd deploy && tar -czf ../second-brain.tar.gz .
 
       - name: 🚀 Upload to EC2
@@ -73,5 +73,7 @@ jobs:
 
             echo "🚀 Restarting server with PM2..."
             pm2 delete sb || true
-            pm2 start dist/server.js --name "sb"
+            export NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
+            export NEW_RELIC_APP_NAME=second-brain-prod
+            pm2 start dist/server.js --name "sb" --update-env
             pm2 save
