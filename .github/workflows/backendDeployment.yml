@@ -74,6 +74,6 @@ jobs:
             echo "🚀 Restarting server with PM2..."
             pm2 delete sb || true
             export NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}
-            export NEW_RELIC_APP_NAME=second-brain-prod
+            export NEW_RELIC_APP_NAME=SecondBrain
             pm2 start dist/server.js --name "sb" --update-env
             pm2 save
