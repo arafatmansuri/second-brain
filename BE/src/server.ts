@@ -15,7 +15,6 @@ if (environment === "development" || numCPUs === 1) {
     .then(() => {
       console.log("mongoDB connected");
       console.log("Redis connected");
-      console.log("New Relic connected");
       app.listen(PORT, () => {
         console.log(`server is running on port ${PORT}`);
       });
@@ -40,7 +39,6 @@ if (environment === "development" || numCPUs === 1) {
       .then(() => {
         console.log("mongoDB connected");
         console.log("Redis connected");
-        console.log("New Relic connected");
         app.listen(PORT, () => {
           console.log(`server is running on port ${PORT}`);
         });
