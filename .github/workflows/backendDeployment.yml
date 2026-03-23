@@ -28,7 +28,7 @@ jobs:
         run: |
           mkdir deploy
           cp -r dist package.json package-lock.json newrelic.js deploy/
-          cd deploy && tar -czf ../second-brain.tar.gz .
+          cd deploy && tar -czf ../BE/second-brain.tar.gz .
 
       - name: 🚀 Upload to EC2
         uses: appleboy/scp-action@v0.1.7
