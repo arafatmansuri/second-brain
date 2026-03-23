@@ -162,7 +162,8 @@ export const Auth = memo(({ authName }: authData) => {
             </p>
           )}
         </form>
-        <GoogleOAuthProvider clientId="569385020410-uer5vv9oeh1m4lai4rjrovin0vscbiq6.apps.googleusercontent.com">
+        {/* <GoogleOAuthProvider clientId="441978982506-guno2pnq31cj875nofpj8be84kdi21oc.apps.googleusercontent.com"> */}
+          <GoogleOAuthProvider clientId="569385020410-uer5vv9oeh1m4lai4rjrovin0vscbiq6.apps.googleusercontent.com">
           <GoogleLoginButton text={"Continue"} />
         </GoogleOAuthProvider>
       </div>

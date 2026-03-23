@@ -1,11 +1,11 @@
 import { useGoogleLogin } from "@react-oauth/google";
+import { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { googleAuth } from "../../queries/AuthQueries/queries";
 import { userAtom } from "../../store/userState";
 import { GoogleIcon } from "../icons/GoogleIcon";
 import { Button } from "./Button";
-import { memo } from "react";
 
 const GoogleLoginButton = memo<{ text: string }>(({ text }) => {
   const navigate = useNavigate();
@@ -16,6 +16,8 @@ const GoogleLoginButton = memo<{ text: string }>(({ text }) => {
         const result = await googleAuth(authResult.code);
         setUser(result.data.user.username);
         navigate("/dashboard");
+        // console.log(result.data.data.user);
+        // setUser(result.data.user.firstname);
       } else {
         console.log(authResult);
         throw new Error(authResult);
