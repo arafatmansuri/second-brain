@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    paths:
-      - "BE/**" #only run when backend folder changes
+    #paths:
+    # - "BE/**" #only run when backend folder changes
 
 jobs:
   deploy:
@@ -28,7 +28,7 @@ jobs:
         run: |
           mkdir deploy
           cp -r dist package.json package-lock.json newrelic.js deploy/
-          cd deploy && tar -czf ../BE/second-brain.tar.gz .
+          cd deploy && tar -czf ../second-brain.tar.gz .
 
       - name: 🚀 Upload to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -37,7 +37,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: 22
-          source: "BE/second-brain.tar.gz"
+          source: "second-brain.tar.gz"
           target: "~/"
 
       - name: 🔧 Deploy on EC2
