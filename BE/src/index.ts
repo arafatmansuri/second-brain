@@ -32,7 +32,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.static("./public"));
-app.use(rateLimiterMiddleware(apiLimiter, userKeyGenerator));
+// app.use(rateLimiterMiddleware(apiLimiter, userKeyGenerator));
 app.get("/", async (req, res) => {
   res.json({ message: "Server is healthy", pid: process.pid });
   return;
