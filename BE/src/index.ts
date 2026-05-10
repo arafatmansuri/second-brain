@@ -1,13 +1,9 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import {
-  apiLimiter,
-  rateLimiterMiddleware,
-  userKeyGenerator,
-} from "./middlewares/rateLimiter.middleware";
-import contentRouter from "./routes/content.route";
-import userRouter from "./routes/user.route";
+import { globalErrorHandler } from "./lib/ErrorHandler";
+import v1Router from "./routes/v1Routes";
+import v2Router from "./routes/v2Routes";
 const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
@@ -28,7 +24,7 @@ app.use(
       }
     },
     credentials: true, // Allow cookies
-  })
+  }),
 );
 app.use(cookieParser());
 app.use(express.static("./public"));
@@ -38,7 +34,9 @@ app.get("/", async (req, res) => {
   return;
 });
 
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/content", contentRouter);
+app.use("/api/v1/", v1Router);
+app.use("/api/v2/", v2Router);
+
+app.use(globalErrorHandler);
 
 export default app;
