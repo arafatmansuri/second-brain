@@ -6,6 +6,8 @@ const projectSchema = new Schema(
     description: { type: String },
     userId: { type: Schema.Types.ObjectId, ref: "User" },
     contentIds: [{ type: Schema.Types.ObjectId, ref: "Content" }],
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
   },
   { timestamps: true }
 );
