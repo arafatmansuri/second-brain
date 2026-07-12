@@ -8,7 +8,7 @@ import {
   queryFromContent,
   shareContent,
   updateContent,
-} from "../../controllers/v1/content.controller";
+} from "../../controllers/v2/content.controller";
 import { filterTags } from "../../middlewares/v1/filterTags.middleware";
 import { upload } from "../../middlewares/v1/multer.middlewear";
 import {
@@ -29,10 +29,10 @@ contentRouter.route("/:id").put(filterTags, updateContent);
 contentRouter.route("/:id").delete(deleteContent);
 contentRouter.route("/").get(displayContent);
 contentRouter.route("/share").put(shareContent);
-// contentRouter.route("/askai").post(queryFromContent);
-contentRouter
-  .route("/askai")
-  .post(rateLimiterMiddlewareAskAI(askAILimiter), queryFromContent);
+contentRouter.route("/askai").post(queryFromContent);
+// contentRouter
+//   .route("/askai")
+//   .post(rateLimiterMiddlewareAskAI(askAILimiter), queryFromContent);
 contentRouter.route("/uploadUrl").post(generateUploadUrl);
 
 export default contentRouter;

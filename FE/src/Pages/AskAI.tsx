@@ -2,10 +2,10 @@ import { SendHorizonal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { icons, ui } from "../components";
-import { usePostMutation } from "../queries/PostQueries/postQueries";
-import { postAtom, type PostData } from "../store/postState";
 import { TypingText } from "../components/ui/TypingText";
 import { contentV2APIs } from "../queries/PostQueries/endpoints";
+import { usePostMutation } from "../queries/PostQueries/postQueries";
+import { postAtom, type PostData } from "../store/postState";
 
 export function AskAI() {
   const [answer, setAnswer] = useState<string>("");
@@ -13,14 +13,14 @@ export function AskAI() {
   const questionRef = useRef<HTMLInputElement | null>(null);
   const [relevantPosts, setRelevantPosts] = useState<PostData[]>([]);
   const posts = useRecoilValue(postAtom);
-  const askAIMutation = usePostMutation<{
+  const askAIMutation = usePostMutation<{ data:{
     answer: string;
-    content: PostData[];
-  }>();
+    contents: PostData[];
+  }}>();
   useEffect(() => {
     if (askAIMutation.status == "success") {
-      setAnswer(askAIMutation.data.answer);
-      setRelevantPosts(askAIMutation.data.content);
+      setAnswer(askAIMutation.data.data.answer);
+      setRelevantPosts(askAIMutation.data.data.contents);
     }
   }, [askAIMutation?.data, askAIMutation.status]);
   async function askAi() {
@@ -67,39 +67,40 @@ export function AskAI() {
       </form>
       <div className="w-full flex-col overflow-y-auto p-2">
         <p className="w-full max-h-64 p-2">
-        {askAIMutation.status == "error" && askAIMutation.error.message}
-      </p>
-      {askAIMutation.status != "idle" && askAIMutation.status == "loading" ? (
-        <icons.Loader />
-      ) : (
-        <TypingText
-          text={answer}
-          speed={10}
-          onComplete={() => setResultCompleted(true)}
-        />
-      )}
-      {relevantPosts.length > 0 && resultCompleted && (
-        <h2 className="self-start font-bold text-lg mt-2 mb-2">
-          Relevant Contents:
-        </h2>
-      )}
-      {relevantPosts.length > 0 && resultCompleted && (
-        <div className="flex lg:grid-cols-3 flex-col w-full flex-wrap items-center lg:pl-1 md:pl-4 sm:grid sm:grid-cols-2 gap-5">
-          {relevantPosts.map((post) => (
-            <ui.Card
-              key={post._id}
-              link={post.link}
-              id={post._id}
-              title={post.title}
-              type={post.type}
-              description={post.description}
-              createdAt={post.createdAt}
-              tags={post.tags}
-              isCardInModal={true}
-            />
-          ))}
-        </div>
-      )}</div>
+          {askAIMutation.status == "error" && askAIMutation.error.message}
+        </p>
+        {askAIMutation.status != "idle" && askAIMutation.status == "loading" ? (
+          <icons.Loader />
+        ) : (
+          <TypingText
+            text={answer}
+            speed={10}
+            onComplete={() => setResultCompleted(true)}
+          />
+        )}
+        {relevantPosts.length > 0 && resultCompleted && (
+          <h2 className="self-start font-bold text-lg mt-2 mb-2">
+            Relevant Contents:
+          </h2>
+        )}
+        {relevantPosts.length > 0 && resultCompleted && (
+          <div className="flex lg:grid-cols-3 flex-col w-full flex-wrap items-center lg:pl-1 md:pl-4 sm:grid sm:grid-cols-2 gap-5">
+            {relevantPosts.map((post) => (
+              <ui.Card
+                key={post._id}
+                link={post.link}
+                id={post._id}
+                title={post.title}
+                type={post.type}
+                description={post.description}
+                createdAt={post.createdAt}
+                tags={post.tags}
+                isCardInModal={true}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

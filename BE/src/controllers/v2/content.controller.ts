@@ -248,7 +248,7 @@ export const queryFromContent= asyncHandler(async (req, res) => {
     const { query } = req.body;
     const { result, contentIds } = await generateAnswer(query, userId);
     const contents = await Content.find({ _id: { $in: contentIds } });
-    ApiResponse.success(res, { result, contents }, "Query generated successfully");
+    ApiResponse.success(res, { answer: result, contents }, "Query generated successfully");
 });
 export const generateUploadUrl: Handler = async (req, res) => {
   try {

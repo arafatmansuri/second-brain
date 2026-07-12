@@ -168,7 +168,7 @@ export async function embedData({
           : type == "video"
             ? await getVideoTransript(link!)
             : await getTextFromArticleURL(link!);
-      console.log("Image data: ", data);
+      // console.log("Image data: ", data);
       let isVideoSummary = false;
       if (type == "video" && !data) {
         isVideoSummary = true;
@@ -184,7 +184,7 @@ export async function embedData({
       }
       const parsedContent =
         parsedData.content.length > 0 ? parsedData.content : data;
-      // console.log("parsed Content: ", parsedContent);
+      console.log("parsed Content: ", parsedContent);
       const embedding = await generatedEmbeddings(parsedContent);
       await collection.insertOne({
         embedding: embedding,
@@ -205,7 +205,7 @@ export async function embedData({
     }
 
     await client.close();
-    //console.log("✅ Embeddings stored in MongoDB.");
+    // console.log("✅ Embeddings stored in MongoDB.");
   } catch (err) {
     console.log(err);
   }

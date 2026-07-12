@@ -18,7 +18,6 @@ export const SearchBox = memo(() => {
   }>();
   useEffect(() => {
     if (askAIMutation.status == "success") {
-      // console.log(askAIMutation.data);
       setAnswer(askAIMutation.data.answer);
       setRelevantPosts(askAIMutation.data.content);
     }
