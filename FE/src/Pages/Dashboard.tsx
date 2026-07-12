@@ -90,7 +90,7 @@ function Dashboard() {
         }`}
       >
         <div
-          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-4 sticky top-0 p-3 bg-gray-100 z-20 ${
+          className={`flex justify-between items-center w-full mb-4 md:mr-5 md:pl-4 sticky top-0 p-3 bg-gray-100 z-0 ${
             modalOpen.open && "bg-slate-500"
           }`}
         >

@@ -117,7 +117,7 @@ export const Sidebar = memo<{ type?: "dashboard" | "settings" }>(({ type }) => {
   }, []);
   return (
     <div
-      className={`lg:w-[20%] md:w-[25%] sm:w-[30%] h-screen shadow border-r border-gray-200 p-2 sm:flex flex-col justify-between ${
+      className={`lg:w-[20%] md:w-[25%] sm:w-[30%] sm:h-screen h-[100%] shadow border-r border-gray-200 p-2 sm:flex flex-col justify-between ${
         isModalOpen.open ? "bg-slate-500 opacity-70 border-none" : "bg-white"
       } sm:sticky top-0 sm:left-0 fixed z-10 right-0 ${
         isSidebarOpen ? "flex" : "hidden"
