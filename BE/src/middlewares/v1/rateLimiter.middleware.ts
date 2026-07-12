@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { RateLimiterRedis } from "rate-limiter-flexible";
-import redisClient from "../config/redisClient";
+import redisClient from "../../config/redisClient";
 
 export const loginLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "login",
   points: 10, // 5 attempts
-  duration: 15 * 60, // per 15 minutes  
+  duration: 15 * 60, // per 15 minutes
 });
 
 // Signup limiter

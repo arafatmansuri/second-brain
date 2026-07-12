@@ -3,26 +3,26 @@ import bcrypt from "bcrypt";
 import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
-import { oAuth2Client } from "../config/OAuth2Client";
-import Content from "../models/content.model";
-import Embedding from "../models/embedding.model";
-import Link from "../models/link.model";
-import User from "../models/user.model";
-import { emailQueue } from "../queue/emailQueue";
-import { Handler, StatusCode } from "../types";
+import { oAuth2Client } from "../../config/OAuth2Client";
+import Content from "../../models/content.model";
+import Embedding from "../../models/embedding.model";
+import Link from "../../models/link.model";
+import User from "../../models/user.model";
+import { emailQueue } from "../../queue/emailQueue";
+import { Handler, StatusCode } from "../../types";
 import {
   canResendOTP,
   generateOTP,
   getOTPData,
   saveOTP,
   verifyOTP,
-} from "../utils/otp.service";
+} from "../../utils/otp.service";
 import {
   changePasswordInputSchema,
   forgetInputSchema,
   OTPVerificationInputSchema,
   signupInputSchema,
-} from "../validations/user.validation";
+} from "../../validations/user.validation";
 
 export const signupWithOTP: Handler = async (req, res): Promise<void> => {
   try {

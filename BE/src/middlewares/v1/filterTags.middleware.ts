@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import Tags from "../models/tags.model";
-import { StatusCode } from "../types";
-import { generateContentLink } from "../utils/generateContentLink";
-import { generateSignedUrl } from "../utils/getSignedUrl";
+import Tags from "../../models/tags.model";
+import { StatusCode } from "../../types";
+import { generateContentLink } from "../../utils/generateContentLink";
+import { generateSignedUrl } from "../../utils/getSignedUrl";
 export const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })
@@ -20,7 +20,7 @@ export const contentSchema = z.object({
 export const filterTags = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const contentInput = contentSchema.safeParse(req.body);
@@ -56,19 +56,23 @@ export const filterTags = async (
     } else if (contentInput.data.type != "article")
       link = generateContentLink(
         contentInput.data.link,
-        contentInput.data.type
+        contentInput.data.type,
       );
     if (!link && contentInput.data.type != "article") {
       res.status(StatusCode.InputError).json({ message: "Invalid link" });
       return;
     }
-    const inputTags = contentInput.data.tags && contentInput.data.tags.map((tag) => ({ tagName: tag }));
+    const inputTags =
+      contentInput.data.tags &&
+      contentInput.data.tags.map((tag) => ({ tagName: tag }));
     try {
       await Tags.insertMany(inputTags, { ordered: false });
     } catch (err) {}
-    const tags = inputTags && await Tags.find({
-      tagName: { $in: inputTags.map((tag) => tag.tagName) },
-    });
+    const tags =
+      inputTags &&
+      (await Tags.find({
+        tagName: { $in: inputTags.map((tag) => tag.tagName) },
+      }));
     req.tags = tags;
     req.contentInput = contentInput;
     req.contentLink =

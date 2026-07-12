@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { embedData } from "../db/createEmedding";
-import Content from "../models/content.model";
+import { embedData } from "../../db/v2/createEmbedding";
+import Content from "../../models/content.model";
 
 export const generateDataAndEmbeddings = async (
   contentId: mongoose.Types.ObjectId,

@@ -12,6 +12,7 @@ const allowedOrigins = [
   "https://second-brain-backend-g2fo.onrender.com",
   "https://www.secondbrain.services",
   "https://secondbrain.services",
+  "https://v36641r0-5173.inc1.devtunnels.ms"
 ];
 app.use(express.json());
 app.use(
@@ -35,8 +36,6 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/api/v1/", v1Router);
-app.use("/api/v2/", v2Router);
-
-app.use(globalErrorHandler);
+app.use("/api/v2/", v2Router, globalErrorHandler);
 
 export default app;

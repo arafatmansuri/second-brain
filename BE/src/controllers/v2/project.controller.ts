@@ -1,8 +1,8 @@
-import { ApiResponse } from "../lib/ApiResponse";
-import { AppError } from "../lib/AppError";
-import { asyncHandler } from "../lib/asyncHandler";
-import Project from "../models/project.model";
-import { createProjectValidation } from "../validations/project.validation";
+import { ApiResponse } from "../../lib/ApiResponse";
+import { AppError } from "../../lib/AppError";
+import { asyncHandler } from "../../lib/asyncHandler";
+import Project from "../../models/project.model";
+import { createProjectValidation } from "../../validations/project.validation";
 
 export const createProject = asyncHandler(async (req, res) => {
   const parsedData = createProjectValidation.safeParse(req.body);

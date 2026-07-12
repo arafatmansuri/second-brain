@@ -1,12 +1,12 @@
 import multer from "multer";
 import multerS3 from "multer-s3";
-import { s3 } from "../config/s3Config";
 import path from "path";
+import { s3 } from "../../config/s3Config";
 
 const fileFilter = (req: any, file: any, cb: any) => {
   const allowedTypes = /jpeg|jpg|png|pdf|mp4/;
   const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase()
+    path.extname(file.originalname).toLowerCase(),
   );
   const mimetype = allowedTypes.test(file.mimetype);
 

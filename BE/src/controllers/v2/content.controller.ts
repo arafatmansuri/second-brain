@@ -1,61 +1,59 @@
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Schema } from "mongoose";
-import { s3 } from "../config/s3Config";
-import Content from "../models/content.model";
-import Embedding from "../models/embedding.model";
-import Link from "../models/link.model";
-import User from "../models/user.model";
-import { Handler, StatusCode } from "../types";
-import { queueDataEmbedding } from "../utils/generateDataAndEmbeddings";
-import { generateHash } from "../utils/generateHash.util";
-import { generateAnswer } from "../utils/generateResult";
-import { generateSignedUrl } from "../utils/getSignedUrl";
+import { Schema, Types } from "mongoose";
+import { s3 } from "../../config/s3Config";
+import { ApiResponse } from "../../lib/ApiResponse";
+import { AppError } from "../../lib/AppError";
+import { asyncHandler } from "../../lib/asyncHandler";
+import Content from "../../models/content.model";
+import Embedding from "../../models/embedding.model";
+import Link from "../../models/link.model";
+import Project from "../../models/project.model";
+import User from "../../models/user.model";
+import { Handler, StatusCode } from "../../types";
+import { generateHash } from "../../utils/generateHash.util";
+import { generateAnswer } from "../../utils/v2/generateResult";
+import { generateSignedUrl } from "../../utils/getSignedUrl";
+import { queueDataEmbedding } from "../../utils/v2/generateDataAndEmbeddings";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
   userId: { _id: Schema.Types.ObjectId; username: string };
   __v: number;
 }
-export const addContent: Handler = async (req, res): Promise<void> => {
-  try {
-    const userId = req.userId;
-    const tags = req.tags;
-    const contentInput = req.contentInput;
-    const contentLinkId = req.contentLinkId;
-    // let tweetDescription: string;
-    // if (contentLinkId && contentInput.data.type == "tweet") {
-    //   tweetDescription = await getTweetDescription(contentLinkId);
-    // }
-    const content = await Content.create({
-      link: req.contentLink,
-      type:
-        contentInput.data.type == "raw" ? "document" : contentInput.data.type,
-      title: contentInput.data.title,
-      tags: tags?.map((tag) => tag._id),
-      userId: userId,
-      description: contentInput.data.description,
-      fileKey: contentInput.data.fileKey,
-      expiry: req.expiry || null,
-      contentLinkId,
-      fileType: contentInput.data.fileType,
-      fileSize: contentInput.data.fileSize,
-      isProcessing: true,
-      uploadType: contentInput.data.uploadType,
+export const addContent = asyncHandler(async (req, res) => {
+  const userId = req.userId;
+  const tags = req.tags;
+  const contentInput = req.contentInput;
+  const contentLinkId = req.contentLinkId;
+  const projectId = contentInput.data.projectId;
+  const content = await Content.create({
+    link: req.contentLink,
+    type: contentInput.data.type == "raw" ? "document" : contentInput.data.type,
+    title: contentInput.data.title,
+    tags: tags?.map((tag) => tag._id),
+    userId: userId,
+    description: contentInput.data.description,
+    fileKey: contentInput.data.fileKey,
+    expiry: req.expiry || null,
+    contentLinkId,
+    fileType: contentInput.data.fileType,
+    fileSize: contentInput.data.fileSize,
+    isProcessing: true,
+    uploadType: contentInput.data.uploadType,
+    projectId: projectId ? new Types.ObjectId(projectId) : undefined,
+  });
+  if (projectId) {
+    const project = await Project.findByIdAndUpdate(projectId, {
+      $push: { contentIds: content._id },
     });
-    res
-      .status(StatusCode.Success)
-      .json({ message: `${content.type} Added successfully`, content });
-    // await generateDataAndEmbeddings(content._id);
-    queueDataEmbedding(content._id);
-    return;
-  } catch (err: any) {
-    res
-      .status(StatusCode.ServerError)
-      .json({ message: "Something went wrong from our side" });
-    return;
+    if (!project) {
+      throw AppError.notFound("Project not found");
+    }
   }
-};
+  queueDataEmbedding(content._id);
+  ApiResponse.success(res, content, `${content.type} added successfully`);
+});
 export const updateContent: Handler = async (req, res): Promise<void> => {
   const userId = req.userId;
   const contentId = req.params.id;
@@ -73,7 +71,7 @@ export const updateContent: Handler = async (req, res): Promise<void> => {
         uploadType: contentInput?.data.uploadType,
       },
     },
-    { new: true }
+    { new: true },
   );
   if (!content) {
     res.status(StatusCode.NotFound).json({ message: "content not found" });
@@ -129,7 +127,7 @@ export const displayContent: Handler = async (req, res): Promise<void> => {
         (c) =>
           (!c.expiry || c.expiry < new Date()) &&
           (c.type == "document" || c.type == "image" || c.type == "video") &&
-          c.fileKey
+          c.fileKey,
       )
     ) {
       content.map(async (c) => {
@@ -164,7 +162,7 @@ export const displayContent: Handler = async (req, res): Promise<void> => {
 };
 export const displaySharedContent: Handler = async (
   req,
-  res
+  res,
 ): Promise<void> => {
   try {
     const hash = req.query.share;
@@ -178,7 +176,7 @@ export const displaySharedContent: Handler = async (
       return;
     }
     const content = await Content.find({ userId: link.userId }).populate(
-      "tags"
+      "tags",
     );
     //@ts-ignore
     const userLink: userLinkSchema = link;
@@ -245,25 +243,13 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
     return;
   }
 };
-export const queryFromContent: Handler = async (req, res) => {
-  try {
+export const queryFromContent= asyncHandler(async (req, res) => {
     const userId = req.userId;
     const { query } = req.body;
     const { result, contentIds } = await generateAnswer(query, userId);
     const contents = await Content.find({ _id: { $in: contentIds } });
-    res.status(StatusCode.Success).json({
-      message: "answer generated successfully",
-      answer: result,
-      content: contents,
-    });
-    return;
-  } catch (err: any) {
-    res
-      .status(StatusCode.ServerError)
-      .json({ message: err || "Something went wrong from our side" });
-    return;
-  }
-};
+    ApiResponse.success(res, { result, contents }, "Query generated successfully");
+});
 export const generateUploadUrl: Handler = async (req, res) => {
   try {
     const { fileName, fileType, fileSize } = req.body;

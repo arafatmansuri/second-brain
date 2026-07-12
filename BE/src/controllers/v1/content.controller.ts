@@ -1,16 +1,16 @@
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Schema } from "mongoose";
-import { s3 } from "../config/s3Config";
-import Content from "../models/content.model";
-import Embedding from "../models/embedding.model";
-import Link from "../models/link.model";
-import User from "../models/user.model";
-import { Handler, StatusCode } from "../types";
-import { queueDataEmbedding } from "../utils/generateDataAndEmbeddings";
-import { generateHash } from "../utils/generateHash.util";
-import { generateAnswer } from "../utils/generateResult";
-import { generateSignedUrl } from "../utils/getSignedUrl";
+import { s3 } from "../../config/s3Config";
+import Content from "../../models/content.model";
+import Embedding from "../../models/embedding.model";
+import Link from "../../models/link.model";
+import User from "../../models/user.model";
+import { Handler, StatusCode } from "../../types";
+import { generateHash } from "../../utils/generateHash.util";
+import { generateAnswer } from "../../utils/generateResult";
+import { generateSignedUrl } from "../../utils/getSignedUrl";
+import { queueDataEmbedding } from "../../utils/v2/generateDataAndEmbeddings";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
@@ -73,7 +73,7 @@ export const updateContent: Handler = async (req, res): Promise<void> => {
         uploadType: contentInput?.data.uploadType,
       },
     },
-    { new: true }
+    { new: true },
   );
   if (!content) {
     res.status(StatusCode.NotFound).json({ message: "content not found" });
@@ -129,7 +129,7 @@ export const displayContent: Handler = async (req, res): Promise<void> => {
         (c) =>
           (!c.expiry || c.expiry < new Date()) &&
           (c.type == "document" || c.type == "image" || c.type == "video") &&
-          c.fileKey
+          c.fileKey,
       )
     ) {
       content.map(async (c) => {
@@ -164,7 +164,7 @@ export const displayContent: Handler = async (req, res): Promise<void> => {
 };
 export const displaySharedContent: Handler = async (
   req,
-  res
+  res,
 ): Promise<void> => {
   try {
     const hash = req.query.share;
@@ -178,7 +178,7 @@ export const displaySharedContent: Handler = async (
       return;
     }
     const content = await Content.find({ userId: link.userId }).populate(
-      "tags"
+      "tags",
     );
     //@ts-ignore
     const userLink: userLinkSchema = link;

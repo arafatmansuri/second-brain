@@ -1,11 +1,12 @@
 import { Router } from "express";
-import userRouter from "./user.route";
-import contentRouter from "./content.route";
+import contentRouter from "./v2/content.route";
+import userRouter from "./v1/user.route";
+import projectRouter from "./v2/project.route";
 
 const v2Router = Router();
 
 v2Router.use("/users", userRouter);
 v2Router.use("/contents", contentRouter);
-v2Router.use("/projects", contentRouter);
+v2Router.use("/projects", projectRouter);
 
 export default v2Router;

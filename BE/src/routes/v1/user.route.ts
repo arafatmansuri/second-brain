@@ -13,7 +13,7 @@ import {
   signupOTPVerification,
   signupWithOTP,
   updateProfile,
-} from "../controllers/user.controller";
+} from "../../controllers/v1/user.controller";
 import {
   forgetLimiter,
   forgetOTPLimiter,
@@ -22,8 +22,8 @@ import {
   resendOTPLimiter,
   signupLimiter,
   signupOTPLimiter,
-} from "../middlewares/rateLimiter.middleware";
-import { verifyJWT } from "../middlewares/user.middleware";
+} from "../../middlewares/v1/rateLimiter.middleware";
+import { verifyJWT } from "../../middlewares/v1/user.middleware";
 const userRouter: Router = Router();
 
 // userRouter.route("/signupotp").post(signupWithOTP);

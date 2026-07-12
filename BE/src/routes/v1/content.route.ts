@@ -8,12 +8,15 @@ import {
   queryFromContent,
   shareContent,
   updateContent,
-} from "../controllers/content.controller";
-import { contentData } from "../middlewares/contentData.middleware";
-import { filterTags } from "../middlewares/filterTags.middleware";
-import { upload } from "../middlewares/multer.middlewear";
-import { verifyJWT } from "../middlewares/user.middleware";
-import { askAILimiter, rateLimiterMiddlewareAskAI } from "../middlewares/rateLimiter.middleware";
+} from "../../controllers/v1/content.controller";
+import { contentData } from "../../middlewares/v1/contentData.middleware";
+import { filterTags } from "../../middlewares/v1/filterTags.middleware";
+import { upload } from "../../middlewares/v1/multer.middlewear";
+import {
+  askAILimiter,
+  rateLimiterMiddlewareAskAI,
+} from "../../middlewares/v1/rateLimiter.middleware";
+import { verifyJWT } from "../../middlewares/v1/user.middleware";
 
 const contentRouter: Router = Router();
 

@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import Tags from "../models/tags.model";
-import { StatusCode } from "../types";
-import { generateContentLink } from "../utils/generateContentLink";
-import { generateSignedUrl } from "../utils/getSignedUrl";
-import { isCorrectMediaType, isCorrectMediaTypeByFile } from "../utils/detectMediaType";
+import Tags from "../../models/tags.model";
+import { StatusCode } from "../../types";
+import { isCorrectMediaType, isCorrectMediaTypeByFile } from "../../utils/detectMediaType";
+import { generateContentLink } from "../../utils/generateContentLink";
+import { generateSignedUrl } from "../../utils/getSignedUrl";
 export const contentSchema = z.object({
   title: z
     .string({ message: "title must be a string" })

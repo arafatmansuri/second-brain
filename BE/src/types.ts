@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { CookieOptions, Request, Response } from "express";
 import { Document, Model, Schema } from "mongoose";
 // User Schema/Interface
 export interface IUser {
@@ -21,6 +21,12 @@ interface ILink {
   hash: string;
   userId: Schema.Types.ObjectId;
 }
+
+export type CookieType = {
+  name: string;
+  value: string;
+  options: CookieOptions;
+};
 
 export interface ILinkDocument extends ILink, Document {
   deocdeLink: () => string;

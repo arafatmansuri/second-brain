@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/user.model";
-import { StatusCode } from "../types";
+import User from "../../models/user.model";
+import { StatusCode } from "../../types";
 export const verifyJWT = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const accessToken = req.cookies?.accessToken;
     const decodedToken = jwt.verify(
       accessToken,
-      <string>process.env.JWT_ACCESS_TOKEN_SECRET
+      <string>process.env.JWT_ACCESS_TOKEN_SECRET,
     );
     if (!decodedToken) {
       res.status(StatusCode.Unauthorized).json({ message: "Unautorized" });
