@@ -11,6 +11,7 @@ import { isCopyAtom, popupAtom } from "../../store/loadingState";
 import { postAtom } from "../../store/postState";
 import { userAtom } from "../../store/userState";
 import type { ButtonVarient } from "./Button";
+import { contentV1APIs } from "../../queries/PostQueries/endpoints";
 type shareTypes =
   | "whatsapp"
   | "copy"
@@ -18,7 +19,7 @@ type shareTypes =
   | "facebook"
   | "email"
   | "linkedin";
-export const ShareContentMoal = memo(() => {
+export const ShareContentModal = memo(() => {
   const [isModalOpen, setIsModalOpen] = useRecoilState(addContentModalAtom);
   const [shareType, setShareType] = useState<shareTypes>("copy");
   const setIsPopup = useSetRecoilState(popupAtom);
@@ -58,7 +59,7 @@ export const ShareContentMoal = memo(() => {
 
   function ShareContent({ type }: { type?: shareTypes }) {
     shareContentMutation.mutate({
-      endpoint: "share?reqtype=copy",
+      endpoint: contentV1APIs.shareContent("copy"),
       method: "PUT",
     });
     setShareType(type || "copy");

@@ -8,7 +8,7 @@ import Link from "../../models/link.model";
 import User from "../../models/user.model";
 import { Handler, StatusCode } from "../../types";
 import { generateHash } from "../../utils/generateHash.util";
-import { generateAnswer } from "../../utils/generateResult";
+import { generateAnswer } from "../../utils/v2/generateResult";
 import { generateSignedUrl } from "../../utils/getSignedUrl";
 import { queueDataEmbedding } from "../../utils/v2/generateDataAndEmbeddings";
 interface userLinkSchema {

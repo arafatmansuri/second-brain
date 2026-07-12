@@ -10,6 +10,7 @@ import { popupAtom } from "../store/loadingState";
 import type { PostData } from "../store/postState";
 import { typeAtom } from "../store/typeState";
 import { userAtom } from "../store/userState";
+import { contentV1APIs, contentV2APIs } from "../queries/PostQueries/endpoints";
 type createContentInputs = {
   title: string;
   link: string;
@@ -31,7 +32,7 @@ function AddContent() {
   const { register, handleSubmit, setValue, getValues } =
     useForm<createContentInputs>();
   const contentType = useRecoilValue(typeAtom);
-  const addPostMutation = usePostMutation<PostData>();
+  const addPostMutation = usePostMutation<{data:PostData}>();
   const getUploadUrlMutation = usePostMutation<{ uploadUrl: string }>();
   const refreshTokenMutation = useRefreshTokenMutation();
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ function AddContent() {
       let uploadUrl = "";
       getUploadUrlMutation.mutate(
         {
-          endpoint: "uploadUrl",
+          endpoint: contentV1APIs.generateUploadUrl,
           method: "POST",
           data: {
             fileName: file.name,
@@ -73,7 +74,7 @@ function AddContent() {
             uploadUrl = (await data1).uploadUrl;
             addPostMutation.mutate({
               method: "POST",
-              endpoint: "add",
+              endpoint: contentV2APIs.createContent,
               data: {
                 title: data.title,
                 tags: tags,
@@ -105,7 +106,7 @@ function AddContent() {
     } else
       addPostMutation.mutate({
         method: "POST",
-        endpoint: "add",
+        endpoint: contentV2APIs.createContent,
         data: {
           title: data.title,
           tags: tags,

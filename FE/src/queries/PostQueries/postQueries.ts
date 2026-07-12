@@ -5,8 +5,8 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import axios from "axios";
-import { BACKEND_URL } from "../../config";
 import { type PostData } from "../../store/postState";
+import { contentV1APIs } from "./endpoints";
 type PostFormData = {
   method: string;
   endpoint: string;
@@ -22,7 +22,7 @@ type PostFormData = {
     fileName?: string;
     fileType?: string;
     fileKey?: string;
-    fileSize?:number;
+    fileSize?: number;
     uploadType?: string;
   };
   contentType?: string;
@@ -34,7 +34,7 @@ const fetchPosts = async <T>({
   contentType = "application/json",
 }: PostFormData): Promise<T> => {
   try {
-    const posts = await axios(`${BACKEND_URL}/api/v1/content/${endpoint}`, {
+    const posts = await axios(endpoint, {
       method: method,
       data: data,
       withCredentials: true,
@@ -60,14 +60,17 @@ const fetchPosts = async <T>({
   }
 };
 
-export const useGetPosts = (): UseQueryResult<PostData[], {message:string,status:number}> => {
+export const useGetPosts = (): UseQueryResult<
+  PostData[],
+  { message: string; status: number }
+> => {
   const posts: UseQueryResult<PostData[], { message: string; status: number }> =
     useQuery({
       queryKey: ["posts"],
       queryFn: async (): Promise<PostData[]> => {
         return await fetchPosts<PostData[]>({
           method: "GET",
-          endpoint: "displayall",
+          endpoint: contentV1APIs.displayContent,
         });
       },
       retry: false,
@@ -81,7 +84,7 @@ export const useGetPosts = (): UseQueryResult<PostData[], {message:string,status
 
 export const usePostMutation = <T>() => {
   const queryClient = useQueryClient();
-  return useMutation<T, { message: string,status:number }, PostFormData>({
+  return useMutation<T, { message: string; status: number }, PostFormData>({
     mutationKey: ["PostMutation"],
     mutationFn: async ({
       method,

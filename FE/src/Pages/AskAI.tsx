@@ -5,6 +5,7 @@ import { icons, ui } from "../components";
 import { usePostMutation } from "../queries/PostQueries/postQueries";
 import { postAtom, type PostData } from "../store/postState";
 import { TypingText } from "../components/ui/TypingText";
+import { contentV2APIs } from "../queries/PostQueries/endpoints";
 
 export function AskAI() {
   const [answer, setAnswer] = useState<string>("");
@@ -24,7 +25,7 @@ export function AskAI() {
   }, [askAIMutation?.data, askAIMutation.status]);
   async function askAi() {
     askAIMutation.mutate({
-      endpoint: "askai",
+      endpoint: contentV2APIs.askAI,
       method: "POST",
       data: { query: questionRef.current?.value },
     });

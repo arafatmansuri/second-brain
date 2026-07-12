@@ -13,6 +13,7 @@ import { addContentModalAtom } from "../store/AddContentModalState";
 import { popupAtom } from "../store/loadingState";
 import { postAtom, type PostData } from "../store/postState";
 import { userAtom } from "../store/userState";
+import { contentV1APIs } from "../queries/PostQueries/endpoints";
 
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
@@ -25,7 +26,7 @@ function Dashboard() {
   const setIsPopup = useSetRecoilState(popupAtom);
   function PrivateContent() {
     privateContentMutation.mutate({
-      endpoint: "share?reqtype=private",
+      endpoint: contentV1APIs.shareContent("private"),
       method: "PUT",
     });
     setIsPopup({ popup: true, message: "Your Brain set to Private" });
@@ -39,7 +40,7 @@ function Dashboard() {
   async function deletePost(postId: string) {
       privateContentMutation.mutate({
         method: "DELETE",
-        endpoint: `delete/${postId}`,
+        endpoint: contentV1APIs.deleteContent(postId),
       });
       return;
     }

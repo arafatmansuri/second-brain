@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import { searchFromEmbeddings } from "../../db/vectorQuery";
+import { searchFromEmbeddings } from "../../db/v2/vectorQuery";
 dotenv.config();
 const ai = new GoogleGenAI({ apiKey: process.env.GEN_AI_GEMENI_KEY });
 export async function generateAnswer(
@@ -10,7 +10,7 @@ export async function generateAnswer(
 ) {
   try {
     const context = await searchFromEmbeddings(query, userId);
-    console.log("Final Context",context);
+    // console.log("Final Context",context);
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `Context:${JSON.stringify(context)}

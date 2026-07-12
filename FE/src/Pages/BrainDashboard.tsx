@@ -5,6 +5,7 @@ import { useRecoilState } from "recoil";
 import { ui } from "../components";
 import { usePostMutation } from "../queries/PostQueries/postQueries";
 import { postAtom, type PostData } from "../store/postState";
+import { contentV1APIs } from "../queries/PostQueries/endpoints";
 interface SahredBrainData {
   username: string;
   content: PostData[] | ((currVal: PostData[]) => PostData[]);
@@ -21,7 +22,7 @@ function BrainDashboard() {
     if (brain) {
       getBrainMutation.mutate({
         method: "GET",
-        endpoint: `display?share=${brain}`,
+        endpoint: contentV1APIs.displaySharedContent(brain),
       });
     }
   }, []);

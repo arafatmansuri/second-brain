@@ -7,7 +7,7 @@ export const DashboardLayout = () => {
       <ui.Sidebar type="dashboard" />
       <Outlet />
       {/* <ui.CreateContentModal /> */}
-      <ui.ShareContentMoal />
+      <ui.ShareContentModal />
       {/* <ui.SearchBox /> */}
       <ui.Popup />
     </div>

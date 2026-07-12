@@ -200,6 +200,7 @@ export async function embedData({
         contentId,
         userId,
         data,
+        title,
       });
     }
 

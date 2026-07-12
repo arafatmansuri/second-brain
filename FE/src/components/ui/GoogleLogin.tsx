@@ -19,7 +19,7 @@ const GoogleLoginButton = memo<{ text: string }>(({ text }) => {
         // console.log(result.data.data.user);
         // setUser(result.data.user.firstname);
       } else {
-        console.log(authResult);
+        // console.log(authResult);
         throw new Error(authResult);
       }
     } catch (e) {
