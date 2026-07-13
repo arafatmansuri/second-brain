@@ -17,7 +17,7 @@ new Worker(
   async (job) => {
     const { email, otp, username, subject } = job.data;
     await sendMail(email, subject, username, otp);
-    // console.log(`OTP email sent to ${email}`);
+    console.log(`OTP email sent to ${email}`);
   },
   {
     connection: redis,
