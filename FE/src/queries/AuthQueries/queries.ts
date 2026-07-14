@@ -34,7 +34,7 @@ const authUser = async <T>({
   method,
 }: UserFormData): Promise<T> => {
   try {
-    const user = await axios(`${BACKEND_URL}/api/v1/user/${endpoint}`, {
+    const user = await axios(`${BACKEND_URL}/api/v2/users/${endpoint}`, {
       method: method,
       data: {
         username,
@@ -116,9 +116,9 @@ export const useRefreshTokenMutation = () => {
   });
 };
 export const googleAuth = (code: string) =>
-  axios.get(`${BACKEND_URL}/api/v1/user/auth/google?code=${code}`, {
+  axios.get(`${BACKEND_URL}/api/v2/users/auth/google?code=${code}`, {
     withCredentials: true,
   });
-  // axios.get(`${BACKEND_URL}/api/v1/auth/google?code=${code}`, {
-  //   withCredentials: true,
-  // });
+// axios.get(`${BACKEND_URL}/api/v1/auth/google?code=${code}`, {
+//   withCredentials: true,
+// });

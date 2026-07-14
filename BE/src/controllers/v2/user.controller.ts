@@ -8,13 +8,11 @@ import Content from "../../models/content.model";
 import Embedding from "../../models/embedding.model";
 import Link from "../../models/link.model";
 import User from "../../models/user.model";
-import { emailQueue } from "../../queue/emailQueue";
 import { Handler, StatusCode } from "../../types";
 import {
   canResendOTP,
   generateOTP,
   getOTPData,
-  saveOTP,
   verifyOTP,
 } from "../../utils/otp.service";
 import { queueMail } from "../../utils/v2/sendMail";
@@ -144,7 +142,7 @@ export const resendOTP: Handler = async (req, res): Promise<void> => {
         subject: subject || "OTP Verification",
         username,
         password: otpData.password || "",
-        otp
+        otp,
       },
       parseInt(otp),
     );
