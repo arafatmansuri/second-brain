@@ -1,6 +1,6 @@
 import { Router } from "express";
 import contentRouter from "./v2/content.route";
-import userRouter from "./v1/user.route";
+import userRouter from "./v2/user.route";
 import projectRouter from "./v2/project.route";
 
 const v2Router = Router();

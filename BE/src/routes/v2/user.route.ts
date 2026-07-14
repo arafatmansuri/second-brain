@@ -13,7 +13,7 @@ import {
   signupOTPVerification,
   signupWithOTP,
   updateProfile,
-} from "../../controllers/v1/user.controller";
+} from "../../controllers/v2/user.controller";
 import {
   forgetLimiter,
   forgetOTPLimiter,
