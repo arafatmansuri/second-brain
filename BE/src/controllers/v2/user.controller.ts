@@ -22,6 +22,7 @@ import {
   OTPVerificationInputSchema,
   signupInputSchema,
 } from "../../validations/user.validation";
+import { gmailOAuth2Client as oauth2Client } from "../../config/OAuth2Client";
 
 export const signupWithOTP: Handler = async (req, res): Promise<void> => {
   try {
@@ -258,6 +259,15 @@ export const googleSignin: Handler = async (req, res): Promise<void> => {
       .json({ message: err.message || "Something went wrong from ourside" });
   }
 };
+export const googleAuthCallback: Handler = async (req, res): Promise<void> => {
+  const code = req.query.code as string;
+
+  const { tokens } = await oauth2Client.getToken(code);
+
+  // console.log(tokens);
+
+  res.send("Authorization successful!");
+}
 export const getUser: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;

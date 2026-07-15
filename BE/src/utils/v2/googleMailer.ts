@@ -1,6 +1,5 @@
 import { google } from "googleapis";
-import { oAuth2Client as oauth2Client } from "../../config/OAuth2Client";
-
+import { gmailOAuth2Client as oauth2Client } from "../../config/OAuth2Client";
 export async function sendMail({
   to,
   subject,

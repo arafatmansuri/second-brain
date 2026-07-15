@@ -5,6 +5,7 @@ import {
   forgetOTPVerification,
   forgetWithOTP,
   getUser,
+  googleAuthCallback,
   googleSignin,
   refreshTokens,
   resendOTP,
@@ -36,6 +37,7 @@ userRouter
   .post(rateLimiterMiddleware(signupOTPLimiter), signupOTPVerification);
 userRouter.route("/signin").post(rateLimiterMiddleware(loginLimiter), signin);
 userRouter.route("/auth/google").get(googleSignin);
+userRouter.route("/auth/google/callback").get(googleAuthCallback);
 userRouter.route("/refreshtokens").post(refreshTokens);
 userRouter
   .route("/forgetotp")
