@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
-import { oAuth2Client } from "../../config/OAuth2Client";
+import { gmailOAuth2Client, oAuth2Client } from "../../config/OAuth2Client";
 import Content from "../../models/content.model";
 import Embedding from "../../models/embedding.model";
 import Link from "../../models/link.model";
@@ -22,7 +22,6 @@ import {
   OTPVerificationInputSchema,
   signupInputSchema,
 } from "../../validations/user.validation";
-import { gmailOAuth2Client as oauth2Client } from "../../config/OAuth2Client";
 
 export const signupWithOTP: Handler = async (req, res): Promise<void> => {
   try {
@@ -42,8 +41,8 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       return;
     }
 
-    const otp = generateOTP();
-    queueMail(
+    const otp:string = generateOTP();
+    await queueMail(
       email,
       {
         otpType: "signup",
@@ -136,7 +135,7 @@ export const resendOTP: Handler = async (req, res): Promise<void> => {
       return;
     }
     const { otpType, subject, username } = otpData;
-    queueMail(
+    await queueMail(
       email,
       {
         otpType: otpType,
@@ -261,13 +260,12 @@ export const googleSignin: Handler = async (req, res): Promise<void> => {
 };
 export const googleAuthCallback: Handler = async (req, res): Promise<void> => {
   const code = req.query.code as string;
-
-  const { tokens } = await oauth2Client.getToken(code);
-
-  // console.log(tokens);
+  console.log("Authorization code received:", code);
+  const { tokens } = await gmailOAuth2Client.getToken(code);
+  console.log("tokens:", tokens);
 
   res.send("Authorization successful!");
-}
+};
 export const getUser: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
@@ -345,7 +343,7 @@ export const forgetWithOTP: Handler = async (req, res): Promise<void> => {
       return;
     }
     const otp = generateOTP();
-    queueMail(
+    await queueMail(
       email,
       {
         otpType: "forgot",

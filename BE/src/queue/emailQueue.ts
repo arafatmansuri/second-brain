@@ -1,6 +1,6 @@
 import { Queue, Worker } from "bullmq";
 import redis from "../config/redisClient";
-import { sendMail } from "../utils/mailer";
+import { sendMail } from "../utils/v2/googleMailerNodeMailer";
 
 export const emailQueue = new Queue("email-queue", {
   connection: redis,
@@ -16,7 +16,13 @@ new Worker(
   "email-queue",
   async (job) => {
     const { email, otp, username, subject } = job.data;
-    await sendMail(email, subject, username, otp);
+    // await sendMail(email, subject, username, otp);
+    await sendMail({
+      to: email,
+      subject: subject,
+      user: username,
+      otp,
+    });
     console.log(`OTP email sent to ${email}`);
   },
   {

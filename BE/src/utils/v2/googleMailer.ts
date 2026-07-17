@@ -97,7 +97,9 @@ export async function sendMail({
       </body>
       </html>
 `;
+  const senderEmail = "Second Brain <secondbrain.services@gmail.com>";
   const messageParts = [
+    `From: ${senderEmail}`,
     `To: ${to}`,
     "Content-Type: text/html; charset=utf-8",
     "MIME-Version: 1.0",
@@ -113,6 +115,10 @@ export async function sendMail({
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 
+  //   await gmail.users.settings.sendAs.update({
+  //     userId: "me",
+  //     sendAsEmail: "secondbrain.services@gmail.com",
+  //   });
   await gmail.users.messages.send({
     userId: "me",
     requestBody: { raw },
