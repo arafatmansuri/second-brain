@@ -1,7 +1,5 @@
-import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 import { gmailOAuth2Client as oauth2Client } from "../../config/OAuth2Client";
-dotenv.config();
 export async function sendMail({
   to,
   subject,
