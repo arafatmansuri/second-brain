@@ -18,6 +18,7 @@ declare global {
         fileSize?: number;
         uploadType?: string;
         projectId?: string;
+        publicId?: string;
       }>;
       contentLink?: string;
       fileKey?: string;

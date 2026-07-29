@@ -16,9 +16,13 @@ export const contentV2APIs = {
   createContent: `${BASE_V2_URL}/`,
   updateContent: (id: string) => `${BASE_V2_URL}/${id}`,
   deleteContent: (id: string) => `${BASE_V2_URL}/${id}`,
-  displayContent: (brain: string) => `${BASE_V2_URL}?share=${brain}`,
-  shareContent: (reqType: "private" | "copy") => `${BASE_V2_URL}/share&reqtype=${reqType}`,
+  displayContent: `${BASE_V2_URL}`,
+  shareContent: (reqType: "private" | "copy") =>
+    `${BASE_V2_URL}/share&reqtype=${reqType}`,
   askAI: `${BASE_V2_URL}/askai`,
-  displaySharedContent: `${BASE_V2_URL}/display`,
+  displaySharedContent: (brain: string)=> `${BASE_V2_URL}/display?share=${brain}`,
   generateUploadUrl: `${BASE_V2_URL}/uploadUrl`,
+  generateCloudinaryUrl: `${BASE_V2_URL}/cloudinaryUrl`,
+  uploadToCloudinary: (cloudName: string) =>
+    `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
 };

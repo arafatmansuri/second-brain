@@ -1,0 +1,319 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { icons, ui } from "../components";
+import { useRefreshTokenMutation } from "../queries/AuthQueries/queries";
+import { contentV2APIs } from "../queries/PostQueries/endpoints";
+import { usePostMutation } from "../queries/PostQueries/postQueries";
+import { popupAtom } from "../store/loadingState";
+import type { PostData } from "../store/postState";
+import { typeAtom } from "../store/typeState";
+import { userAtom } from "../store/userState";
+type createContentInputs = {
+  title: string;
+  link: string;
+  type: string;
+  tags: string;
+  description: string;
+  file: FileList | null;
+  uploadtype?: string;
+};
+//controlled component
+function AddContent() {
+  const user = useRecoilValue(userAtom);
+  const [isFileError, setIsFileError] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [uploadType, setUploadType] = useState<"file URL" | "local file">(
+    "file URL",
+  );
+  const setIsPopup = useSetRecoilState(popupAtom);
+  const { register, handleSubmit, setValue, getValues } =
+    useForm<createContentInputs>();
+  const contentType = useRecoilValue(typeAtom);
+  const addPostMutation = usePostMutation<{ data: PostData }>();
+  const getUploadUrlMutation = usePostMutation<{
+    timestamp: number;
+    signature: string;
+    apiKey: string;
+    cloudName: string;
+  }>();
+  const refreshTokenMutation = useRefreshTokenMutation();
+  const navigate = useNavigate();
+  function onClose() {
+    setValue("title", "");
+    setValue("link", "");
+    setValue("description", "");
+    setValue("tags", "");
+    setValue("type", "select");
+    setValue("file", null);
+  }
+  const addContent: SubmitHandler<createContentInputs> = async (data) => {
+    const file: File | null = data.file ? data.file[0] : null;
+    const MAX_PDF_SIZE_MB = 10;
+    if (file && file.size > MAX_PDF_SIZE_MB * 1024 * 1024) {
+      setIsFileError(true);
+      return;
+    }
+    if (
+      (data.type == "image" ||
+        data.type == "video" ||
+        data.type == "document") &&
+      uploadType == "local file" &&
+      file
+    ) {
+      let cloudinaryData: {
+        timestamp: number;
+        signature: string;
+        apiKey: string;
+        cloudName: string;
+      };
+      getUploadUrlMutation.mutate(
+        {
+          endpoint: contentV2APIs.generateCloudinaryUrl,
+          method: "POST",
+          // data: {
+          //   fileName: file.name,
+          //   fileType: file.type,
+          //   fileSize: file.size,
+          // },
+        },
+        {
+          async onSuccess(data1) {
+            console.log(await data1);
+            console.log("file", file);
+            cloudinaryData = await data1;
+            const filePayload = new FormData();
+            filePayload.append("file", file);
+            filePayload.append("timestamp", cloudinaryData.timestamp.toString());
+            filePayload.append("signature", cloudinaryData.signature);
+            filePayload.append("api_key", cloudinaryData.apiKey);
+            filePayload.append("folder", "secondbrain");
+            const res = await axios.put(
+              contentV2APIs.uploadToCloudinary(cloudinaryData.cloudName),
+              filePayload,
+              {
+                headers: {
+                  "X-Requested-With": "XMLHttpRequest",
+                },
+              },
+            );
+            console.log(res.data.secure_url);
+            addPostMutation.mutate({
+              method: "POST",
+              endpoint: contentV2APIs.createContent,
+              data: {
+                title: data.title,
+                tags: tags,
+                userId: user._id,
+                description: data.description,
+                link: res.data.secure_url,
+                type: data.type == "document" ? "raw" : data.type,
+                fileKey: file.name,
+                fileSize: file.size,
+                fileType: file.type,
+                uploadType: uploadType,
+                publicId: res.data.public_id,
+              },
+            });
+          },
+        },
+      );
+    } else
+      addPostMutation.mutate({
+        method: "POST",
+        endpoint: contentV2APIs.createContent,
+        data: {
+          title: data.title,
+          tags: tags,
+          userId: user._id,
+          description: data.description,
+          link: data.link,
+          type: data.type == "document" ? "raw" : data.type,
+          uploadType: uploadType,
+          // file: file,
+        },
+        // contentType: "multipart/form-data",
+      });
+  };
+  useEffect(() => {
+    setValue("uploadtype", "file URL");
+  }, []);
+  useEffect(() => {
+    if (addPostMutation.status == "success") {
+      navigate("/dashboard");
+      setTimeout(() => {
+        setIsPopup({ popup: true, message: "Content Added Successfully" });
+        setValue("title", "");
+        setValue("link", "");
+        setValue("description", "");
+        setValue("tags", "");
+        setValue("type", "select");
+        setValue("file", null);
+        setTags([]);
+      }, 500);
+      setTimeout(() => {
+        setIsPopup({ popup: false, message: "" });
+      }, 3000);
+    }
+  }, [addPostMutation.status]);
+  useEffect(() => {
+    if (
+      addPostMutation.status == "error" &&
+      addPostMutation?.error.status == 401
+    ) {
+      refreshTokenMutation.mutate();
+    }
+    // if (refreshTokenMutation.status == "success") {
+    //   handleSubmit(addContent)
+    // }
+  }, [addPostMutation.error?.message, addPostMutation.status]);
+  return (
+    <div className={`flex sm:w-[70%] lg:w-[45%] w-full h-screen sm:pl-5`}>
+      <form
+        onSubmit={handleSubmit(addContent)}
+        className="p-4 flex flex-col items-center gap-3 w-[100%]"
+      >
+        <div
+          className="flex self-end cursor-pointer w-full justify-between font-medium text-purple-800 items-center"
+          onClick={onClose}
+        >
+          <h1 className="font-bold md:text-xl">Add Content</h1>
+          <ui.MenuButton size="sm" />
+        </div>
+        <div className="flex flex-col gap-2 w-full sm:pt-5">
+          <ui.Input
+            placeholder="Title"
+            formHook={{ ...register("title", { minLength: 3 }) }}
+            isWidthFull={true}
+          />
+          <ui.Select formHook={{ ...register("type") }} />
+          {(contentType == "document" ||
+            contentType == "video" ||
+            contentType == "image" ||
+            contentType == "article") && (
+            <div className="flex gap-4">
+              <label>Upload via</label>
+              <ui.Input
+                type="radio"
+                formHook={{ ...register("uploadtype") }}
+                label="Url"
+                defaultValue="file URL"
+                onclick={() => setUploadType("file URL")}
+              />
+              <ui.Input
+                type="radio"
+                formHook={{ ...register("uploadtype") }}
+                label={getValues("type") == "article" ? "Manual" : "Device"}
+                defaultValue="local file"
+                onclick={() => setUploadType("local file")}
+              />
+            </div>
+          )}
+          {(contentType == "youtube" ||
+            contentType == "tweet" ||
+            uploadType == "file URL") && (
+            <ui.Input
+              type="text"
+              placeholder="Link"
+              formHook={{ ...register("link") }}
+            />
+          )}
+          {uploadType == "local file" &&
+            (contentType == "document" ||
+              contentType == "video" ||
+              contentType == "image") && (
+              <ui.Input
+                type="file"
+                formHook={{ ...register("file") }}
+                acceptedFileTypes={
+                  contentType === "document"
+                    ? ".pdf"
+                    : contentType === "video"
+                      ? "video/*"
+                      : "image/*"
+                }
+              />
+            )}
+          <ui.TextArea
+            placeholder={
+              contentType == "article" && uploadType == "local file"
+                ? "Article"
+                : "Description"
+            }
+            formHook={{ ...register("description") }}
+          />
+          <div className="flex gap-2 relative">
+            <ui.Input
+              placeholder="Tags"
+              formHook={{ ...register("tags") }}
+              isWidthFull={true}
+            />
+            <ui.Button
+              size="md"
+              text="Add"
+              varient="secondary"
+              classes=""
+              textVisible={true}
+              onClick={() =>
+                getValues("tags") &&
+                setTags((prev) => [...prev, getValues("tags")])
+              }
+            />
+          </div>
+          <div className="flex gap-2">
+            {tags.map((tag, index) => (
+              <ui.Button
+                key={index}
+                size="md"
+                text={tag}
+                varient="secondary"
+                endIcon={
+                  <icons.CrossIcon
+                    size="sm"
+                    onClick={() => setTags((p) => p.filter((t) => t != tag))}
+                  />
+                }
+              />
+            ))}
+          </div>
+        </div>
+        {(addPostMutation.isError && (
+          <ui.ErrorBox errorMessage={addPostMutation?.error?.message} />
+        )) ||
+          (isFileError && (
+            <ui.ErrorBox
+              errorMessage={"Please upload a PDF smaller than 10 MB."}
+            />
+          )) ||
+          (getUploadUrlMutation.isError && (
+            <ui.ErrorBox errorMessage={getUploadUrlMutation?.error?.message} />
+          ))}
+
+        <div className="flex sm:grid-cols-2 w-full gap-2">
+          <ui.Button
+            varient="primary"
+            text="Submit"
+            size="md"
+            textVisible={true}
+            classes="flex-1"
+            loading={addPostMutation.isPending}
+            type="submit"
+            isCenterText={true}
+          />
+          <ui.Button
+            varient="secondary"
+            text="Cancel"
+            size="md"
+            textVisible={true}
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            isCenterText={true}
+          />
+        </div>
+      </form>
+    </div>
+  );
+}
+export default AddContent;

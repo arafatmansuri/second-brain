@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import axios from "axios";
 import { type PostData } from "../../store/postState";
-import { contentV1APIs } from "./endpoints";
+import { contentV2APIs } from "./endpoints";
 type PostFormData = {
   method: string;
   endpoint: string;
@@ -24,6 +24,7 @@ type PostFormData = {
     fileKey?: string;
     fileSize?: number;
     uploadType?: string;
+    publicId?: string;
   };
   contentType?: string;
 };
@@ -42,16 +43,24 @@ const fetchPosts = async <T>({
         "Content-Type": contentType,
       },
     });
-    if (method == "PUT" || endpoint.includes("display?share=")) {
-      return posts.data;
+    if (endpoint.includes("v2")) {
+      console.log(posts.data);
+      if (method == "GET") {
+        return posts.data.content;
+      }
+      return posts.data.data;
+    } else {
+      if (method == "PUT" || endpoint.includes("display?share=")) {
+        return posts.data;
+      }
+      if (endpoint.includes("askai")) {
+        return posts.data;
+      }
+      if (endpoint.includes("uploadUrl")) {
+        return posts.data;
+      }
+      return posts.data.content;
     }
-    if (endpoint.includes("askai")) {
-      return posts.data;
-    }
-    if (endpoint.includes("uploadUrl")) {
-      return posts.data;
-    }
-    return posts.data.content;
   } catch (err: any) {
     throw {
       message: err.response?.data?.message || "Unknown error",
@@ -70,7 +79,7 @@ export const useGetPosts = (): UseQueryResult<
       queryFn: async (): Promise<PostData[]> => {
         return await fetchPosts<PostData[]>({
           method: "GET",
-          endpoint: contentV1APIs.displayContent,
+          endpoint: contentV2APIs.displayContent,
         });
       },
       retry: false,

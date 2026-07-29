@@ -4,7 +4,7 @@ import { OTPBox } from "./components/ui/OTPBox";
 import { ThemeProvider } from "./hooks/themeContext";
 import { DashboardLayout } from "./layout/DashboardLayout";
 import NavbarLayout from "./layout/NavbarLayout";
-import AddContent from "./Pages/AddContent";
+import AddContent from "./Pages/AddContent2";
 import { Contact } from "./Pages/contact";
 import Dashboard from "./Pages/Dashboard";
 import LandingPage from "./Pages/Landing";

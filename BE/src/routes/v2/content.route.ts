@@ -4,6 +4,7 @@ import {
   deleteContent,
   displayContent,
   displaySharedContent,
+  generateCloudinaryUrl,
   generateUploadUrl,
   queryFromContent,
   shareContent,
@@ -34,5 +35,6 @@ contentRouter.route("/askai").post(queryFromContent);
 //   .route("/askai")
 //   .post(rateLimiterMiddlewareAskAI(askAILimiter), queryFromContent);
 contentRouter.route("/uploadUrl").post(generateUploadUrl);
+contentRouter.route("/cloudinaryUrl").post(generateCloudinaryUrl);
 
 export default contentRouter;

@@ -1,6 +1,7 @@
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Schema, Types } from "mongoose";
+import cloudinary from "../../config/cloudinary";
 import { s3 } from "../../config/s3Config";
 import { ApiResponse } from "../../lib/ApiResponse";
 import { AppError } from "../../lib/AppError";
@@ -12,9 +13,9 @@ import Project from "../../models/project.model";
 import User from "../../models/user.model";
 import { Handler, StatusCode } from "../../types";
 import { generateHash } from "../../utils/generateHash.util";
-import { generateAnswer } from "../../utils/v2/generateResult";
-import { generateSignedUrl } from "../../utils/getSignedUrl";
 import { queueDataEmbedding } from "../../utils/v2/generateDataAndEmbeddings";
+import { generateAnswer } from "../../utils/v2/generateResult";
+import { deleteFromCloudinary } from "../../utils/cloudinary";
 interface userLinkSchema {
   _id: Schema.Types.ObjectId;
   hash: string;
@@ -42,6 +43,7 @@ export const addContent = asyncHandler(async (req, res) => {
     isProcessing: true,
     uploadType: contentInput.data.uploadType,
     projectId: projectId ? new Types.ObjectId(projectId) : undefined,
+    publicId: contentInput.data.publicId,
   });
   if (projectId) {
     const project = await Project.findByIdAndUpdate(projectId, {
@@ -101,11 +103,7 @@ export const deleteContent: Handler = async (req, res): Promise<void> => {
       content.uploadType == "local file" &&
       content.fileKey
     ) {
-      const deleteCommand = new DeleteObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: content.fileKey || "",
-      });
-      await s3.send(deleteCommand);
+      await deleteFromCloudinary(content.publicId || content.fileKey);
     }
     res
       .status(StatusCode.Success)
@@ -122,26 +120,6 @@ export const displayContent: Handler = async (req, res): Promise<void> => {
   try {
     const userId = req.userId;
     const content = await Content.find({ userId: userId }).populate("tags");
-    if (
-      content.some(
-        (c) =>
-          (!c.expiry || c.expiry < new Date()) &&
-          (c.type == "document" || c.type == "image" || c.type == "video") &&
-          c.fileKey,
-      )
-    ) {
-      content.map(async (c) => {
-        if (
-          (!c.expiry || c.expiry < new Date()) &&
-          (c.type == "document" || c.type == "image" || c.type == "video") &&
-          c.fileKey
-        ) {
-          c.link = await generateSignedUrl(c.fileKey);
-          c.expiry = new Date(new Date().getTime() + 59 * 60 * 1000);
-          await c.save({ validateBeforeSave: false });
-        }
-      });
-    }
     const user = await User.findById(userId).select("-password -refreshToken");
     if (!content) {
       res.status(StatusCode.NotFound).json({ message: "No contents found" });
@@ -243,12 +221,16 @@ export const shareContent: Handler = async (req, res): Promise<void> => {
     return;
   }
 };
-export const queryFromContent= asyncHandler(async (req, res) => {
-    const userId = req.userId;
-    const { query } = req.body;
-    const { result, contentIds } = await generateAnswer(query, userId);
-    const contents = await Content.find({ _id: { $in: contentIds } });
-    ApiResponse.success(res, { answer: result, contents }, "Query generated successfully");
+export const queryFromContent = asyncHandler(async (req, res) => {
+  const userId = req.userId;
+  const { query } = req.body;
+  const { result, contentIds } = await generateAnswer(query, userId);
+  const contents = await Content.find({ _id: { $in: contentIds } });
+  ApiResponse.success(
+    res,
+    { answer: result, contents },
+    "Query generated successfully",
+  );
 });
 export const generateUploadUrl: Handler = async (req, res) => {
   try {
@@ -275,3 +257,25 @@ export const generateUploadUrl: Handler = async (req, res) => {
     return;
   }
 };
+export const generateCloudinaryUrl = asyncHandler(async (req, res) => {
+  const timestamp = Math.floor(Date.now() / 1000);
+
+  const signature = cloudinary.utils.api_sign_request(
+    {
+      timestamp,
+      folder: "secondbrain",
+    },
+    process.env.CLOUDINARY_API_SECRET!,
+  );
+
+  ApiResponse.success(
+    res,
+    {
+      timestamp,
+      signature,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    },
+    "Cloudinary signature generated successfully",
+  );
+});

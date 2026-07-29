@@ -13,14 +13,14 @@ export function AskAI() {
   const questionRef = useRef<HTMLInputElement | null>(null);
   const [relevantPosts, setRelevantPosts] = useState<PostData[]>([]);
   const posts = useRecoilValue(postAtom);
-  const askAIMutation = usePostMutation<{ data:{
+  const askAIMutation = usePostMutation<{ 
     answer: string;
     contents: PostData[];
-  }}>();
+  }>();
   useEffect(() => {
     if (askAIMutation.status == "success") {
-      setAnswer(askAIMutation.data.data.answer);
-      setRelevantPosts(askAIMutation.data.data.contents);
+      setAnswer(askAIMutation.data.answer);
+      setRelevantPosts(askAIMutation.data.contents);
     }
   }, [askAIMutation?.data, askAIMutation.status]);
   async function askAi() {

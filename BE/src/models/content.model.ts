@@ -19,6 +19,7 @@ const contentSchema = new Schema(
     fileType:{type:String},
     fileSize:{type:Number},
     isProcessing:{type:Boolean},
+    publicId:{type:String},
     uploadType:{type:String, enum:["file URL","local file"]},
   },
   { timestamps: true }

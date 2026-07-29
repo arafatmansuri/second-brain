@@ -13,7 +13,7 @@ import { addContentModalAtom } from "../store/AddContentModalState";
 import { popupAtom } from "../store/loadingState";
 import { postAtom, type PostData } from "../store/postState";
 import { userAtom } from "../store/userState";
-import { contentV1APIs } from "../queries/PostQueries/endpoints";
+import { contentV1APIs, contentV2APIs } from "../queries/PostQueries/endpoints";
 
 function Dashboard() {
   const [modalOpen, setModalOpen] = useRecoilState(addContentModalAtom);
@@ -40,7 +40,7 @@ function Dashboard() {
   async function deletePost(postId: string) {
       privateContentMutation.mutate({
         method: "DELETE",
-        endpoint: contentV1APIs.deleteContent(postId),
+        endpoint: contentV2APIs.deleteContent(postId),
       });
       return;
     }

@@ -25,6 +25,7 @@ export const contentSchema = z.object({
   fileType: z.string().optional(),
   uploadType: z.enum(["file URL", "local file"]).optional(),
   projectId: z.string().optional(),
+  publicId: z.string().optional(),
 });
 export const contentData = asyncHandler(async (req, res, next) => {
   const contentInput = contentSchema.safeParse(req.body);
@@ -52,8 +53,8 @@ export const contentData = asyncHandler(async (req, res, next) => {
     } else if (contentInput.data.fileSize > 10 * 1024 * 1024) {
       throw AppError.badRequest("File is too Large");
     } else {
-      link = await generateSignedUrl(contentInput.data.fileKey);
-      req.expiry = new Date(new Date().getTime() + 59 * 60 * 1000);
+      link = contentInput.data.link;
+      // req.expiry = new Date(new Date().getTime() + 59 * 60 * 1000);
     }
   } else if (
     contentInput.data.type == "tweet" ||
