@@ -81,8 +81,6 @@ function AddContent() {
         },
         {
           async onSuccess(data1) {
-            console.log(await data1);
-            console.log("file", file);
             cloudinaryData = await data1;
             const filePayload = new FormData();
             filePayload.append("file", file);
@@ -99,7 +97,6 @@ function AddContent() {
                 },
               },
             );
-            console.log(res.data.secure_url);
             addPostMutation.mutate({
               method: "POST",
               endpoint: contentV2APIs.createContent,
@@ -298,7 +295,7 @@ function AddContent() {
             size="md"
             textVisible={true}
             classes="flex-1"
-            loading={addPostMutation.isPending}
+            loading={addPostMutation.isPending || getUploadUrlMutation.isPending}
             type="submit"
             isCenterText={true}
           />
