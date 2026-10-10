@@ -8,6 +8,12 @@ export const loginLimiter = new RateLimiterRedis({
   points: 10, // 5 attempts
   duration: 15 * 60, // per 15 minutes
 });
+export const MFALimiter = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "mfa",
+  points: 5, // 5 attempts
+  duration: 15 * 60, // per 15 minutes
+});
 
 // Signup limiter
 export const signupLimiter = new RateLimiterRedis({

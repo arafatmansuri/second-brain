@@ -2,6 +2,8 @@ import axios from "axios";
 import bcrypt from "bcrypt";
 import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { generateSecret, generateURI } from "otplib";
+import qrcode from "qrcode";
 import { z } from "zod";
 import { gmailOAuth2Client, oAuth2Client } from "../../config/OAuth2Client";
 import Content from "../../models/content.model";
@@ -15,14 +17,19 @@ import {
   getOTPData,
   verifyOTP,
 } from "../../utils/otp.service";
+import {
+  encrypt,
+  generateBackupCodes,
+  verifyTotp,
+} from "../../utils/v2/mfaServices";
 import { queueMail } from "../../utils/v2/sendMail";
+import { isPwned } from "../../utils/v2/validatePassword";
 import {
   changePasswordInputSchema,
   forgetInputSchema,
   OTPVerificationInputSchema,
   signupInputSchema,
 } from "../../validations/user.validation";
-import { isPwned } from "../../utils/v2/validatePassword";
 
 export const signupWithOTP: Handler = async (req, res): Promise<void> => {
   try {
@@ -220,7 +227,10 @@ export const signin: Handler = async (req, res): Promise<void> => {
       .cookie("accessToken", accessToken, cookieOptions)
       .cookie("refreshToken", refreshToken, cookieOptions)
       .status(StatusCode.Success)
-      .json({ message: "signin successfull", user });
+      .json({
+        message: "signin successfull",
+        user: { ...user, password: undefined, refreshToken: undefined },
+      });
     return;
   } catch (err: any) {
     res
@@ -257,7 +267,7 @@ export const signinWithMFA: Handler = async (req, res): Promise<void> => {
       res.status(StatusCode.InputError).json({ message: "Invalid password" });
       return;
     }
-    
+
     const cookieOptions = {
       httpOnly: true,
       secure: true,
@@ -266,9 +276,16 @@ export const signinWithMFA: Handler = async (req, res): Promise<void> => {
       maxAge: 20 * 60 * 1000, // 20 minutes
     };
     res
-      .cookie("otp_data", { username, type: "mfa" }, cookieOptions)
+      .cookie("otp_data", { username, type: "mfa_pending" }, cookieOptions)
       .status(StatusCode.Success)
-      .json({ message: "Password verified successfully", user });
+      .json({
+        message: "Password verified successfully",
+        user: {
+          ...user.toObject(),
+          password: undefined,
+          refreshToken: undefined,
+        },
+      });
     return;
   } catch (err: any) {
     res
@@ -678,7 +695,7 @@ export const deleteAccount: Handler = async (req, res): Promise<void> => {
 export const emailMFASendOTP: Handler = async (req, res): Promise<void> => {
   try {
     const { username, type } = req.cookies.otp_data;
-    if (!username || !type || type !== "mfa") {
+    if (!username || !type || type !== "mfa_pending") {
       res.status(StatusCode.InputError).json({
         message: "Invalid Request",
       });
@@ -698,7 +715,7 @@ export const emailMFASendOTP: Handler = async (req, res): Promise<void> => {
       {
         otpType: "MFA",
         subject: "OTP Verification",
-        username
+        username,
       },
       parseInt(otp),
     );
@@ -710,7 +727,7 @@ export const emailMFASendOTP: Handler = async (req, res): Promise<void> => {
       maxAge: 20 * 60 * 1000, // 20 minutes
     };
     res
-      .cookie("otp_data", { email, type: "MFA" }, cookieOptions)
+      .cookie("otp_data", { email, type: "email_mfa" }, cookieOptions)
       .status(StatusCode.Success)
       .json({ message: "OTP sent successfully" });
     return;
@@ -722,11 +739,14 @@ export const emailMFASendOTP: Handler = async (req, res): Promise<void> => {
     return;
   }
 };
-export const emailMFAVerification: Handler = async (req, res): Promise<void> => {
+export const emailMFAVerification: Handler = async (
+  req,
+  res,
+): Promise<void> => {
   try {
     const { email, type } = req.cookies.otp_data;
     const otp = req.body.otp;
-    if (!email || !type || !otp || type !== "mfa") {
+    if (!email || !type || !otp || type !== "email_mfa") {
       res.status(StatusCode.InputError).json({
         message: "Invalid Request",
       });
@@ -739,7 +759,7 @@ export const emailMFAVerification: Handler = async (req, res): Promise<void> => 
         .json({ message: "Invalid Request" });
       return;
     }
-    
+
     const otpData = await verifyOTP(email, otp, "signup");
 
     if (!otpData || otpData.otpType !== "signup") {
@@ -779,7 +799,9 @@ export const toggleEmailMFA: Handler = async (req, res): Promise<void> => {
       user.MFAs.push({ type: "email", isEnabled: true });
     }
     await user.save();
-    res.status(StatusCode.Success).json({ message: "Email MFA enabled successfully" });
+    res.status(StatusCode.Success).json({
+      message: `Email MFA ${emailMFA?.isEnabled ? "disabled" : "enabled"} successfully`,
+    });
   } catch (err: any) {
     console.log(err);
     res
@@ -787,4 +809,154 @@ export const toggleEmailMFA: Handler = async (req, res): Promise<void> => {
       .json({ message: "Something went wrong from ourside", err });
     return;
   }
-}
+};
+export const enableTOTPMFA: Handler = async (req, res): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(StatusCode.NotFound).json({ message: "User not found" });
+      return;
+    }
+    if (user.totp?.isVerified) {
+      res.status(StatusCode.Success).json({
+        message: "TOTP MFA is already enabled",
+      });
+      return;
+    }
+    const totpMFA = user.MFAs.find((mfa) => mfa.type === "totp");
+    if (!totpMFA) user.MFAs.push({ type: "totp", isEnabled: false });
+    const secret = generateSecret();
+    const otpauth = generateURI({
+      issuer: "Second Brain App",
+      label: user.email!,
+      secret,
+    });
+    const qr = await qrcode.toDataURL(otpauth);
+    user.totp = {
+      isVerified: false,
+      secret: encrypt(secret),
+      lastStep: 0,
+      backupCodes: [],
+    };
+    await user.save();
+    res.status(StatusCode.Success).json({
+      message: "TOTP MFA secret generated successfully",
+      qrCode: qr,
+      manualKey: secret,
+      otpauthURL: otpauth,
+    });
+    return;
+  } catch (err: any) {
+    console.log(err);
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from ourside", err });
+    return;
+  }
+};
+const isCode = (v: unknown): v is string =>
+  typeof v === "string" && /^\d{6}$/.test(v);
+export const verifyTOTPMFA: Handler = async (req, res): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(StatusCode.NotFound).json({ message: "User not found" });
+      return;
+    }
+    const { code } = req.body;
+    if (
+      !code ||
+      !user?.totp?.secret ||
+      user?.totp.isVerified) {
+      res
+        .status(StatusCode.InputError)
+        .json({ message: "Invalid verification request" });
+      return;
+    }
+    if (user.totp?.isVerified) {
+      res.status(StatusCode.Success).json({
+        message: "TOTP MFA is already enabled",
+      });
+      return;
+    }
+    const verificationDelta = await verifyTotp(
+      user.totp.secret,
+      user.totp.lastStep || 0,
+      code,
+    );
+    if (verificationDelta === null) {
+      res
+        .status(StatusCode.InputError)
+        .json({ message: "Invalid verification code" });
+      return;
+    }
+    const { plain, hashed } = generateBackupCodes();
+    user.totp.isVerified = true;
+    user.totp.backupCodes = hashed;
+    await user.save();
+    res.status(StatusCode.Success).json({
+      message: "TOTP MFA enabled successfully",
+      backupCodes: plain,
+    });
+    return;
+  } catch (err: any) {
+    console.log(err);
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from ourside", err });
+    return;
+  }
+};
+export const TOTPMfa: Handler = async (req, res): Promise<void> => {
+  try {
+    const { username, type } = req.cookies.otp_data;
+    if (!username || !type || type !== "mfa_pending") {
+      res.status(StatusCode.InputError).json({
+        message: "Invalid Request",
+      });
+      return;
+    }
+    const { code } = req.body;
+    if (!code) {
+      res.status(StatusCode.InputError).json({
+        message: "Invalid Request",
+      });
+      return;
+    }
+    const userExists = await User.findOne({ username });
+    if (!userExists || !isCode(code)) {
+      res
+        .status(StatusCode.DocumentExists)
+        .json({ message: "Invalid Request" });
+      return;
+    }
+    const verificationDelta = await verifyTotp(
+      userExists.totp?.secret || "",
+      userExists?.totp?.lastStep || undefined,
+      code,
+    );
+    if (verificationDelta === null) {
+      res
+        .status(StatusCode.InputError)
+        .json({ message: "Invalid verification code" });
+      return;
+    }
+    const { accessToken, refreshToken } =
+      userExists.generateAccessAndRefreshToken();
+    await User.updateOne({ _id: userExists._id }, { $set:{refreshToken} });
+    res
+      .cookie("accessToken", accessToken, { httpOnly: true })
+      .cookie("refreshToken", refreshToken, { httpOnly: true })
+      .status(StatusCode.Success)
+      .json({ message: "Signed in successfully" });
+    return;
+  } catch (err: any) {
+    console.log(err);
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from ourside", err });
+    return;
+  }
+};

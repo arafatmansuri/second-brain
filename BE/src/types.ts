@@ -6,6 +6,17 @@ export interface IUser {
   password: string;
   shared: boolean;
   refreshToken?: string;
+  email?: string;
+  method: "oauth" | "normal";
+  MFAs: {
+    type: "email" | "sms" | "totp";
+    isEnabled: boolean;
+  }[];
+  totp?: {
+    secret?: string;
+    isVerified?: boolean;
+    lastStep?: number;
+  };
 }
 export interface IUserDocument extends Model<IUser> {
   comparePassword: (inputPassword: string) => boolean;

@@ -23,6 +23,8 @@ const userSchema = new Schema(
       secret: { type: String },
       isVerified: { type: Boolean, default: false },
       lastStep: { type: Number },
+      backupCodes: { type: [String], default: [] },
+      default:{}
     },
   },
   {
