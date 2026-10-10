@@ -3,13 +3,18 @@ import axios from "axios";
 import { BACKEND_URL } from "../../config";
 import type { userData } from "../../store/userState";
 
-export type UserData = {
-  _id: string;
-  username?: string;
-  password?: string;
-  shared: boolean;
-  _v: number;
-  refreshToken?: string;
+export type UserData = userData;
+export type MfaMethod = {
+  type: "email" | "totp";
+  isEnabled: boolean;
+};
+export type AuthResponse = {
+  message?: string;
+  user?: UserData & { mfas?: MfaMethod[] };
+  qrCode?: string;
+  manualKey?: string;
+  otpauthURL?: string;
+  backupCodes?: string[];
 };
 export type UserFormData = {
   username?: string;
@@ -18,6 +23,7 @@ export type UserFormData = {
   oldPassword?: string;
   newPassword?: string;
   otp?: string;
+  code?: string;
   credentials?: boolean;
   endpoint?: string;
   method?: "GET" | "POST" | "DELETE" | "PUT";
@@ -27,6 +33,7 @@ const authUser = async <T>({
   password,
   email,
   otp,
+  code,
   newPassword,
   oldPassword,
   credentials,
@@ -41,12 +48,13 @@ const authUser = async <T>({
         password,
         email,
         otp,
+        code,
         newPassword,
         oldPassword,
       },
       withCredentials: credentials,
     });
-    return user.data.user;
+    return user.data as T;
   } catch (err: any) {
     throw {
       message: err.response?.data?.message || "Unknown error",
@@ -59,11 +67,12 @@ export const useUserQuery = ({ credentials }: UserFormData) => {
   return useQuery<userData, { message: string; status: number }>({
     queryKey: ["userQuery", credentials],
     queryFn: async () => {
-      return await authUser<userData>({
+      const data = await authUser<{ user: userData }>({
         credentials: true,
         endpoint: "getuser",
         method: "GET",
       });
+      return data.user;
     },
     retry: false,
     refetchOnWindowFocus: false,
@@ -74,21 +83,23 @@ export const useUserQuery = ({ credentials }: UserFormData) => {
 };
 
 export const useAuthMutation = () =>
-  useMutation<userData, { message: string; status: number }, UserFormData>(
+  useMutation<AuthResponse, { message: string; status: number }, UserFormData>(
     async ({
       username,
       password,
       email,
       otp,
+      code,
       newPassword,
       oldPassword,
       credentials = false,
       endpoint,
       method = "POST",
-    }: UserFormData): Promise<userData> =>
-      await authUser({
+    }: UserFormData): Promise<AuthResponse> =>
+      await authUser<AuthResponse>({
         username,
         otp,
+        code,
         password,
         email,
         newPassword,

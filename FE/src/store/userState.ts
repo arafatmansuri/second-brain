@@ -8,6 +8,8 @@ export interface userData {
   _v: number;
   refreshToken: string;
   method:"oauth" | "normal";
+  MFAs?: { type: "email" | "totp"; isEnabled: boolean }[];
+  totp?: { isVerified?: boolean };
 }
 export const userAtom = atom<userData>({
   key: "userAtom",

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   changePassword,
   deleteAccount,
+  disableTOTPMFA,
   emailMFASendOTP,
   emailMFAVerification,
   enableTOTPMFA,
@@ -69,6 +70,7 @@ userRouter.route("/changepassword").put(changePassword);
 userRouter.route("/deleteAccount").delete(deleteAccount);
 userRouter.route("/mfa/totp/setup").post(enableTOTPMFA);
 userRouter.route("/mfa/totp/verify").post(verifyTOTPMFA);
+userRouter.route("/mfa/totp/disable").post(rateLimiterMiddleware(MFALimiter), disableTOTPMFA);
 userRouter.route("/mfa/email/toggle").post(toggleEmailMFA);
 
 userRouter.route("/signout").post(signout);

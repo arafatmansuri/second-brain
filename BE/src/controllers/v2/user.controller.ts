@@ -229,7 +229,7 @@ export const signin: Handler = async (req, res): Promise<void> => {
       .status(StatusCode.Success)
       .json({
         message: "signin successfull",
-        user: { ...user, password: undefined, refreshToken: undefined },
+        user: { ...user.toObject(), password: undefined, refreshToken: undefined },
       });
     return;
   } catch (err: any) {
@@ -281,9 +281,7 @@ export const signinWithMFA: Handler = async (req, res): Promise<void> => {
       .json({
         message: "Password verified successfully",
         user: {
-          ...user.toObject(),
-          password: undefined,
-          refreshToken: undefined,
+          mfas: user.MFAs,
         },
       });
     return;
@@ -893,12 +891,80 @@ export const verifyTOTPMFA: Handler = async (req, res): Promise<void> => {
       return;
     }
     const { plain, hashed } = generateBackupCodes();
+    user.MFAs.find((mfa) => mfa.type === "totp")!.isEnabled = true;
     user.totp.isVerified = true;
     user.totp.backupCodes = hashed;
     await user.save();
     res.status(StatusCode.Success).json({
       message: "TOTP MFA enabled successfully",
       backupCodes: plain,
+    });
+    return;
+  } catch (err: any) {
+    console.log(err);
+    res
+      .status(StatusCode.ServerError)
+      .json({ message: "Something went wrong from ourside", err });
+    return;
+  }
+};
+export const disableTOTPMFA: Handler = async (req, res): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(StatusCode.NotFound).json({ message: "User not found" });
+      return;
+    }
+
+    const { password, code } = req.body;
+    if (
+      typeof password !== "string" ||
+      !password ||
+      !isCode(code) ||
+      !user.totp?.secret ||
+      !user.totp.isVerified
+    ) {
+      res
+        .status(StatusCode.InputError)
+        .json({ message: "Invalid verification request" });
+      return;
+    }
+
+    if (!user.comparePassword(password)) {
+      res
+        .status(StatusCode.Unauthorized)
+        .json({ message: "Verification failed" });
+      return;
+    }
+
+    const verificationDelta = await verifyTotp(
+      user.totp.secret,
+      user.totp.lastStep || undefined,
+      code,
+    );
+    if (verificationDelta === null) {
+      res
+        .status(StatusCode.Unauthorized)
+        .json({ message: "Verification failed" });
+      return;
+    }
+
+    const totpMFA = user.MFAs.find((mfa) => mfa.type === "totp");
+    if (totpMFA) {
+      totpMFA.isEnabled = false;
+    }
+    user.totp = {
+      secret: undefined,
+      isVerified: false,
+      lastStep: 0,
+      backupCodes: [],
+    };
+    await user.save();
+
+    res.status(StatusCode.Success).json({
+      message: "TOTP MFA disabled successfully",
+      disabled: true,
     });
     return;
   } catch (err: any) {

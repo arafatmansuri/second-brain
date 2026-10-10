@@ -14,11 +14,19 @@ function SecurityPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<{ oldPassword: string; newPassword: string }>();
+  const {
+    register: registerTotpDisable,
+    handleSubmit: handleTotpDisableSubmit,
+    formState: { errors: totpDisableErrors },
+  } = useForm<{ password: string; code: string }>();
   const [isPasswordBoxOpen, setIsPasswordBoxOpen] = useState(false);
+  const [isTotpDisableBoxOpen, setIsTotpDisableBoxOpen] = useState(false);
   const user = useRecoilValue(userAtom);
   const navigate = useNavigate();
   const setIsPopup = useSetRecoilState(popupAtom);
   const changePasswordMutation = useAuthMutation();
+  const emailMfaMutation = useAuthMutation();
+  const disableTotpMutation = useAuthMutation();
   const changePassword: SubmitHandler<{
     oldPassword: string;
     newPassword: string;
@@ -31,6 +39,17 @@ function SecurityPage() {
       credentials: true,
     });
   };
+  const disableTotp: SubmitHandler<{ password: string; code: string }> = ({
+    password,
+    code,
+  }) => {
+    disableTotpMutation.mutate({
+      endpoint: "mfa/totp/disable",
+      password,
+      code,
+      credentials: true,
+    });
+  };
   useEffect(() => {
     if (changePasswordMutation.isSuccess) {
       setIsPopup({ popup: true, message: "Password changed successfully" });
@@ -40,6 +59,19 @@ function SecurityPage() {
       }, 1000);
     }
   }, [changePasswordMutation.isSuccess]);
+  const [emailMfaEnabled, setEmailMfaEnabled] = useState(
+    user.MFAs?.some((mfa) => mfa.type === "email" && mfa.isEnabled) ?? false,
+  );
+  const [totpEnabled, setTotpEnabled] = useState(user.totp?.isVerified ?? false);
+  useEffect(() => {
+    if (emailMfaMutation.isSuccess) setEmailMfaEnabled((enabled) => !enabled);
+  }, [emailMfaMutation.isSuccess]);
+  useEffect(() => {
+    if (disableTotpMutation.isSuccess) {
+      setTotpEnabled(false);
+      setIsTotpDisableBoxOpen(false);
+    }
+  }, [disableTotpMutation.isSuccess]);
   return (
     <div className={`sm:w-[80%] lg:w-[82%] w-full`}>
       <div className={`p-3 w-full mb-5`}>
@@ -182,6 +214,136 @@ function SecurityPage() {
               />
             </div>
           </div>
+          <div className="flex items-center gap-2 mt-7">
+            <icons.Security />
+            <h2 className="font-medium md:text-2xl text-xl">Multi-factor authentication</h2>
+          </div>
+          <p className="text-gray-600 text-sm sm:w-[90%] lg:w-[80%]">
+            Add an extra layer of protection by requiring a second verification method when you sign in.
+          </p>
+          <div className="flex flex-col gap-2 sm:w-[90%] lg:w-[80%] w-full border rounded-md border-gray-300 border-b-0 mt-1">
+            <div className="flex justify-between md:p-5 p-3 border-b border-gray-300 items-center">
+              <div className="flex justify-center items-center md:gap-2">
+                <icons.Security />
+                <div>
+                  <h4 className="font-medium">Email verification</h4>
+                  <p className="text-gray-600 text-sm">
+                    {emailMfaEnabled ? "Enabled for sign in" : "Use email codes for sign in"}
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                classes="font-medium"
+                text={emailMfaEnabled ? "Disable" : "Enable"}
+                varient={emailMfaEnabled ? "danger" : "google"}
+                loading={emailMfaMutation.isPending}
+                onClick={() =>
+                  emailMfaMutation.mutate({
+                    endpoint: "mfa/email/toggle",
+                    credentials: true,
+                  })
+                }
+              />
+            </div>
+            <div className="flex justify-between md:p-5 p-3 items-center">
+              <div className="flex justify-center items-center md:gap-2">
+                <icons.Security />
+                <div>
+                  <h4 className="font-medium">Authenticator app</h4>
+                  <p className="text-gray-600 text-sm">
+                    {totpEnabled ? "Enabled for sign in" : "Use an authenticator app for sign in"}
+                  </p>
+                </div>
+              </div>
+              {totpEnabled ? (
+                <Button
+                  size="sm"
+                  classes="font-medium"
+                  text="Disable"
+                  varient="danger"
+                  loading={disableTotpMutation.isPending}
+                  onClick={() => setIsTotpDisableBoxOpen((open) => !open)}
+                />
+              ) : (
+                <Button
+                  size="sm"
+                  classes="font-medium"
+                  text="Set up"
+                  varient="google"
+                  onClick={() => navigate("/settings/security/totp")}
+                />
+              )}
+            </div>
+            {totpEnabled && isTotpDisableBoxOpen && (
+              <form
+                onSubmit={handleTotpDisableSubmit(disableTotp)}
+                className="flex flex-col gap-2 border-t border-gray-200 p-3 md:p-5"
+              >
+                <p className="text-sm text-gray-600">
+                  Confirm your password and enter a current authenticator code to disable TOTP.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-medium text-sm">Password</label>
+                    <ui.Input
+                      type="password"
+                      formHook={{
+                        ...registerTotpDisable("password", { required: true }),
+                      }}
+                    />
+                    {totpDisableErrors.password && (
+                      <span className="text-red-500 text-sm">Password is required.</span>
+                    )}
+                  </div>
+                  <div>
+                    <label className="font-medium text-sm">Authenticator code</label>
+                    <ui.Input
+                      type="text"
+                      placeholder="123456"
+                      formHook={{
+                        ...registerTotpDisable("code", {
+                          required: true,
+                          pattern: /^\d{6}$/,
+                        }),
+                      }}
+                    />
+                    {totpDisableErrors.code && (
+                      <span className="text-red-500 text-sm">Enter a valid 6-digit code.</span>
+                    )}
+                  </div>
+                </div>
+                {disableTotpMutation.error && (
+                  <ui.ErrorBox errorMessage={disableTotpMutation.error.message} />
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    varient="danger"
+                    text="Confirm disable"
+                    loading={disableTotpMutation.isPending}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    varient="google"
+                    text="Cancel"
+                    onClick={() => setIsTotpDisableBoxOpen(false)}
+                  />
+                </div>
+              </form>
+            )}
+          </div>
+          {(emailMfaMutation.error || disableTotpMutation.error) && (
+            <ui.ErrorBox
+              errorMessage={
+                emailMfaMutation.error?.message ??
+                disableTotpMutation.error?.message ??
+                "Unable to update MFA settings"
+              }
+            />
+          )}
         </div>
       </div>
     </div>

@@ -33,23 +33,55 @@ export const Auth = memo(({ authName }: authData) => {
         username: data.username,
         password: data.password,
         email: data.email,
-        endpoint: `${authName == "Sign in" ? "signin" : "signupotp"}`,
+        endpoint: `${authName == "Sign in" ? "signin/mfa" : "signupotp"}`,
         credentials: true,
       });
     }
   };
   useEffect(() => {
-    if (!authMutation.isPending && authMutation.isSuccess) {
+    if (
+      authName === "Sign in" &&
+      !authMutation.isPending &&
+      authMutation.isSuccess &&
+      authMutation.variables?.endpoint === "signin"
+    ) {
+      navigate("/dashboard");
+      return;
+    }
+    if (
+      !authMutation.isPending &&
+      authMutation.isSuccess &&
+      authMutation.variables?.endpoint ===
+        (authName === "Sign up" ? "signupotp" : "signin/mfa")
+    ) {
       const message =
-        authName == "Sign up" ? "OTP sent successfully" : "Signin sucessfull";
+        authName == "Sign up" ? "OTP sent successfully" : "Password verified";
       setIsPopup({ popup: true, message: message });
       setTimeout(() => {
         setIsPopup({ popup: false, message: `` });
         localStorage.setItem("mail", authMutation.variables?.email || "");
-        navigate(authName == "Sign in" ? "/dashboard" : "/signup/verify");
+        if (authName === "Sign up") {
+          navigate("/signup/verify");
+          return;
+        }
+        const methods = authMutation.data?.user?.mfas?.filter(
+          (method) => method.isEnabled,
+        ) ?? [];
+        if (methods.length === 0) {
+          authMutation.mutate({
+            username: authMutation.variables?.username,
+            password: authMutation.variables?.password,
+            endpoint: "signin",
+            credentials: true,
+          });
+        } else {
+          navigate("/signin/mfa", {
+            state: { methods },
+          });
+        }
       }, 1000);
     }
-  }, [authMutation.isSuccess, authMutation.isPending]);
+  }, [authMutation.isSuccess, authMutation.isPending, authMutation.data]);
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center">
       {/* <div className="flex items-center gap-1 mb-5 fixed top-0 left-0 m-3">

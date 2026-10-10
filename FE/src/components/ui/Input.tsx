@@ -6,6 +6,7 @@ export const Input = memo<{
   type?: React.HTMLInputTypeAttribute;
   formHook?: any;
   defaultValue?: string;
+  value?: string;
   reference?: any;
   isWidthFull?: boolean;
   isDisabled?: boolean;
@@ -20,6 +21,7 @@ export const Input = memo<{
     type = "text",
     formHook,
     defaultValue,
+    value,
     isWidthFull = true,
     isDisabled = false,
     label,
@@ -51,6 +53,7 @@ export const Input = memo<{
           placeholder={placeholder}
           {...formHook}
           defaultValue={defaultValue}
+          value={value}
           disabled={isDisabled}
           onChange={onChange}
           id={label ? label.toLowerCase().replace(/\s+/g, "-") : undefined}

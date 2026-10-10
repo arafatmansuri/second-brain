@@ -31,7 +31,9 @@ function Profile() {
   };
   useEffect(() => {
     if (updateProfileMuatation.isSuccess) {
-      setUser(updateProfileMuatation.data)
+      if (updateProfileMuatation.data.user) {
+        setUser(updateProfileMuatation.data.user);
+      }
       setIsPopup({ popup: true, message: "Profile updated successfully" });
     }
     setTimeout(() => {

@@ -18,6 +18,10 @@ import SecurityPage from "./Pages/SecurityPage";
 import BrainDashboard from "./Pages/BrainDashboard";
 import { AskAI } from "./Pages/AskAI";
 import NotFound from "./Pages/NotFound";
+import MfaChoice from "./Pages/MfaChoice";
+import MfaTotp from "./Pages/MfaTotp";
+import MfaEmail from "./Pages/MfaEmail";
+import TotpSetup from "./Pages/TotpSetup";
 function App() {
   return (
     <ThemeProvider>
@@ -31,6 +35,9 @@ function App() {
             <Route path="/forgot-password" element={<EmailBox />} />
             <Route path="/forgot-password/verify" element={<OTPPasswordBox />} />
             <Route path="/signin" element={<Signin />} />
+            <Route path="/signin/mfa" element={<MfaChoice />} />
+            <Route path="/signin/mfa/totp" element={<MfaTotp />} />
+            <Route path="/signin/mfa/email" element={<MfaEmail />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/landing" element={<LandingPage />} />
             <Route path="*" element={<NotFound />} />
@@ -45,6 +52,7 @@ function App() {
             <Route path="/settings" element={<Profile />} />
             <Route path="/settings/account" element={<Profile />} />
             <Route path="/settings/security" element={<SecurityPage />} />
+            <Route path="/settings/security/totp" element={<TotpSetup />} />
           </Route>
         </Routes>
       </BrowserRouter>
