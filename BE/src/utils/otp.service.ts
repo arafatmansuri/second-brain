@@ -14,7 +14,7 @@ export type OTPData = {
   otp?: string | undefined;
   username?: string | undefined;
   password?: string | undefined;
-  otpType?: "signup" | "forgot" | "MFA" | undefined;
+  otpType?: "signup" | "forgot" | "email_mfa" | undefined;
   subject?: string | undefined;
 };
 
@@ -54,7 +54,7 @@ export const canResendOTP = async (email: string) => {
 export const verifyOTP = async (
   email: string,
   userOtp: string,
-  otpType: "signup" | "forgot" | "MFA"
+  otpType: "signup" | "forgot" | "email_mfa",
 ) => {
   const data = await getOTPData(email);
   if (!data || !data.otp) return null;

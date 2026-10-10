@@ -713,7 +713,7 @@ export const emailMFASendOTP: Handler = async (req, res): Promise<void> => {
     await queueMail(
       email!,
       {
-        otpType: "MFA",
+        otpType: "email_mfa",
         subject: "OTP Verification",
         username,
       },
@@ -760,9 +760,9 @@ export const emailMFAVerification: Handler = async (
       return;
     }
 
-    const otpData = await verifyOTP(email, otp, "signup");
+    const otpData = await verifyOTP(email, otp, "email_mfa");
 
-    if (!otpData || otpData.otpType !== "signup") {
+    if (!otpData || otpData.otpType !== "email_mfa") {
       res
         .status(StatusCode.NotFound)
         .json({ message: "Invalid or Expired OTP" });
