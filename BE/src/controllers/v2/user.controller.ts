@@ -22,6 +22,7 @@ import {
   OTPVerificationInputSchema,
   signupInputSchema,
 } from "../../validations/user.validation";
+import { isPwned } from "../../utils/v2/validatePassword";
 
 export const signupWithOTP: Handler = async (req, res): Promise<void> => {
   try {
@@ -38,6 +39,12 @@ export const signupWithOTP: Handler = async (req, res): Promise<void> => {
       res
         .status(StatusCode.DocumentExists)
         .json({ message: "User already exists with this username or email" });
+      return;
+    }
+    if(await isPwned(password)){
+      res.status(StatusCode.InputError).json({
+        message: "Password has been compromised in a data breach. Please choose a different password.",
+      });
       return;
     }
 
