@@ -6,10 +6,24 @@ const userSchema = new Schema(
   {
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String },
-    email: { type: String,unique: true, trim: true },
+    email: { type: String, unique: true, trim: true },
     shared: { type: Boolean, default: false },
     refreshToken: { type: String },
     method: { type: String, enum: ["oauth", "normal"] },
+    MFAs: {
+      type: [
+        {
+          type: { type: String, enum: ["email", "sms", "totp"] },
+          isEnabled: { type: Boolean, default: false },
+        },
+      ],
+      default: [],
+    },
+    totp: {
+      secret: { type: String },
+      isVerified: { type: Boolean, default: false },
+      lastStep: { type: Number },
+    },
   },
   {
     methods: {
@@ -27,12 +41,12 @@ const userSchema = new Schema(
         const accessToken = jwt.sign(
           { _id: this._id, username: this.username },
           <string>process.env.JWT_ACCESS_TOKEN_SECRET,
-          { expiresIn: "15m" }
+          { expiresIn: "15m" },
         );
         const refreshToken = jwt.sign(
           { _id: this._id, username: this.username },
           <string>process.env.JWT_REFRESH_TOKEN_SECRET,
-          { expiresIn: "1d" }
+          { expiresIn: "1d" },
         );
         this.refreshToken = refreshToken;
         this.save();
@@ -54,7 +68,7 @@ const userSchema = new Schema(
         return false;
       },
     },
-  }
+  },
 );
 
 const User = mongoose.model("User", userSchema);
