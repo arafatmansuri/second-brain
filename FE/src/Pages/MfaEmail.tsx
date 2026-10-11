@@ -8,9 +8,11 @@ export default function MfaEmail() {
   const authMutation = useAuthMutation();
   const [timer, setTimer] = useState(120);
   const [canResend, setCanResend] = useState(false);
-  const { register, handleSubmit, formState: { errors } } =
+  const { register, handleSubmit, formState: { errors },setValue,setFocus } =
     useForm<{ otp: string }>();
-
+  useEffect(()=>{
+    setFocus("otp");
+  },[setFocus]);
   useEffect(() => {
     authMutation.mutate({
       endpoint: "signin/mfa/email/send",
@@ -34,6 +36,7 @@ export default function MfaEmail() {
       otp,
       credentials: true,
     });
+    setValue("otp", "");
   };
   useEffect(()=>{
     if(authMutation.isSuccess && authMutation.variables?.endpoint === "signin/mfa/email/verify"){

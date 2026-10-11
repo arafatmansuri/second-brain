@@ -14,6 +14,7 @@ export const EmailBox = memo(() => {
     register,
     handleSubmit,
     formState: { errors },
+    setFocus,
   } = useForm<EmailBoxInputs>();
   const navigate = useNavigate();
   const authMutation = useAuthMutation();
@@ -27,6 +28,9 @@ export const EmailBox = memo(() => {
       });
     }
   };
+  useEffect(() => {
+    setFocus("email");
+  }, [setFocus]);
   useEffect(() => {
     if (!authMutation.isPending && authMutation.isSuccess) {
       setIsPopup({ popup: true, message: "OTP sent successfully" });

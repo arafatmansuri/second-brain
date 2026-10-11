@@ -23,6 +23,7 @@ export const Auth = memo(({ authName }: authData) => {
     register,
     handleSubmit,
     formState: { errors },
+    setFocus,
   } = useForm<Inputs | Signup>();
   const navigate = useNavigate();
   const authMutation = useAuthMutation();
@@ -38,6 +39,9 @@ export const Auth = memo(({ authName }: authData) => {
       });
     }
   };
+  useEffect(() => {
+    setFocus("username");
+  }, [setFocus]);
   useEffect(() => {
     if (
       authName === "Sign in" &&

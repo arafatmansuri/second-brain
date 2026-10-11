@@ -55,7 +55,10 @@ export const Input = memo<{
           defaultValue={defaultValue}
           value={value}
           disabled={isDisabled}
-          onChange={onChange}
+          onChange={(event) => {
+            formHook?.onChange?.(event);
+            onChange?.(event);
+          }}
           id={label ? label.toLowerCase().replace(/\s+/g, "-") : undefined}
           onClick={onclick}
           accept={acceptedFileTypes}

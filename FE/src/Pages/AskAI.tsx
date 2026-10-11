@@ -18,6 +18,9 @@ export function AskAI() {
     contents: PostData[];
   }>();
   useEffect(() => {
+  questionRef.current?.focus();
+  }, [questionRef]);
+  useEffect(() => {
     if (askAIMutation.status == "success") {
       setAnswer(askAIMutation.data.answer);
       setRelevantPosts(askAIMutation.data.contents);

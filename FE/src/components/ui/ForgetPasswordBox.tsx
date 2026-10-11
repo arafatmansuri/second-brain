@@ -17,6 +17,7 @@ export const OTPPasswordBox = memo(() => {
     register,
     handleSubmit,
     formState: { errors },
+    setFocus,
   } = useForm<OTPBoxInputs>();
   const [resnendActive, setIsResendActive] = useState(
     localStorage.getItem("forgetIsResendActive") === "true" ? true : false
@@ -39,6 +40,9 @@ export const OTPPasswordBox = memo(() => {
       });
     }
   };
+  useEffect(() => {
+    setFocus("otp");
+  }, [setFocus]);
   useEffect(() => {
     if (
       !authMutation.isPending &&

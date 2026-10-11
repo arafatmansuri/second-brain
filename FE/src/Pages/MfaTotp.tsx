@@ -7,7 +7,7 @@ import { useAuthMutation } from "../queries/AuthQueries/queries";
 export default function MfaTotp() {
   const navigate = useNavigate();
   const authMutation = useAuthMutation();
-  const { register, handleSubmit, formState: { errors } } =
+  const { register, handleSubmit, formState: { errors },setValue,setFocus } =
     useForm<{ code: string }>();
 
   const submit: SubmitHandler<{ code: string }> = ({ code }) => {
@@ -16,8 +16,11 @@ export default function MfaTotp() {
       code,
       credentials: true,
     });
+    setValue("code", "");
   };
-
+  useEffect(()=>{
+    setFocus("code");
+  },[setFocus])
   useEffect(() => {
     if (authMutation.isSuccess) navigate("/dashboard");
   }, [authMutation.isSuccess, navigate]);
