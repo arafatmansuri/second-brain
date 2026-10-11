@@ -30,6 +30,7 @@ import {
   OTPVerificationInputSchema,
   signupInputSchema,
 } from "../../validations/user.validation";
+import { accessTokenCookieOptions, refreshTokenCookieOptions } from "../../constansts";
 
 export const signupWithOTP: Handler = async (req, res): Promise<void> => {
   try {
@@ -116,8 +117,8 @@ export const signupOTPVerification: Handler = async (req, res) => {
     await user.updateOne({ refreshToken });
 
     res
-      .cookie("accessToken", accessToken, { httpOnly: true })
-      .cookie("refreshToken", refreshToken, { httpOnly: true })
+      .cookie("accessToken", accessToken, accessTokenCookieOptions)
+      .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
       .json({ message: "Signup successful", user });
   } catch (err: any) {
     res.status(StatusCode.ServerError).json({
@@ -216,16 +217,9 @@ export const signin: Handler = async (req, res): Promise<void> => {
       return;
     }
     const { accessToken, refreshToken } = user.generateAccessAndRefreshToken();
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: <"none">"none",
-      path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    };
     res
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie("accessToken", accessToken, accessTokenCookieOptions)
+      .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
       .status(StatusCode.Success)
       .json({
         message: "signin successfull",
@@ -310,17 +304,10 @@ export const googleSignin: Handler = async (req, res): Promise<void> => {
     }
     const { accessToken, refreshToken } =
       await user.generateAccessAndRefreshToken();
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: <"none">"none",
-      path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    };
     res
       .status(StatusCode.Success)
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie("accessToken", accessToken, accessTokenCookieOptions)
+      .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
       .json({ message: "signin successfull", user });
     return;
   } catch (err: any) {
@@ -376,16 +363,9 @@ export const refreshTokens: Handler = async (req, res): Promise<void> => {
         .json({ message: "Invalid refresh Token" });
       return;
     }
-    const { accessToken, refreshToken } = user.generateAccessAndRefreshToken();
-    const cookieOptions = {
-      httpOnly: true,
-      secure: true,
-      sameSite: <"none">"none",
-      path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    };
+    const { accessToken } = user.generateAccessAndRefreshToken();
     res
-      .cookie("accessToken", accessToken, cookieOptions)
+      .cookie("accessToken", accessToken, accessTokenCookieOptions)
       .status(StatusCode.Success)
       .json({ message: "Access token refreshed" });
     return;
@@ -770,8 +750,8 @@ export const emailMFAVerification: Handler = async (
     await user.updateOne({ refreshToken });
 
     res
-      .cookie("accessToken", accessToken, { httpOnly: true })
-      .cookie("refreshToken", refreshToken, { httpOnly: true })
+      .cookie("accessToken", accessToken, accessTokenCookieOptions)
+      .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
       .json({ message: "Signin successful", user });
     return;
   } catch (err: any) {
@@ -1013,8 +993,8 @@ export const TOTPMfa: Handler = async (req, res): Promise<void> => {
       userExists.generateAccessAndRefreshToken();
     await User.updateOne({ _id: userExists._id }, { $set:{refreshToken} });
     res
-      .cookie("accessToken", accessToken, { httpOnly: true })
-      .cookie("refreshToken", refreshToken, { httpOnly: true })
+      .cookie("accessToken", accessToken, accessTokenCookieOptions)
+      .cookie("refreshToken", refreshToken, refreshTokenCookieOptions)
       .status(StatusCode.Success)
       .json({ message: "Signed in successfully" });
     return;
