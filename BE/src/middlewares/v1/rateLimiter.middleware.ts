@@ -5,13 +5,13 @@ import redisClient from "../../config/redisClient";
 export const loginLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "login",
-  points: 50, // 5 attempts
+  points: 5, // 5 attempts
   duration: 15 * 60, // per 15 minutes
 });
 export const MFALimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "mfa",
-  points: 50, // 5 attempts
+  points: 5, // 5 attempts
   duration: 15 * 60, // per 15 minutes
 });
 
