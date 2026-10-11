@@ -86,7 +86,7 @@ export const OTPPasswordBox = memo(() => {
   useEffect(() => {
     localStorage.setItem("forgetIsResendActive", "" + resnendActive);
     localStorage.setItem("forgetTimer", "" + timer);
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (!resnendActive) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);

@@ -49,7 +49,7 @@ export const  OTPBox = memo(() => {
   useEffect(() => {
     localStorage.setItem("signupisResendActive", "" + resnendActive);
     localStorage.setItem("signuptimer", "" + timer);
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (!resnendActive) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
