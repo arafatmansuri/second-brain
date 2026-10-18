@@ -11,6 +11,6 @@ export async function isPwned(password: string): Promise<boolean> {
   const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
   const text = await res.text();
   const line = text.split("\n").find((l) => l.startsWith(suffix));
-  return line ? true : false; // times seen in breaches
+  return line ? true : false;
 }
 

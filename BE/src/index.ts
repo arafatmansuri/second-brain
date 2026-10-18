@@ -10,8 +10,7 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "https://second-brain-alpha.vercel.app",
   "https://second-brain-backend-g2fo.onrender.com",
-  "https://www.secondbrain.services",
-  "https://secondbrain.services",
+  "https://secondbrain.mohammedarafat.me",
   "https://v36641r0-5173.inc1.devtunnels.ms"
 ];
 app.use(express.json());
